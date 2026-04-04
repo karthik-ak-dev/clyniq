@@ -1,7 +1,8 @@
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
 import { eq, and } from "drizzle-orm";
-import { trackingTemplates, doctors } from "./schema";
+import crypto from "crypto";
+import { trackingTemplates, doctors, patients, doctorPatients } from "./schema";
 import type { TemplateQuestion } from "./schema";
 import bcrypt from "bcryptjs";
 import dotenv from "dotenv";
@@ -96,6 +97,77 @@ async function seed() {
         passwordHash,
       });
       console.log("  ✓ Test doctor — created (test@clyniq.in / test1234)");
+    }
+  }
+
+  // 3. Seed test patient (staging/dev only)
+  //    Creates "Ravi Kumar" linked to the test doctor with Diabetes template.
+  //    Check by doctor + phone, then insert or skip.
+  if (process.env.NODE_ENV !== "production") {
+    console.log("Seeding test patient...");
+
+    // Get the test doctor
+    const [doctor] = await db
+      .select()
+      .from(doctors)
+      .where(eq(doctors.email, "test@clyniq.in"))
+      .limit(1);
+
+    // Get the diabetes default template
+    const [template] = await db
+      .select()
+      .from(trackingTemplates)
+      .where(
+        and(
+          eq(trackingTemplates.condition, "diabetes"),
+          eq(trackingTemplates.isDefault, true)
+        )
+      )
+      .limit(1);
+
+    if (doctor && template) {
+      // Check if patient already linked to this doctor
+      const [existingLink] = await db
+        .select()
+        .from(doctorPatients)
+        .innerJoin(patients, eq(patients.id, doctorPatients.patientId))
+        .where(
+          and(
+            eq(doctorPatients.doctorId, doctor.id),
+            eq(patients.phone, "+919876543210")
+          )
+        )
+        .limit(1);
+
+      if (existingLink) {
+        console.log(`  ✓ Test patient — already exists`);
+        console.log(`  → Check-in URL: http://localhost:3000/p/${existingLink.doctor_patients.magicToken}`);
+      } else {
+        // Create patient
+        const [patient] = await db
+          .insert(patients)
+          .values({ name: "Ravi Kumar", phone: "+919876543210" })
+          .returning();
+
+        // Enable all questions from the template
+        const enabledQuestions = template.questions.map((q) => q.key);
+
+        // Generate magic token
+        const magicToken = crypto.randomBytes(32).toString("hex");
+
+        // Create doctor-patient link
+        await db.insert(doctorPatients).values({
+          doctorId: doctor.id,
+          patientId: patient.id,
+          condition: "diabetes",
+          templateId: template.id,
+          enabledQuestions,
+          magicToken,
+        });
+
+        console.log(`  ✓ Test patient — created (Ravi Kumar, +919876543210)`);
+        console.log(`  → Check-in URL: http://localhost:3000/p/${magicToken}`);
+      }
     }
   }
 
