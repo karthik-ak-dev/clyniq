@@ -13,10 +13,22 @@ import {
 } from "drizzle-orm/pg-core";
 
 // ─── Enums ─────────────────────────────────────────────────
+// Supported chronic conditions. New conditions can be added here
+// and will propagate to templates + doctor_patients automatically.
 export const conditionEnum = pgEnum("condition", ["diabetes", "obesity"]);
 
 // ─── Template Question Shape ──────────────────────────────
-// Used as the JSONB type for trackingTemplates.questions
+// Defines the structure of each question inside a tracking template's
+// JSONB `questions` array. This type is the single source of truth —
+// used by schema, seed, compliance engine, and check-in renderer.
+//
+// Fields:
+//   key   — unique identifier within a template (e.g., "took_meds")
+//   label — human-readable question text shown to the patient
+//   type  — determines the input component: yes_no (boolean toggle),
+//           number (numeric input), text (free-form), scale (1-10 slider)
+//   unit  — optional display suffix for number types (e.g., "mg/dL", "kg")
+//   order — display order in the check-in form (ascending)
 export type TemplateQuestion = {
   key: string;
   label: string;
@@ -26,59 +38,88 @@ export type TemplateQuestion = {
 };
 
 // ─── Doctors ───────────────────────────────────────────────
+// Authenticated users of the platform. Each doctor has their own
+// set of patients and views compliance dashboards.
+//
+// Auth: email/password via NextAuth credentials provider.
+// passwordHash is bcrypt-hashed, never stored or returned in plain text.
 export const doctors = pgTable("doctors", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  name: varchar("name", { length: 255 }).notNull(),
-  email: varchar("email", { length: 255 }).unique().notNull(),
-  passwordHash: text("password_hash").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  id: uuid("id").defaultRandom().primaryKey(),               // PK, auto-generated UUID v4
+  name: varchar("name", { length: 255 }).notNull(),           // Doctor's display name
+  email: varchar("email", { length: 255 }).unique().notNull(),// Login email, must be unique
+  passwordHash: text("password_hash").notNull(),               // bcrypt hash of password
+  createdAt: timestamp("created_at").defaultNow().notNull(),   // Row creation timestamp
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),   // Last profile update timestamp
 });
 
 // ─── Patients ──────────────────────────────────────────────
+// Patients are created by doctors. A patient has no login — they
+// interact solely through magic links. The same phone number can
+// exist for patients under different doctors (no global unique).
 export const patients = pgTable("patients", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  name: varchar("name", { length: 255 }).notNull(),
-  phone: varchar("phone", { length: 15 }).notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  id: uuid("id").defaultRandom().primaryKey(),               // PK, auto-generated UUID v4
+  name: varchar("name", { length: 255 }).notNull(),           // Patient's full name
+  phone: varchar("phone", { length: 15 }).notNull(),          // Phone in +91XXXXXXXXXX format
+  createdAt: timestamp("created_at").defaultNow().notNull(),   // Row creation timestamp
 });
 
 // ─── Tracking Templates ───────────────────────────────────
-// Default question sets per condition. Each template has a JSONB
-// array of question definitions that drive the check-in form.
+// Predefined question sets per condition. In MVP, only system-default
+// templates exist (one per condition, seeded on first deploy).
+// Future: doctors can create custom templates.
+//
+// The `questions` JSONB column holds an array of TemplateQuestion objects.
+// This drives the entire check-in form — what the patient sees is
+// determined by this array filtered through doctor_patients.enabled_questions.
 export const trackingTemplates = pgTable("tracking_templates", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  condition: conditionEnum("condition").notNull(),
-  name: varchar("name", { length: 255 }).notNull(),
-  questions: jsonb("questions").$type<TemplateQuestion[]>().notNull(),
-  isDefault: boolean("is_default").default(false).notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  id: uuid("id").defaultRandom().primaryKey(),               // PK, auto-generated UUID v4
+  condition: conditionEnum("condition").notNull(),             // Which condition this template is for
+  name: varchar("name", { length: 255 }).notNull(),           // Human-readable template name
+  questions: jsonb("questions").$type<TemplateQuestion[]>()   // Array of question definitions
+    .notNull(),
+  isDefault: boolean("is_default").default(false).notNull(),  // true = system default, auto-assigned
+  createdAt: timestamp("created_at").defaultNow().notNull(),   // Row creation timestamp
 });
 
 // ─── Doctor–Patient Link ──────────────────────────────────
-// Join table: a doctor's relationship to a patient, including
-// which template is assigned and which questions are enabled.
+// The central join table connecting a doctor to a patient. Each row
+// represents one doctor treating one patient for a specific condition.
+//
+// Key fields:
+//   templateId        — which tracking template is assigned
+//   enabledQuestions   — subset of template question keys the doctor has
+//                        toggled ON for this patient (JSONB string array)
+//   magicToken         — 64-char random hex string used in the patient's
+//                        magic link URL (/p/[token]). Generated once on
+//                        patient creation via crypto.randomBytes(32).toString('hex')
+//
+// Constraints:
+//   - UNIQUE(doctorId, patientId) — a doctor can only link to a patient once
+//   - UNIQUE(magicToken) — each magic link is globally unique
 export const doctorPatients = pgTable(
   "doctor_patients",
   {
-    id: uuid("id").defaultRandom().primaryKey(),
-    doctorId: uuid("doctor_id")
+    id: uuid("id").defaultRandom().primaryKey(),             // PK, auto-generated UUID v4
+    doctorId: uuid("doctor_id")                               // FK → doctors.id
       .references(() => doctors.id)
       .notNull(),
-    patientId: uuid("patient_id")
+    patientId: uuid("patient_id")                             // FK → patients.id
       .references(() => patients.id)
       .notNull(),
-    condition: conditionEnum("condition").notNull(),
-    templateId: uuid("template_id")
+    condition: conditionEnum("condition").notNull(),           // The condition being tracked
+    templateId: uuid("template_id")                           // FK → tracking_templates.id
       .references(() => trackingTemplates.id)
       .notNull(),
-    enabledQuestions: jsonb("enabled_questions")
-      .$type<string[]>()
+    enabledQuestions: jsonb("enabled_questions")               // Question keys toggled ON by doctor
+      .$type<string[]>()                                      // e.g., ["took_meds", "followed_diet"]
       .notNull(),
-    magicToken: varchar("magic_token", { length: 64 }).unique().notNull(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
+    magicToken: varchar("magic_token", { length: 64 })        // Unique token for patient's magic link
+      .unique()
+      .notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(), // Row creation timestamp
   },
   (table) => [
+    // A doctor can only have one relationship with a given patient
     uniqueIndex("doctor_patients_doctor_patient_idx").on(
       table.doctorId,
       table.patientId
@@ -87,22 +128,31 @@ export const doctorPatients = pgTable(
 );
 
 // ─── Check-ins ─────────────────────────────────────────────
-// Daily patient responses. `responses` is a JSONB object keyed
-// by question keys from the template (e.g., { took_meds: true }).
+// One row per patient per day. The `responses` JSONB column stores
+// key-value pairs matching the question keys from the template.
+//
+// Example responses for a diabetes patient:
+//   { "took_meds": true, "followed_diet": false, "blood_sugar": 120, "weight": 72.5 }
+//
+// Only keys for enabled questions are present. The compliance engine
+// reads this to compute scores (yes_no → boolean, number → numeric value).
+//
+// Constraint: UNIQUE(doctorPatientId, date) prevents double check-ins.
 export const checkIns = pgTable(
   "check_ins",
   {
-    id: uuid("id").defaultRandom().primaryKey(),
-    doctorPatientId: uuid("doctor_patient_id")
+    id: uuid("id").defaultRandom().primaryKey(),             // PK, auto-generated UUID v4
+    doctorPatientId: uuid("doctor_patient_id")                // FK → doctor_patients.id
       .references(() => doctorPatients.id)
       .notNull(),
-    date: date("date").notNull(),
-    responses: jsonb("responses")
+    date: date("date").notNull(),                             // The calendar date of check-in (YYYY-MM-DD)
+    responses: jsonb("responses")                             // Dynamic key-value responses from patient
       .$type<Record<string, boolean | number | string>>()
       .notNull(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(), // Row creation timestamp
   },
   (table) => [
+    // One check-in per patient per day
     uniqueIndex("check_ins_doctor_patient_date_idx").on(
       table.doctorPatientId,
       table.date
@@ -111,12 +161,16 @@ export const checkIns = pgTable(
 );
 
 // ─── Reminder Configs ──────────────────────────────────────
+// Per-patient WhatsApp reminder settings. Feature-flagged via
+// WHATSAPP_ENABLED env var. The cron job (/api/reminders/send)
+// queries for enabled reminders whose reminderTime falls within
+// the current hour window, then sends via Twilio.
 export const reminderConfigs = pgTable("reminder_configs", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  doctorPatientId: uuid("doctor_patient_id")
+  id: uuid("id").defaultRandom().primaryKey(),               // PK, auto-generated UUID v4
+  doctorPatientId: uuid("doctor_patient_id")                  // FK → doctor_patients.id
     .references(() => doctorPatients.id)
     .notNull(),
-  reminderTime: time("reminder_time").notNull(),
-  enabled: boolean("enabled").default(true).notNull(),
-  lastSentAt: timestamp("last_sent_at"),
+  reminderTime: time("reminder_time").notNull(),              // Daily reminder time (e.g., "09:00")
+  enabled: boolean("enabled").default(true).notNull(),        // Toggle reminders on/off
+  lastSentAt: timestamp("last_sent_at"),                      // Tracks when last reminder was sent
 });
