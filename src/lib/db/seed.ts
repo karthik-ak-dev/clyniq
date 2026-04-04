@@ -4,7 +4,7 @@ import { trackingTemplates } from "./schema";
 import type { TemplateQuestion } from "./schema";
 import dotenv from "dotenv";
 
-dotenv.config();
+dotenv.config({ path: ".env.local" });
 
 const sql = neon(process.env.DATABASE_URL!);
 const db = drizzle(sql);
