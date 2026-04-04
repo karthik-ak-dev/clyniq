@@ -303,9 +303,13 @@ function calculateCompliance(
 ### Trend Detection
 
 ```typescript
-function detectTrend(checkIns: CheckIn[], config: TrackingConfig) {
-  const current = calculateCompliance(checkIns, config, 7);   // last 7 days
-  const previous = calculateCompliance(checkIns, config, 14);  // previous 7 days (days 8-14)
+function detectTrend(
+  checkIns: CheckIn[],
+  enabledQuestions: string[],
+  templateQuestions: TemplateQuestion[]
+) {
+  const current = calculateCompliance(checkIns, enabledQuestions, templateQuestions, 7);
+  const previous = calculateCompliance(checkIns, enabledQuestions, templateQuestions, 14);
 
   const diff = current.overall - previous.overall;
   const THRESHOLD = 10; // percentage points
@@ -399,13 +403,14 @@ Runs every hour. The API filters patients whose `reminder_time` falls within the
 
 ### Phase 1: Foundation
 1. Set up NextAuth (email/password) + Drizzle adapter
-2. Create DB schema (all 6 tables) + run migrations
-3. Build login page
-4. Build dashboard layout (sidebar + header)
-5. Build "Add Patient" page + API
-6. Build magic link entry page (`/p/[token]`)
-7. Build check-in flow (3 questions + submit)
-8. Build basic dashboard (patient list with names only)
+2. Create DB schema (all 7 tables) + run migrations
+3. Seed default templates (Diabetes + Obesity with their default questions)
+4. Build login page
+5. Build dashboard layout (sidebar + header)
+6. Build "Add Patient" page + API (condition selector → template auto-assigned → question toggles)
+7. Build magic link entry page (`/p/[token]`)
+8. Build dynamic check-in flow (renders enabled questions by type + submit)
+9. Build basic dashboard (patient list with names only)
 
 ### Phase 2: Intelligence
 1. Implement compliance engine (score, trend, insights)
