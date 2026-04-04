@@ -11,20 +11,23 @@ import { useState, useEffect } from "react";
 // Uses matchMedia instead of resize events — only fires when
 // the breakpoint is actually crossed, no debouncing needed.
 //
-// SSR-safe: defaults to "mobile" since the primary audience
-// is patients on their phones. This prevents a flash where
-// desktop content briefly shows on mobile during hydration.
+// Returns null during SSR/hydration (before mount), then the
+// actual device type after mount. This prevents hydration
+// mismatches — components should hide device-specific content
+// until mounted is true.
 //
 // Usage:
-//   const deviceType = useDeviceType();
+//   const { deviceType, mounted } = useDeviceType();
+//   if (!mounted) return <Loading />;
 //   if (deviceType === "mobile") { ... }
 
 export type DeviceType = "mobile" | "desktop";
 
 const MOBILE_BREAKPOINT = 768; // Aligns with Tailwind's md: breakpoint
 
-export function useDeviceType(): DeviceType {
+export function useDeviceType(): { deviceType: DeviceType; mounted: boolean } {
   const [deviceType, setDeviceType] = useState<DeviceType>("mobile");
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     const mql = window.matchMedia(`(min-width: ${MOBILE_BREAKPOINT}px)`);
@@ -35,6 +38,7 @@ export function useDeviceType(): DeviceType {
 
     // Set initial value from actual viewport
     handleChange(mql);
+    setMounted(true);
 
     // Listen for breakpoint crosses
     mql.addEventListener("change", handleChange as EventListener);
@@ -42,5 +46,5 @@ export function useDeviceType(): DeviceType {
       mql.removeEventListener("change", handleChange as EventListener);
   }, []);
 
-  return deviceType;
+  return { deviceType, mounted };
 }

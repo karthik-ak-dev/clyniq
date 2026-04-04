@@ -71,7 +71,7 @@ export async function GET(
     return Response.json({
       success: true,
       data: {
-        patientName: patient.name,
+        patientName: patient.name.split(" ")[0],
         doctorName: doctor.name,
         questions,
         alreadyCheckedIn,

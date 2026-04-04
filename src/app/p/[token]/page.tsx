@@ -5,8 +5,6 @@ import { useParams } from "next/navigation";
 import { useDeviceType } from "@/hooks/use-device-type";
 
 // ─── Page State ────────────────────────────────────────────
-// Discriminated union — each state maps to exactly one UI branch.
-// No impossible combinations, fully type-safe rendering.
 type PageState =
   | { status: "loading" }
   | { status: "error"; message: string }
@@ -19,20 +17,15 @@ type PageState =
     };
 
 // ─── Patient Check-In Landing Page ─────────────────────────
-// The first thing a patient sees when they tap their magic link.
-//
-// Mobile: greeting + "Start Check-In →" CTA button
-// Desktop: greeting + "Please open this link on your mobile"
-//
-// Fetches patient context from GET /api/p/[token] on mount.
-// The token in the URL is the auth — no login required.
+// Layout matched to design/ref_1.jpeg (first screen) & ref_2.jpeg:
+//   Mobile — text centered in upper-middle, CTA at bottom-left
+//   Desktop — centered layout with "use mobile" message (ref_3)
 export default function PatientLandingPage() {
   const params = useParams<{ token: string }>();
-  const deviceType = useDeviceType();
+  const { deviceType, mounted } = useDeviceType();
   const [state, setState] = useState<PageState>({ status: "loading" });
   const [view, setView] = useState<"landing" | "checkin">("landing");
 
-  // Fetch patient context on mount
   useEffect(() => {
     async function fetchContext() {
       try {
@@ -72,21 +65,25 @@ export default function PatientLandingPage() {
     fetchContext();
   }, [params.token]);
 
-  // ─── Loading State ─────────────────────────────────────
-  if (state.status === "loading") {
+  // ─── Loading ───────────────────────────────────────────
+  if (state.status === "loading" || !mounted) {
     return (
       <PageShell>
-        <p className="text-white/80 text-lg animate-pulse">Loading...</p>
+        <div className="flex-1 flex items-center justify-center">
+          <p className="text-secondary animate-pulse">Loading...</p>
+        </div>
       </PageShell>
     );
   }
 
-  // ─── Error State ───────────────────────────────────────
+  // ─── Error ─────────────────────────────────────────────
   if (state.status === "error") {
     return (
       <PageShell>
-        <h1 className="text-3xl font-bold text-white">Oops!</h1>
-        <p className="text-white/80 text-lg">{state.message}</p>
+        <div className="flex-1 flex flex-col items-center justify-center px-10 text-center">
+          <h1 className="text-heading">Oops!</h1>
+          <p className="text-secondary mt-3">{state.message}</p>
+        </div>
       </PageShell>
     );
   }
@@ -95,74 +92,81 @@ export default function PatientLandingPage() {
   if (state.status === "already-checked-in") {
     return (
       <PageShell>
-        <h1 className="text-4xl font-bold text-white">
-          Hi {state.patientName} 👋
-        </h1>
-        <p className="text-white/90 text-lg">
-          You&apos;ve already checked in today ✅
-        </p>
-        <p className="text-white/70 text-base">Come back tomorrow!</p>
+        <div className="flex-1 flex flex-col items-center justify-center px-10 text-center">
+          <h1 className="text-heading">Hi {state.patientName} 👋</h1>
+          <p className="text-secondary mt-3">
+            You&apos;ve already checked in today ✅
+          </p>
+          <p className="text-tertiary mt-2">Come back tomorrow!</p>
+        </div>
       </PageShell>
     );
   }
 
-  // ─── Checkin Flow (placeholder for now) ────────────────
-  // When checkin flow components are built, they render here
-  // inline — no page navigation needed.
+  // ─── Checkin Flow (placeholder) ────────────────────────
   if (view === "checkin") {
     return (
       <PageShell bg="questionnaire">
-        <h1 className="text-3xl font-bold text-white">Check-In</h1>
-        <p className="text-white/80 text-lg">
-          Check-in flow coming soon...
-        </p>
+        <div className="flex-1 flex flex-col items-center justify-center px-10 text-center">
+          <h1 className="text-heading">Check-In</h1>
+          <p className="text-secondary mt-3">Check-in flow coming soon...</p>
+        </div>
       </PageShell>
     );
   }
 
-  // ─── Ready State (main landing) ────────────────────────
-  return (
-    <PageShell>
-      <div className="flex flex-col items-center justify-center gap-6 text-center px-8">
-        <h1 className="text-4xl font-bold text-white">
-          Hi {state.patientName} 👋
-        </h1>
-        <p className="text-white/90 text-lg">
-          Dr. {state.doctorName} is helping you stay on track.
-        </p>
-        <p className="text-white/70 text-base">
-          Let&apos;s do a quick check-in today.
-        </p>
+  // ─── Ready — Mobile ────────────────────────────────────
+  // Ref_1 first screen: text centered upper-middle, button bottom-left
+  if (deviceType === "mobile") {
+    return (
+      <PageShell>
+        {/* Content area — centered text, upper portion of screen */}
+        <div className="pt-[28vh] px-8 text-center">
+          <h1 className="text-heading">Hi {state.patientName} 👋</h1>
+          <p className="text-secondary mt-5">
+            {state.doctorName} is helping you stay on track.
+          </p>
+          <p className="text-tertiary mt-3">
+            Let&apos;s do a quick check-in today.
+          </p>
+        </div>
 
-        <div className="mt-8">
-          {deviceType === "mobile" ? (
+        {/* Spacer pushes button to bottom */}
+        <div className="flex-1" />
+
+        {/* CTA — bottom center, full-width with side padding */}
+        <div className="px-8 pb-12">
+          <div className="btn-cta-wrapper">
             <button
               onClick={() => setView("checkin")}
-              className="bg-cta-gradient rounded-full px-12 py-4 text-white font-bold text-lg shadow-lg active:scale-95 transition-transform"
+              className="btn-cta-face"
             >
-              Start Check-In →
+              Start Check-In &nbsp;→
             </button>
-          ) : (
-            <p className="text-white/80 text-base max-w-md">
-              Please open this link on your mobile phone for the best
-              experience.
-            </p>
-          )}
+          </div>
         </div>
+      </PageShell>
+    );
+  }
+
+  // ─── Ready — Desktop ───────────────────────────────────
+  // Ref_3: centered
+  return (
+    <PageShell>
+      <div className="flex-1 flex flex-col items-center justify-center text-center px-8">
+        <h1 className="text-heading">Hi {state.patientName} 👋</h1>
+        <p className="text-secondary mt-4">
+          {state.doctorName} is helping you stay on track.
+        </p>
+        <p className="text-tertiary mt-6 max-w-md">
+          Please open this link on your mobile phone for the best experience.
+        </p>
       </div>
     </PageShell>
   );
 }
 
 // ─── Page Shell ────────────────────────────────────────────
-// Shared wrapper for all states — provides the full-screen gradient
-// background and centers content vertically and horizontally.
-//
-// Background images switch via CSS media queries (instant, no flash).
-// The `bg` prop selects which background set to use:
-//   "home" (default) → bg_mobile_home / bg_desktop_home
-//   "questionnaire"  → bg_mobile_questionare (for check-in flow)
-//   "summary"        → bg_mobile_summary (for completion screen)
 function PageShell({
   children,
   bg = "home",
@@ -178,7 +182,7 @@ function PageShell({
 
   return (
     <main
-      className={`min-h-dvh bg-cover bg-center bg-no-repeat flex flex-col items-center justify-center ${bgClasses[bg]}`}
+      className={`h-dvh overflow-hidden bg-cover bg-center bg-no-repeat flex flex-col ${bgClasses[bg]}`}
     >
       {children}
     </main>

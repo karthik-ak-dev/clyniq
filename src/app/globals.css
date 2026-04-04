@@ -1,23 +1,86 @@
 @import "tailwindcss";
 
 /* ─── Design System Theme ───────────────────────────────────
-   Tailwind v4 CSS-first configuration. These tokens define the
-   visual language used across all patient-facing pages.
-   Colors are extracted from the design references (ref_1, ref_2, ref_3).
+   Tailwind v4 CSS-first configuration.
+   Colors extracted from design/ref_1, ref_2, ref_3.
 */
 @theme {
   --color-purple-start: #818cf8;
   --color-purple-mid: #a78bfa;
   --color-pink-end: #f9a8d4;
-  --color-cta-start: #7c3aed;
-  --color-cta-mid: #a855f7;
-  --color-cta-end: #ec4899;
 }
 
-/* ─── Utility Classes ───────────────────────────────────────
-   Reusable gradient utilities used across multiple components.
-   Defined once here, not duplicated in individual files.
+/* ─── Typography Hierarchy ──────────────────────────────────
+   Matched to design/ref_1.jpeg mobile landing (first screen).
+   All centered, white, clean sans-serif (Plus Jakarta Sans).
+
+   Heading   — bold, ~2rem, pure white
+   Secondary — medium, ~0.95rem, white, clearly readable
+   Tertiary  — regular, ~0.875rem, slightly softer white
 */
-@utility bg-cta-gradient {
-  background: linear-gradient(135deg, var(--color-cta-start) 0%, var(--color-cta-mid) 50%, var(--color-cta-end) 100%);
+.text-heading {
+  font-size: 2.75rem;
+  line-height: 1.2;
+  font-weight: 800;
+  color: white;
+}
+
+.text-secondary {
+  font-size: 1.35rem;
+  line-height: 1.5;
+  font-weight: 600;
+  color: white;
+}
+
+.text-tertiary {
+  font-size: 1.15rem;
+  line-height: 1.5;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* ─── CTA Button ────────────────────────────────────────────
+   3D embossed pill button matched to design/ref_1.jpeg.
+
+   The ref button has a distinct 3D look with two visual layers:
+     - Top surface: pink-to-purple gradient (light, the clickable face)
+     - Bottom edge: a darker purple border/shadow creating depth
+
+   This is achieved with:
+     - A wrapper div that provides the darker bottom "base"
+     - The actual button sits on top with the lighter gradient
+     - The wrapper's background peeks out at the bottom as a 3D edge
+
+   Usage:
+     <div className="btn-cta-wrapper">
+       <button className="btn-cta-face">Start Check-In →</button>
+     </div>
+*/
+.btn-cta-wrapper {
+  display: block;
+  border-radius: 9999px;
+  padding-bottom: 6px;
+  background: linear-gradient(135deg, #9333ea 0%, #7c3aed 50%, #6d28d9 100%);
+  box-shadow: 0 4px 14px rgba(109, 40, 217, 0.4);
+}
+
+.btn-cta-face {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 1.1rem 2rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: white;
+  border-radius: 9999px;
+  border: none;
+  cursor: pointer;
+  background: linear-gradient(135deg, #e879f9 0%, #c084fc 30%, #a855f7 60%, #8b5cf6 100%);
+  transition: transform 0.1s ease;
+}
+
+.btn-cta-face:active {
+  transform: scale(0.97);
 }

@@ -1,14 +1,17 @@
 import type { Metadata, Viewport } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { Nunito } from "next/font/google";
 import "./globals.css";
 
 // ─── Font ──────────────────────────────────────────────────
-// Plus Jakarta Sans — clean, rounded sans-serif that matches
-// the soft, friendly aesthetic from the design references.
-// Self-hosted via next/font (no external requests, no layout shift).
-const fontSans = Plus_Jakarta_Sans({
+// Nunito — rounded, friendly sans-serif matching the design
+// references. Has soft/rounded terminals, high x-height, and
+// warm character that works well on gradient backgrounds.
+// All weights loaded: 400 (tertiary), 500/600 (secondary),
+// 700/800 (headings), and italic for stylistic variety.
+const font = Nunito({
   subsets: ["latin"],
-  variable: "--font-sans",
+  weight: ["400", "500", "600", "700", "800"],
+  style: ["normal", "italic"],
 });
 
 // ─── Metadata ──────────────────────────────────────────────
@@ -18,8 +21,6 @@ export const metadata: Metadata = {
 };
 
 // ─── Viewport ──────────────────────────────────────────────
-// Prevents zoom on mobile form inputs — important for the
-// patient check-in experience where large tap targets are key.
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
@@ -27,18 +28,14 @@ export const viewport: Viewport = {
 };
 
 // ─── Root Layout ───────────────────────────────────────────
-// Minimal shell — just HTML/body with font and antialiasing.
-// No shared chrome here because patient pages (/p/*) and doctor
-// pages (/dashboard/*) have completely different visual designs.
-// Each route group adds its own layout on top of this.
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={fontSans.variable}>
-      <body className="font-sans antialiased">{children}</body>
+    <html lang="en">
+      <body className={`${font.className} antialiased`}>{children}</body>
     </html>
   );
 }
