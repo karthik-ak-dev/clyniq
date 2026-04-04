@@ -71,15 +71,18 @@ export const patients = pgTable("patients", {
 // The `questions` JSONB column holds an array of TemplateQuestion objects.
 // This drives the entire check-in form — what the patient sees is
 // determined by this array filtered through doctor_patients.enabled_questions.
-export const trackingTemplates = pgTable("tracking_templates", {
-  id: uuid("id").defaultRandom().primaryKey(),               // PK, auto-generated UUID v4
-  condition: conditionEnum("condition").notNull(),             // Which condition this template is for
-  name: varchar("name", { length: 255 }).notNull(),           // Human-readable template name
-  questions: jsonb("questions").$type<TemplateQuestion[]>()   // Array of question definitions
-    .notNull(),
-  isDefault: boolean("is_default").default(false).notNull(),  // true = system default, auto-assigned
-  createdAt: timestamp("created_at").defaultNow().notNull(),   // Row creation timestamp
-});
+export const trackingTemplates = pgTable(
+  "tracking_templates",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),               // PK, auto-generated UUID v4
+    condition: conditionEnum("condition").notNull(),             // Which condition this template is for
+    name: varchar("name", { length: 255 }).notNull(),           // Human-readable template name
+    questions: jsonb("questions").$type<TemplateQuestion[]>()   // Array of question definitions
+      .notNull(),
+    isDefault: boolean("is_default").default(false).notNull(),  // true = system default, auto-assigned
+    createdAt: timestamp("created_at").defaultNow().notNull(),   // Row creation timestamp
+  },
+);
 
 // ─── Doctor–Patient Link ──────────────────────────────────
 // The central join table connecting a doctor to a patient. Each row

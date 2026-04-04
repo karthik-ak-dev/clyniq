@@ -1,13 +1,19 @@
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
-import { trackingTemplates } from "./schema";
+import { eq, and } from "drizzle-orm";
+import { trackingTemplates, doctors } from "./schema";
 import type { TemplateQuestion } from "./schema";
+import bcrypt from "bcryptjs";
 import dotenv from "dotenv";
 
 dotenv.config({ path: ".env.local" });
 
 const sql = neon(process.env.DATABASE_URL!);
 const db = drizzle(sql);
+
+// ─── Default Templates ─────────────────────────────────────
+// System data required for the app to function. These define what
+// questions patients see during check-in. Seeded in ALL environments.
 
 const DIABETES_QUESTIONS: TemplateQuestion[] = [
   { key: "took_meds", label: "Did you take your medicine today?", type: "yes_no", order: 1 },
@@ -24,25 +30,76 @@ const OBESITY_QUESTIONS: TemplateQuestion[] = [
   { key: "weight", label: "Enter your weight", type: "number", unit: "kg", order: 4 },
 ];
 
+// ─── Seed Function ─────────────────────────────────────────
+// Idempotent — safe to run multiple times.
+// Strategy: check if row exists first, then insert or update.
+
 async function seed() {
+  // 1. Seed default templates (required in all environments)
+  //    Check by condition + is_default, then insert or update.
   console.log("Seeding default templates...");
+  for (const tmpl of [
+    { condition: "diabetes" as const, name: "Diabetes Default Template", questions: DIABETES_QUESTIONS },
+    { condition: "obesity" as const, name: "Obesity Default Template", questions: OBESITY_QUESTIONS },
+  ]) {
+    const [existing] = await db
+      .select()
+      .from(trackingTemplates)
+      .where(
+        and(
+          eq(trackingTemplates.condition, tmpl.condition),
+          eq(trackingTemplates.isDefault, true)
+        )
+      )
+      .limit(1);
 
-  await db.insert(trackingTemplates).values([
-    {
-      condition: "diabetes",
-      name: "Diabetes Default Template",
-      questions: DIABETES_QUESTIONS,
-      isDefault: true,
-    },
-    {
-      condition: "obesity",
-      name: "Obesity Default Template",
-      questions: OBESITY_QUESTIONS,
-      isDefault: true,
-    },
-  ]);
+    if (existing) {
+      await db
+        .update(trackingTemplates)
+        .set({ name: tmpl.name, questions: tmpl.questions })
+        .where(eq(trackingTemplates.id, existing.id));
+      console.log(`  ✓ ${tmpl.name} — updated`);
+    } else {
+      await db.insert(trackingTemplates).values({
+        condition: tmpl.condition,
+        name: tmpl.name,
+        questions: tmpl.questions,
+        isDefault: true,
+      });
+      console.log(`  ✓ ${tmpl.name} — created`);
+    }
+  }
 
-  console.log("Seeded 2 default templates.");
+  // 2. Seed test doctor (staging/dev only — skip in production)
+  //    Email: test@clyniq.in / Password: test1234
+  //    Check by email, then insert or update.
+  if (process.env.NODE_ENV !== "production") {
+    console.log("Seeding test doctor...");
+    const passwordHash = await bcrypt.hash("test1234", 10);
+
+    const [existing] = await db
+      .select()
+      .from(doctors)
+      .where(eq(doctors.email, "test@clyniq.in"))
+      .limit(1);
+
+    if (existing) {
+      await db
+        .update(doctors)
+        .set({ name: "Dr. Test Sharma", passwordHash })
+        .where(eq(doctors.id, existing.id));
+      console.log("  ✓ Test doctor — updated (test@clyniq.in / test1234)");
+    } else {
+      await db.insert(doctors).values({
+        name: "Dr. Test Sharma",
+        email: "test@clyniq.in",
+        passwordHash,
+      });
+      console.log("  ✓ Test doctor — created (test@clyniq.in / test1234)");
+    }
+  }
+
+  console.log("Done.");
   process.exit(0);
 }
 
