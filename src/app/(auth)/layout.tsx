@@ -1,1 +1,1 @@
-// Auth layout — centered card on gradient background, used by login page
+export default function Placeholder() { return null; }

@@ -1,1 +1,1 @@
-// Settings page — doctor profile (name, email, password change)
+export default function Placeholder() { return null; }

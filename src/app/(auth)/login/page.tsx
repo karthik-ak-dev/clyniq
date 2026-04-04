@@ -1,1 +1,1 @@
-// Doctor login page — email/password form, redirects to /dashboard on success
+export default function Placeholder() { return null; }

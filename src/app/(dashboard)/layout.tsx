@@ -1,1 +1,1 @@
-// Dashboard layout — sidebar navigation + top header bar, wraps all dashboard pages
+export default function Placeholder() { return null; }

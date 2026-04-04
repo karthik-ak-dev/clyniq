@@ -1,1 +1,23 @@
-// Global styles — Tailwind base, custom CSS variables, font imports
+@import "tailwindcss";
+
+/* ─── Design System Theme ───────────────────────────────────
+   Tailwind v4 CSS-first configuration. These tokens define the
+   visual language used across all patient-facing pages.
+   Colors are extracted from the design references (ref_1, ref_2, ref_3).
+*/
+@theme {
+  --color-purple-start: #818cf8;
+  --color-purple-mid: #a78bfa;
+  --color-pink-end: #f9a8d4;
+  --color-cta-start: #7c3aed;
+  --color-cta-mid: #a855f7;
+  --color-cta-end: #ec4899;
+}
+
+/* ─── Utility Classes ───────────────────────────────────────
+   Reusable gradient utilities used across multiple components.
+   Defined once here, not duplicated in individual files.
+*/
+@utility bg-cta-gradient {
+  background: linear-gradient(135deg, var(--color-cta-start) 0%, var(--color-cta-mid) 50%, var(--color-cta-end) 100%);
+}
