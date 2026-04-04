@@ -159,7 +159,13 @@ async function seed() {
         .limit(1);
 
       if (existingLink) {
-        console.log(`  ✓ Test patient — already exists`);
+        // Update enabled questions to match current template
+        const enabledQuestions = template.questions.map((q) => q.key);
+        await db
+          .update(doctorPatients)
+          .set({ enabledQuestions, templateId: template.id })
+          .where(eq(doctorPatients.id, existingLink.doctor_patients.id));
+        console.log(`  ✓ Test patient — updated (enabled ${enabledQuestions.length} questions)`);
         console.log(`  → Check-in URL: http://localhost:3000/p/${existingLink.doctor_patients.magicToken}`);
       } else {
         // Create patient

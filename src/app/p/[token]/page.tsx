@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { useDeviceType } from "@/hooks/use-device-type";
+import { CheckinFlow } from "@/components/checkin/checkin-flow";
+import type { TemplateQuestion } from "@/lib/db/types";
 
 // ─── Page State ────────────────────────────────────────────
 type PageState =
@@ -14,12 +16,12 @@ type PageState =
       patientName: string;
       doctorName: string;
       token: string;
+      questions: TemplateQuestion[];
     };
 
 // ─── Patient Check-In Landing Page ─────────────────────────
-// Layout matched to design/ref_1.jpeg (first screen) & ref_2.jpeg:
-//   Mobile — text centered in upper-middle, CTA at bottom-left
-//   Desktop — centered layout with "use mobile" message (ref_3)
+// Landing → Check-In Flow → Confirmation, all within one page.
+// Mobile only for check-in. Desktop shows "use mobile" message.
 export default function PatientLandingPage() {
   const params = useParams<{ token: string }>();
   const { deviceType, mounted } = useDeviceType();
@@ -53,6 +55,7 @@ export default function PatientLandingPage() {
           patientName: json.data.patientName,
           doctorName: json.data.doctorName,
           token: json.data.token,
+          questions: json.data.questions,
         });
       } catch {
         setState({
@@ -91,36 +94,42 @@ export default function PatientLandingPage() {
   // ─── Already Checked In ────────────────────────────────
   if (state.status === "already-checked-in") {
     return (
-      <PageShell>
+      <PageShell bg="summary">
         <div className="flex-1 flex flex-col items-center justify-center px-10 text-center">
-          <h1 className="text-heading">Hi {state.patientName} 👋</h1>
-          <p className="text-secondary mt-3">
+          <h1 style={{ fontSize: "2.75rem", fontWeight: 800, color: "#4c3a7a", lineHeight: 1.2 }}>
+            Hi {state.patientName} 👋
+          </h1>
+          <p className="mt-4" style={{ fontSize: "1.35rem", fontWeight: 600, color: "#5b4a8a" }}>
             You&apos;ve already checked in today ✅
           </p>
-          <p className="text-tertiary mt-2">Come back tomorrow!</p>
+          <p className="mt-3" style={{ fontSize: "1.15rem", fontWeight: 500, color: "#7c6b9e" }}>
+            Come back tomorrow!
+          </p>
         </div>
       </PageShell>
     );
   }
 
-  // ─── Checkin Flow (placeholder) ────────────────────────
+  // ─── Check-In Flow ─────────────────────────────────────
+  // Renders the question-by-question check-in inside PageShell
+  // with questionnaire background. Confirmation uses summary bg.
   if (view === "checkin") {
     return (
       <PageShell bg="questionnaire">
-        <div className="flex-1 flex flex-col items-center justify-center px-10 text-center">
-          <h1 className="text-heading">Check-In</h1>
-          <p className="text-secondary mt-3">Check-in flow coming soon...</p>
-        </div>
+        <CheckinFlow
+          questions={state.questions}
+          token={state.token}
+          patientName={state.patientName}
+          onBack={() => setView("landing")}
+        />
       </PageShell>
     );
   }
 
   // ─── Ready — Mobile ────────────────────────────────────
-  // Ref_1 first screen: text centered upper-middle, button bottom-left
   if (deviceType === "mobile") {
     return (
       <PageShell>
-        {/* Content area — centered text, upper portion of screen */}
         <div className="pt-[28vh] px-8 text-center">
           <h1 className="text-heading">Hi {state.patientName} 👋</h1>
           <p className="text-secondary mt-5">
@@ -131,10 +140,8 @@ export default function PatientLandingPage() {
           </p>
         </div>
 
-        {/* Spacer pushes button to bottom */}
         <div className="flex-1" />
 
-        {/* CTA — bottom center, full-width with side padding */}
         <div className="px-8 pb-12">
           <div className="btn-cta-wrapper">
             <button
@@ -150,7 +157,6 @@ export default function PatientLandingPage() {
   }
 
   // ─── Ready — Desktop ───────────────────────────────────
-  // Ref_3: centered
   return (
     <PageShell>
       <div className="flex-1 flex flex-col items-center justify-center text-center px-8">
