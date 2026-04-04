@@ -342,6 +342,17 @@ For each yes_no question:
 
 ---
 
+## Code Principles
+
+### Zero Duplication, Single Responsibility
+- **No duplicate modules or functions** solving the same problem. Before writing anything, check what already exists.
+- **Understand existing patterns first.** Read neighbouring files to match style, naming, structure, and conventions already in use.
+- **One canonical place for each concern.** E.g., compliance logic lives only in `lib/compliance/engine.ts`, not scattered across API routes or components.
+- **Reuse over recreation.** If a helper, component, or utility already exists, use it. Don't create a second version.
+- **Clean, readable code.** Consistent formatting, meaningful names, minimal nesting. Code should read like it was written by one person.
+
+---
+
 ## Code Patterns
 
 ### API Routes
