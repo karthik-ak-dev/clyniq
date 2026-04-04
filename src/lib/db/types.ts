@@ -46,12 +46,16 @@ export type Condition = (typeof CONDITION)[keyof typeof CONDITION];
 
 // Question input types — determines which UI component renders
 // and how the compliance engine interprets the response value.
-//   yes_no → boolean (true/false) — counts toward compliance score
-//   number → numeric value — tracked but not scored
-//   text   → free-form string — tracked but not scored
-//   scale  → integer 1-10 — tracked but not scored
+//   yes_no       → boolean (true/false) — counts toward compliance score
+//   choice       → string (one of options) — first option = most compliant, counts toward score
+//   multi_choice → string[] (multiple of options) — tracked but not scored
+//   number       → numeric value — tracked but not scored
+//   text         → free-form string — tracked but not scored
+//   scale        → integer 1-10 — tracked but not scored
 export const QUESTION_TYPE = {
   YES_NO: "yes_no",
+  CHOICE: "choice",
+  MULTI_CHOICE: "multi_choice",
   NUMBER: "number",
   TEXT: "text",
   SCALE: "scale",

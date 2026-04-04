@@ -8,7 +8,13 @@ import { z } from "zod";
 //               used to identify the doctor_patient relationship
 //   responses — dynamic key-value object where:
 //               - keys match question keys from the template (e.g., "took_meds")
-//               - values can be boolean (yes_no), number, or string (text/scale)
+//               - values depend on question type:
+//                   yes_no       → boolean
+//                   choice       → string (one of the options)
+//                   multi_choice → string[] (array of selected options)
+//                   number       → number
+//                   text         → string
+//                   scale        → number
 //
 // The API route further validates that:
 //   1. The token maps to a valid doctor_patient record
@@ -21,7 +27,7 @@ export const checkinSchema = z.object({
   responses: z
     .record(
       z.string(),
-      z.union([z.boolean(), z.number(), z.string()])
+      z.union([z.boolean(), z.number(), z.string(), z.array(z.string())])
     )
     .refine(
       (obj) => Object.keys(obj).length > 0,

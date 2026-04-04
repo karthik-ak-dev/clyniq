@@ -16,19 +16,38 @@ const db = drizzle(sql);
 // System data required for the app to function. These define what
 // questions patients see during check-in. Seeded in ALL environments.
 
+// ─── Diabetes Default Template (12 questions) ──────────────
+// Comprehensive daily tracking for diabetic patients.
+// Doctor can toggle any of these on/off per patient.
 const DIABETES_QUESTIONS: TemplateQuestion[] = [
   { key: "took_meds", label: "Did you take your medicine today?", type: "yes_no", order: 1 },
-  { key: "followed_diet", label: "Did you follow your diet today?", type: "yes_no", order: 2 },
-  { key: "did_activity", label: "Did you exercise today?", type: "yes_no", order: 3 },
-  { key: "blood_sugar", label: "What was your fasting blood sugar?", type: "number", unit: "mg/dL", order: 4 },
-  { key: "weight", label: "Enter your weight", type: "number", unit: "kg", order: 5 },
+  { key: "insulin_taken", label: "Did you take your insulin?", type: "yes_no", order: 2 },
+  { key: "followed_diet", label: "How was your diet today?", type: "choice", options: ["Perfect", "Good", "Okay", "Poor"], order: 3 },
+  { key: "did_activity", label: "Did you exercise today?", type: "yes_no", order: 4 },
+  { key: "water_intake", label: "Did you drink enough water today?", type: "yes_no", order: 5 },
+  { key: "blood_sugar", label: "What was your fasting blood sugar?", type: "number", unit: "mg/dL", order: 6 },
+  { key: "weight", label: "What's your current weight?", type: "number", unit: "kg", order: 7 },
+  { key: "sleep_quality", label: "How was your sleep last night?", type: "choice", options: ["Great", "Good", "Okay", "Poor", "Awful"], order: 8 },
+  { key: "stress_level", label: "How are you feeling today?", type: "choice", options: ["Great", "Good", "Okay", "Bad", "Awful"], order: 9 },
+  { key: "symptoms", label: "Any symptoms today?", type: "multi_choice", options: ["Dizziness", "Fatigue", "Blurred Vision", "Numbness", "Excessive Thirst", "None"], order: 10 },
+  { key: "alcohol", label: "Did you consume alcohol today?", type: "yes_no", order: 11 },
+  { key: "foot_check", label: "Did you check your feet today?", type: "yes_no", order: 12 },
 ];
 
+// ─── Obesity Default Template (10 questions) ────────────────
+// Comprehensive daily tracking for obesity patients.
+// Doctor can toggle any of these on/off per patient.
 const OBESITY_QUESTIONS: TemplateQuestion[] = [
-  { key: "followed_diet", label: "Did you follow your diet today?", type: "yes_no", order: 1 },
+  { key: "followed_diet", label: "How was your diet today?", type: "choice", options: ["Perfect", "Good", "Okay", "Poor"], order: 1 },
   { key: "did_activity", label: "Did you exercise today?", type: "yes_no", order: 2 },
   { key: "water_intake", label: "Did you drink enough water today?", type: "yes_no", order: 3 },
-  { key: "weight", label: "Enter your weight", type: "number", unit: "kg", order: 4 },
+  { key: "meal_portions", label: "Did you control your meal portions?", type: "yes_no", order: 4 },
+  { key: "snacking", label: "Did you avoid unhealthy snacking?", type: "yes_no", order: 5 },
+  { key: "weight", label: "What's your current weight?", type: "number", unit: "kg", order: 6 },
+  { key: "steps", label: "How many steps did you walk today?", type: "number", unit: "steps", order: 7 },
+  { key: "sleep_quality", label: "How was your sleep last night?", type: "choice", options: ["Great", "Good", "Okay", "Poor", "Awful"], order: 8 },
+  { key: "stress_level", label: "How are you feeling today?", type: "choice", options: ["Great", "Good", "Okay", "Bad", "Awful"], order: 9 },
+  { key: "emotional_eating", label: "Did you eat due to stress or emotions?", type: "yes_no", order: 10 },
 ];
 
 // ─── Seed Function ─────────────────────────────────────────

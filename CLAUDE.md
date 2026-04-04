@@ -175,39 +175,52 @@ src/
 
 **questions JSONB structure:**
 ```json
-[
-  { "key": "took_meds", "label": "Did you take your medicine today?", "type": "yes_no", "order": 1 },
-  { "key": "followed_diet", "label": "Did you follow your diet today?", "type": "yes_no", "order": 2 },
-  { "key": "did_activity", "label": "Did you exercise today?", "type": "yes_no", "order": 3 },
-  { "key": "blood_sugar", "label": "What was your fasting blood sugar?", "type": "number", "unit": "mg/dL", "order": 4 },
-  { "key": "weight", "label": "Enter your weight", "type": "number", "unit": "kg", "order": 5 }
-]
+{ "key": "took_meds", "label": "Did you take your medicine today?", "type": "yes_no", "order": 1 }
+{ "key": "followed_diet", "label": "How was your diet today?", "type": "choice", "options": ["Perfect","Good","Okay","Poor"], "order": 2 }
+{ "key": "symptoms", "label": "Any symptoms today?", "type": "multi_choice", "options": ["Dizziness","Fatigue","None"], "order": 3 }
+{ "key": "blood_sugar", "label": "What was your fasting blood sugar?", "type": "number", "unit": "mg/dL", "order": 4 }
 ```
 
-**Question types:** `yes_no` | `number` | `text` | `scale` (1-10)
+**Question types:**
 
-**Default templates (shipped with app):**
+| Type | Response value | UI component | Scored? |
+|---|---|---|---|
+| `yes_no` | `boolean` | Yes/No toggle buttons | Yes — `true` = compliant |
+| `choice` | `string` | Single-select option pills | Yes — top half of options = compliant |
+| `multi_choice` | `string[]` | Multi-select checkboxes | No — tracked only |
+| `number` | `number` | Numeric input with unit | No — tracked only |
+| `text` | `string` | Free-form text input | No — tracked only |
+| `scale` | `number` (1-10) | Slider/rating | No — tracked only |
 
-Diabetes:
-```json
-[
-  { "key": "took_meds", "label": "Did you take your medicine today?", "type": "yes_no", "order": 1 },
-  { "key": "followed_diet", "label": "Did you follow your diet today?", "type": "yes_no", "order": 2 },
-  { "key": "did_activity", "label": "Did you exercise today?", "type": "yes_no", "order": 3 },
-  { "key": "blood_sugar", "label": "What was your fasting blood sugar?", "type": "number", "unit": "mg/dL", "order": 4 },
-  { "key": "weight", "label": "Enter your weight", "type": "number", "unit": "kg", "order": 5 }
-]
-```
+Fields: `key`, `label`, `type` (required), `unit` (number types), `options` (choice/multi_choice), `order`
 
-Obesity:
-```json
-[
-  { "key": "followed_diet", "label": "Did you follow your diet today?", "type": "yes_no", "order": 1 },
-  { "key": "did_activity", "label": "Did you exercise today?", "type": "yes_no", "order": 2 },
-  { "key": "water_intake", "label": "Did you drink enough water today?", "type": "yes_no", "order": 3 },
-  { "key": "weight", "label": "Enter your weight", "type": "number", "unit": "kg", "order": 4 }
-]
-```
+**Default templates (shipped with app, doctor toggles per patient):**
+
+Diabetes (12 questions):
+1. Did you take your medicine today? (`yes_no`)
+2. Did you take your insulin? (`yes_no`)
+3. How was your diet today? (`choice`: Perfect/Good/Okay/Poor)
+4. Did you exercise today? (`yes_no`)
+5. Did you drink enough water today? (`yes_no`)
+6. What was your fasting blood sugar? (`number`, mg/dL)
+7. What's your current weight? (`number`, kg)
+8. How was your sleep last night? (`choice`: Great/Good/Okay/Poor/Awful)
+9. How are you feeling today? (`choice`: Great/Good/Okay/Bad/Awful)
+10. Any symptoms today? (`multi_choice`: Dizziness/Fatigue/Blurred Vision/Numbness/Excessive Thirst/None)
+11. Did you consume alcohol today? (`yes_no`)
+12. Did you check your feet today? (`yes_no`)
+
+Obesity (10 questions):
+1. How was your diet today? (`choice`: Perfect/Good/Okay/Poor)
+2. Did you exercise today? (`yes_no`)
+3. Did you drink enough water today? (`yes_no`)
+4. Did you control your meal portions? (`yes_no`)
+5. Did you avoid unhealthy snacking? (`yes_no`)
+6. What's your current weight? (`number`, kg)
+7. How many steps did you walk today? (`number`, steps)
+8. How was your sleep last night? (`choice`: Great/Good/Okay/Poor/Awful)
+9. How are you feeling today? (`choice`: Great/Good/Okay/Bad/Awful)
+10. Did you eat due to stress or emotions? (`yes_no`)
 
 ### doctor_patients (join table — a doctor's relationship to a patient)
 | Column | Type | Notes |
@@ -314,31 +327,94 @@ For each yes_no question:
 
 ## Design System
 
+### Reference
+All UI must match the design references in `design/ref_1.jpeg`, `design/ref_2.jpeg`, `design/ref_3.jpeg`. Never deviate from these — compare pixel-by-pixel before shipping.
+
 ### Philosophy
-- Minimal but expressive
-- High whitespace, large typography
-- Soft gradients, not clinical dashboards
-- "Modern AI SaaS" feel — friendly + human
+- Minimal but expressive — no clutter, no wasted space
+- Warm, friendly, soft — NOT clinical or corporate
+- Every screen must fit in one viewport — **no scrolling** on patient pages
+- Mobile-first for patient pages, desktop shows "use mobile" message
 
-### Visual Identity
-- **Primary:** Indigo / Blue gradient
-- **Background:** Soft neutral (off-white)
-- **Positive:** Green
-- **Alert:** Red / Amber
-- **Corners:** `rounded-2xl`
-- **Shadows:** Soft, elevated cards
-- **Glass:** Light glassmorphism (subtle)
+### Font
+**Nunito** (Google Fonts) — rounded terminals, warm/friendly character.
+- Loaded via `next/font/google` in `src/app/layout.tsx`
+- Weights loaded: 400, 500, 600, 700, 800 + italic
+- This is the ONLY font — used for headings, body, buttons, everything
 
-### Typography
-- Headings: Bold, large (`text-2xl`+ / `font-bold`)
-- Body: Clean, readable (`text-base` / `text-gray-600`)
-- Avoid dense text — whitespace is content
+### Typography Hierarchy (defined in `src/app/globals.css`)
+Three levels, used consistently across ALL patient-facing pages:
+
+| Level | Class | Size | Weight | Color | Usage |
+|---|---|---|---|---|---|
+| **Heading** | `.text-heading` | 2.75rem | 800 | `white` | Page titles ("Hi Ravi 👋") |
+| **Secondary** | `.text-secondary` | 1.35rem | 600 | `white` | Context text ("Dr. Sharma is helping you stay on track.") |
+| **Tertiary** | `.text-tertiary` | 1.15rem | 500 | `rgba(255,255,255,0.85)` | Subtitles ("Let's do a quick check-in today.") |
+
+**Rules:**
+- Always use these three classes — never inline font styles on patient pages
+- All text is white on gradient backgrounds — no dark text
+- Patient API returns first name only (not full name) for greetings
+
+### Color Palette
+- **Background:** Purple-lavender to pink-peach gradient (via background images in `public/images/`)
+- **CTA gradient:** Pink-to-purple (`#e879f9` → `#c084fc` → `#a855f7` → `#8b5cf6`)
+- **CTA 3D base:** Darker purple (`#9333ea` → `#7c3aed` → `#6d28d9`)
+- **Text on gradient:** White (headings), white 85% opacity (tertiary)
+- **Positive:** Green (for compliance badges)
+- **Alert:** Red / Amber (for low compliance)
+
+### Background Images (`public/images/`)
+| File | Screen |
+|---|---|
+| `bg_mobile_home.jpeg` | Mobile: landing, greeting |
+| `bg_desktop_home.jpeg` | Desktop: landing |
+| `bg_mobile_questionare.jpeg` | Mobile: check-in question screens |
+| `bg_mobile_summary.jpeg` | Mobile: completion/summary screen |
+
+Applied via CSS `background-image` on `PageShell` component (not `<Image>`). Responsive switching via Tailwind `md:` breakpoint.
+
+### CTA Button (defined in `src/app/globals.css`)
+3D embossed pill button — two-layer construction:
+
+```html
+<div class="btn-cta-wrapper">
+  <button class="btn-cta-face">Start Check-In →</button>
+</div>
+```
+
+- **`.btn-cta-wrapper`** — darker purple gradient, `padding-bottom: 6px` creates the 3D bottom edge
+- **`.btn-cta-face`** — lighter pink-purple gradient, the clickable surface
+- Full-width within its container, centered
+- `border-radius: 9999px` (full pill)
+- Font: 1.2rem, weight 700, white
+- Shadow: `0 4px 14px rgba(109,40,217,0.4)` for floating depth
+- Active state: `scale(0.97)` for tactile press feedback
+
+### Layout Rules (Patient Pages)
+- **Viewport-locked:** `h-dvh overflow-hidden` — NO scrolling
+- **Background:** Full-bleed cover image via `PageShell` component
+- **Content position:** Upper portion (`pt-[28vh]`), centered horizontally
+- **Button position:** Bottom of viewport, full-width with `px-8` side padding
+- **Spacer:** `flex-1` div between content and button fills remaining space
+- **Device detection:** `useDeviceType()` hook from `src/hooks/use-device-type.ts` — central, reusable
+
+### Asset Placeholders
+For illustration slots (3D characters, icons) where assets aren't ready yet:
+```tsx
+import { AssetPlaceholder } from "@/components/ui/asset-placeholder";
+<AssetPlaceholder width={200} height={200} />           // invisible until asset ready
+<AssetPlaceholder src="/images/hero.png" alt="Hero" />   // renders when src is set
+```
+Component: `src/components/ui/asset-placeholder.tsx`. Returns `null` when no `src` — zero visual footprint. When asset is added, just set the `src` prop, no other code change.
 
 ### Patient UI Principle
 **"Tap, don't think"**
 - Large buttons, minimal text
 - Yes/No are the primary interactions
 - Mobile-first, works on any phone
+- Every screen fits in one viewport — no scrolling
+- First name only in greetings
 
 ---
 

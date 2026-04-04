@@ -23,17 +23,30 @@ export const conditionEnum = pgEnum("condition", ["diabetes", "obesity"]);
 // used by schema, seed, compliance engine, and check-in renderer.
 //
 // Fields:
-//   key   — unique identifier within a template (e.g., "took_meds")
-//   label — human-readable question text shown to the patient
-//   type  — determines the input component: yes_no (boolean toggle),
-//           number (numeric input), text (free-form), scale (1-10 slider)
-//   unit  — optional display suffix for number types (e.g., "mg/dL", "kg")
-//   order — display order in the check-in form (ascending)
+//   key     — unique identifier within a template (e.g., "took_meds")
+//   label   — human-readable question text shown to the patient
+//   type    — determines the input component and how the response is stored:
+//             yes_no       → boolean (true/false toggle buttons)
+//             number       → numeric input with optional unit label
+//             text         → free-form text input
+//             scale        → 1-10 slider/rating
+//             choice       → pick ONE from options (e.g., "How was your diet?" → Perfect/Good/Okay/Poor)
+//             multi_choice → pick MULTIPLE from options (e.g., "Any symptoms?" → checkboxes)
+//   unit    — optional display suffix for number types (e.g., "mg/dL", "kg", "steps")
+//   options — required for choice/multi_choice types, array of option labels
+//   order   — display order in the check-in form (ascending)
+//
+// Compliance scoring:
+//   yes_no       → true counts as compliant
+//   choice       → first option counts as most compliant (e.g., "Perfect" > "Poor")
+//   multi_choice → not scored (tracked only)
+//   number/text/scale → not scored (tracked only)
 export type TemplateQuestion = {
   key: string;
   label: string;
-  type: "yes_no" | "number" | "text" | "scale";
+  type: "yes_no" | "number" | "text" | "scale" | "choice" | "multi_choice";
   unit?: string;
+  options?: string[];
   order: number;
 };
 
@@ -135,10 +148,21 @@ export const doctorPatients = pgTable(
 // key-value pairs matching the question keys from the template.
 //
 // Example responses for a diabetes patient:
-//   { "took_meds": true, "followed_diet": false, "blood_sugar": 120, "weight": 72.5 }
+//   {
+//     "took_meds": true,
+//     "followed_diet": "Good",
+//     "blood_sugar": 120,
+//     "weight": 72.5,
+//     "symptoms": ["Fatigue", "Dizziness"]
+//   }
 //
-// Only keys for enabled questions are present. The compliance engine
-// reads this to compute scores (yes_no → boolean, number → numeric value).
+// Value types by question type:
+//   yes_no       → boolean
+//   choice       → string (one of the options)
+//   multi_choice → string[] (array of selected options)
+//   number       → number
+//   text         → string
+//   scale        → number (1-10)
 //
 // Constraint: UNIQUE(doctorPatientId, date) prevents double check-ins.
 export const checkIns = pgTable(
@@ -150,7 +174,7 @@ export const checkIns = pgTable(
       .notNull(),
     date: date("date").notNull(),                             // The calendar date of check-in (YYYY-MM-DD)
     responses: jsonb("responses")                             // Dynamic key-value responses from patient
-      .$type<Record<string, boolean | number | string>>()
+      .$type<Record<string, boolean | number | string | string[]>>()
       .notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(), // Row creation timestamp
   },

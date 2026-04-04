@@ -10,30 +10,31 @@ import { TREND } from "@/lib/db/types";
 // iterates over whatever question keys are in the template.
 //
 // Scoring rules:
-//   - Only yes_no questions count toward the compliance percentage
-//   - number/text/scale questions are tracked but don't affect the score
-//   - Overall score = total "yes" answers / total possible across all yes_no questions
-//   - Each yes_no question also gets its own individual score (for the breakdown bars)
+//   - yes_no questions: true = compliant, false = not
+//   - choice questions: first option = most compliant, last = least
+//     A response is "compliant" if it's one of the top 2 options.
+//     e.g., ["Perfect", "Good", "Okay", "Poor"] → "Perfect" or "Good" = compliant
+//   - multi_choice, number, text, scale: tracked but NOT scored
+//   - Overall score = total compliant answers / total possible across scored questions
+//   - Each scored question gets its own individual metric (for breakdown bars)
 
 // ─── Types ─────────────────────────────────────────────────
 
 // Per-question compliance breakdown (used for progress bars on the UI)
 export type QuestionMetric = {
   key: string;        // Question key (e.g., "took_meds")
-  label: string;      // Human-readable label (e.g., "Did you take your medicine today?")
-  done: number;       // Number of days the patient answered "yes"
-  total: number;      // Total number of days in the window
+  label: string;      // Human-readable label
+  done: number;       // Number of days the patient was compliant
+  total: number;      // Total number of check-in days in the window
   percentage: number;  // done / total * 100, rounded
 };
 
 export type ComplianceScore = {
-  overall: number;              // 0-100 percentage across all yes_no questions
+  overall: number;              // 0-100 percentage across all scored questions
   metrics: QuestionMetric[];    // Per-question breakdown
 };
 
 // ─── Helper: Filter check-ins to the last N days ──────────
-// Takes an array of check-ins (assumed sorted by date descending)
-// and returns only those within the last N days from today.
 function filterLastNDays(checkIns: CheckIn[], days: number): CheckIn[] {
   const cutoff = new Date();
   cutoff.setDate(cutoff.getDate() - days);
@@ -63,18 +64,52 @@ function filterDayRange(
   return checkIns.filter((c) => c.date >= toStr && c.date <= fromStr);
 }
 
+// ─── Helper: Check if a response is "compliant" ───────────
+// For yes_no: true = compliant
+// For choice: top 2 options = compliant (e.g., "Perfect"/"Good" out of 4)
+function isCompliant(
+  question: TemplateQuestion,
+  value: boolean | number | string | string[] | undefined
+): boolean {
+  if (value === undefined || value === null) return false;
+
+  if (question.type === "yes_no") {
+    return value === true;
+  }
+
+  if (question.type === "choice" && question.options && typeof value === "string") {
+    // Top 2 options count as compliant (or top 1 if only 2 options)
+    const compliantCount = Math.max(1, Math.ceil(question.options.length / 2));
+    const compliantOptions = question.options.slice(0, compliantCount);
+    return compliantOptions.includes(value);
+  }
+
+  return false;
+}
+
+// ─── Helper: Get scorable questions ────────────────────────
+// Returns enabled questions that contribute to the compliance score.
+// Only yes_no and choice types are scored.
+function getScorableQuestions(
+  enabledQuestions: string[],
+  templateQuestions: TemplateQuestion[]
+): TemplateQuestion[] {
+  return templateQuestions.filter(
+    (q) =>
+      (q.type === "yes_no" || q.type === "choice") &&
+      enabledQuestions.includes(q.key)
+  );
+}
+
 // ─── Engine ────────────────────────────────────────────────
 
 export const complianceEngine = {
   // Calculate compliance score over a time window.
   //
-  // How it works:
-  //   1. Filter to only yes_no questions that are enabled
-  //   2. For each check-in day, check if the patient answered "yes"
-  //   3. Per-question score = yes_days / total_days
-  //   4. Overall score = sum(all yes answers) / sum(all possible) * 100
+  // Scores yes_no + choice questions:
+  //   - yes_no: true = compliant
+  //   - choice: top half of options = compliant
   //
-  // The `days` parameter controls the window (default 7).
   // Returns both the overall percentage and per-question breakdown.
   calculateScore(
     checkIns: CheckIn[],
@@ -83,18 +118,14 @@ export const complianceEngine = {
     days: number = 7
   ): ComplianceScore {
     const recent = filterLastNDays(checkIns, days);
-
-    // Only yes_no questions that are enabled contribute to score
-    const yesNoQuestions = templateQuestions.filter(
-      (q) => q.type === "yes_no" && enabledQuestions.includes(q.key)
-    );
+    const scorable = getScorableQuestions(enabledQuestions, templateQuestions);
 
     // Build per-question metrics
-    const metrics: QuestionMetric[] = yesNoQuestions.map((q) => {
-      const done = recent.filter(
-        (c) => c.responses[q.key] === true
+    const metrics: QuestionMetric[] = scorable.map((q) => {
+      const done = recent.filter((c) =>
+        isCompliant(q, c.responses[q.key])
       ).length;
-      const total = recent.length; // Total check-in days in window
+      const total = recent.length;
 
       return {
         key: q.key,
@@ -105,7 +136,7 @@ export const complianceEngine = {
       };
     });
 
-    // Overall = total yes answers / total possible
+    // Overall = total compliant answers / total possible
     const totalDone = metrics.reduce((sum, m) => sum + m.done, 0);
     const totalPossible = metrics.reduce((sum, m) => sum + m.total, 0);
     const overall =
@@ -116,16 +147,9 @@ export const complianceEngine = {
 
   // Detect compliance trend by comparing two 7-day windows.
   //
-  // Logic:
   //   current  = compliance score for days 0-6 (this week)
   //   previous = compliance score for days 7-13 (last week)
-  //   diff = current - previous
-  //
-  //   If diff > +10% → "improving"
-  //   If diff < -10% → "worsening"
-  //   Otherwise      → "stable"
-  //
-  // The 10% threshold prevents noise from small fluctuations.
+  //   diff > +10% → improving, diff < -10% → worsening, else → stable
   detectTrend(
     checkIns: CheckIn[],
     enabledQuestions: string[],
@@ -133,7 +157,6 @@ export const complianceEngine = {
   ): Trend {
     const THRESHOLD = 10;
 
-    // Current week (days 0-6)
     const currentCheckIns = filterDayRange(checkIns, 0, 6);
     const current = this.calculateScore(
       currentCheckIns,
@@ -142,7 +165,6 @@ export const complianceEngine = {
       7
     );
 
-    // Previous week (days 7-13)
     const previousCheckIns = filterDayRange(checkIns, 7, 13);
     const previous = this.calculateScore(
       previousCheckIns,
@@ -160,15 +182,13 @@ export const complianceEngine = {
 
   // Generate rule-based insight strings for the doctor dashboard.
   //
-  // Current rules (applied dynamically over all enabled yes_no questions):
-  //   1. No check-in streak — if patient missed 3+ days in the last 7
-  //   2. Per-question miss — if any yes_no question was answered "no"
-  //      (or not answered) 3+ times in the last 7 days
-  //   3. Weight trending up — if the most recent weight > earliest weight
-  //      in the last 7 days (only when "weight" is an enabled question)
+  // Rules:
+  //   1. No check-in streak — missed 3+ days in last 7
+  //   2. Per scored question — non-compliant 3+ times in last 7 days
+  //   3. Choice questions — consistently picking worst options
+  //   4. Weight trending up (if weight is enabled)
   //
-  // Returns an array of human-readable strings for the insights panel.
-  // Empty array means everything looks good.
+  // Returns human-readable strings. Empty array = everything looks good.
   generateInsights(
     checkIns: CheckIn[],
     enabledQuestions: string[],
@@ -178,27 +198,44 @@ export const complianceEngine = {
     const last7 = filterLastNDays(checkIns, 7);
 
     // Rule 1: No check-in streak
-    // If the patient has submitted fewer than 4 out of 7 days, flag it.
     const missedDays = 7 - last7.length;
     if (missedDays >= 3) {
       insights.push(`No check-in for ${missedDays} days this week`);
     }
 
-    // Rule 2: Per yes_no question — check for repeated misses
-    const yesNoQuestions = templateQuestions.filter(
-      (q) => q.type === "yes_no" && enabledQuestions.includes(q.key)
-    );
+    // Rule 2: Per scored question — check for repeated non-compliance
+    const scorable = getScorableQuestions(enabledQuestions, templateQuestions);
 
-    for (const q of yesNoQuestions) {
-      const missed = last7.filter(
-        (c) => c.responses[q.key] !== true
+    for (const q of scorable) {
+      const nonCompliant = last7.filter(
+        (c) => !isCompliant(q, c.responses[q.key])
       ).length;
-      if (missed >= 3) {
-        insights.push(`Missed "${q.label}" ${missed} times this week`);
+      if (nonCompliant >= 3) {
+        // Use a friendly label based on question type
+        if (q.type === "yes_no") {
+          insights.push(`Missed "${q.label}" ${nonCompliant} times this week`);
+        } else if (q.type === "choice") {
+          insights.push(`"${q.label}" has been low ${nonCompliant} times this week`);
+        }
       }
     }
 
-    // Rule 3: Weight trending up (if weight question is enabled)
+    // Rule 3: Choice questions — check if consistently picking worst option
+    const choiceQuestions = templateQuestions.filter(
+      (q) => q.type === "choice" && enabledQuestions.includes(q.key) && q.options
+    );
+
+    for (const q of choiceQuestions) {
+      const worstOption = q.options![q.options!.length - 1];
+      const worstCount = last7.filter(
+        (c) => c.responses[q.key] === worstOption
+      ).length;
+      if (worstCount >= 3) {
+        insights.push(`"${q.label}" consistently "${worstOption}"`);
+      }
+    }
+
+    // Rule 4: Weight trending up (if weight question is enabled)
     if (enabledQuestions.includes("weight")) {
       const weights = last7
         .filter((c) => typeof c.responses.weight === "number")
@@ -206,7 +243,7 @@ export const complianceEngine = {
           date: c.date,
           value: c.responses.weight as number,
         }))
-        .sort((a, b) => a.date.localeCompare(b.date)); // oldest first
+        .sort((a, b) => a.date.localeCompare(b.date));
 
       if (
         weights.length >= 2 &&
