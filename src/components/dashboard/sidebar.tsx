@@ -159,14 +159,18 @@ export function Sidebar() {
             <p className="text-[0.78rem] truncate" style={{ fontWeight: 600, color: "#2d2b3d" }}>{doctorName}</p>
             <p className="text-[0.62rem] truncate" style={{ fontWeight: 400, color: "#8e8aa0" }}>{doctorEmail}</p>
           </div>
+          <button
+            onClick={() => signOut({ callbackUrl: "/login" })}
+            className="w-8 h-8 rounded-lg flex items-center justify-center transition-all hover:bg-white/40"
+            title="Sign out"
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#8e8aa0" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M6 14H3.5A1.5 1.5 0 0 1 2 12.5v-9A1.5 1.5 0 0 1 3.5 2H6" />
+              <path d="M10.5 11.5L14 8l-3.5-3.5" />
+              <line x1="5.5" y1="8" x2="14" y2="8" />
+            </svg>
+          </button>
         </div>
-        <button
-          onClick={() => signOut({ callbackUrl: "/login" })}
-          className="mt-3 text-[0.72rem] transition-colors hover:text-red-500"
-          style={{ fontWeight: 400, color: "#8e8aa0" }}
-        >
-          Sign out
-        </button>
       </div>
 
       <div className="px-4 pb-3">

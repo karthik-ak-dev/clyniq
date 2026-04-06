@@ -48,6 +48,8 @@ export default function DashboardPage() {
     return matchesCondition && matchesStatus && matchesSearch;
   });
 
+  const totalPages = 1; // MVP — no pagination logic yet
+
   return (
     <div>
       <h1 className="text-[1.35rem] mb-5" style={{ fontWeight: 600, color: "#2d2b3d" }}>Patients</h1>
@@ -57,9 +59,9 @@ export default function DashboardPage() {
         className="bg-white rounded-2xl"
         style={{ boxShadow: "0 1px 4px rgba(0,0,0,0.03), 0 6px 24px rgba(124,58,237,0.03)" }}
       >
-        {/* Search + Filters */}
+        {/* Search + Filters — tightly grouped */}
         <div
-          className="flex flex-col sm:flex-row gap-3 px-5 py-4"
+          className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 px-5 py-4"
           style={{ borderBottom: "1px solid #f0eaff" }}
         >
           <div className="flex-1 relative">
@@ -73,43 +75,46 @@ export default function DashboardPage() {
               style={{
                 fontWeight: 400,
                 color: "#2d2b3d",
-                border: "1px solid #ece5ff",
+                border: "1.5px solid #e0d8f0",
                 background: "#fcfbff",
+                boxShadow: "inset 0 1px 3px rgba(124,58,237,0.04)",
               }}
               placeholder="Search patients..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              onFocus={(e) => { e.currentTarget.style.borderColor = "#c4b5fd"; e.currentTarget.style.background = "#fff"; }}
-              onBlur={(e) => { e.currentTarget.style.borderColor = "#ece5ff"; e.currentTarget.style.background = "#fcfbff"; }}
+              onFocus={(e) => { e.currentTarget.style.borderColor = "#b197fc"; e.currentTarget.style.background = "#fff"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(124,58,237,0.06)"; }}
+              onBlur={(e) => { e.currentTarget.style.borderColor = "#e0d8f0"; e.currentTarget.style.background = "#fcfbff"; e.currentTarget.style.boxShadow = "inset 0 1px 3px rgba(124,58,237,0.04)"; }}
             />
           </div>
 
-          {[
-            { value: statusFilter, onChange: setStatusFilter, options: [["all", "All Statuses"], ["on-track", "On Track"], ["moderate", "Moderate"], ["high-risk", "High Risk"]] },
-            { value: conditionFilter, onChange: setConditionFilter, options: [["all", "All Conditions"], ["diabetes", "Diabetes"], ["obesity", "Obesity"]] },
-          ].map((dd, idx) => (
-            <select
-              key={idx}
-              value={dd.value}
-              onChange={(e) => dd.onChange(e.target.value)}
-              className="outline-none cursor-pointer rounded-xl py-2.5 px-3 text-[0.85rem] transition-all"
-              style={{
-                fontWeight: 500,
-                color: "#5a5773",
-                border: "1px solid #ece5ff",
-                background: "white",
-                appearance: "none",
-                paddingRight: "2rem",
-                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath d='M2.5 4l2.5 2.5 2.5-2.5' stroke='%238e8aa0' fill='none' stroke-width='1.5'/%3E%3C/svg%3E")`,
-                backgroundRepeat: "no-repeat",
-                backgroundPosition: "right 0.75rem center",
-              }}
-            >
-              {dd.options.map(([val, label]) => (
-                <option key={val} value={val}>{label}</option>
-              ))}
-            </select>
-          ))}
+          <div className="flex gap-2">
+            {[
+              { value: statusFilter, onChange: setStatusFilter, options: [["all", "All Statuses"], ["on-track", "On Track"], ["moderate", "Moderate"], ["high-risk", "High Risk"]] },
+              { value: conditionFilter, onChange: setConditionFilter, options: [["all", "All Conditions"], ["diabetes", "Diabetes"], ["obesity", "Obesity"]] },
+            ].map((dd, idx) => (
+              <select
+                key={idx}
+                value={dd.value}
+                onChange={(e) => dd.onChange(e.target.value)}
+                className="outline-none cursor-pointer rounded-xl py-2.5 px-3 text-[0.85rem] transition-all"
+                style={{
+                  fontWeight: 600,
+                  color: "#2d2b3d",
+                  border: "1.5px solid #e0d8f0",
+                  background: "white",
+                  appearance: "none",
+                  paddingRight: "2rem",
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath d='M2.5 4l2.5 2.5 2.5-2.5' stroke='%238e8aa0' fill='none' stroke-width='1.5'/%3E%3C/svg%3E")`,
+                  backgroundRepeat: "no-repeat",
+                  backgroundPosition: "right 0.75rem center",
+                }}
+              >
+                {dd.options.map(([val, label]) => (
+                  <option key={val} value={val}>{label}</option>
+                ))}
+              </select>
+            ))}
+          </div>
         </div>
 
         {/* Content */}
@@ -118,7 +123,7 @@ export default function DashboardPage() {
             <p className="text-[0.92rem]">Loading patients...</p>
           </div>
         ) : filtered.length === 0 ? (
-          /* Empty state — with illustration prompt */
+          /* Empty state */
           <div className="text-center py-20 px-8">
             <div
               className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
@@ -155,26 +160,18 @@ export default function DashboardPage() {
           </div>
         ) : (
           <>
-            {/* Table header */}
+            {/* Table header — tightened column alignment */}
             <div
-              className="hidden sm:flex items-center gap-4 px-5 py-3 text-[0.8rem]"
-              style={{ fontWeight: 500, color: "#8e8aa0", borderBottom: "1px solid #f0eaff" }}
+              className="hidden sm:flex items-center gap-4 px-5 py-3 text-[0.78rem] tracking-wide uppercase"
+              style={{ fontWeight: 600, color: "#b0aac2", borderBottom: "1px solid #f0eaff", letterSpacing: "0.04em" }}
             >
               <div className="w-10 shrink-0" />
               <div className="flex-1" style={{ minWidth: "180px" }}>Name</div>
-              <div className="shrink-0 hidden sm:block" style={{ minWidth: "110px" }}>
-                Status
-                <svg className="inline ml-1" width="8" height="8" viewBox="0 0 8 8" fill="none" stroke="#b8b3cc" strokeWidth="1.5"><path d="M2 3l2 2 2-2" /></svg>
-              </div>
-              <div className="shrink-0 hidden md:block" style={{ minWidth: "90px" }}>
-                Condition
-                <svg className="inline ml-1" width="8" height="8" viewBox="0 0 8 8" fill="none" stroke="#b8b3cc" strokeWidth="1.5"><path d="M2 3l2 2 2-2" /></svg>
-              </div>
-              <div className="shrink-0 hidden lg:block" style={{ minWidth: "110px" }}>
-                Last Check-In
-                <svg className="inline ml-1" width="8" height="8" viewBox="0 0 8 8" fill="none" stroke="#b8b3cc" strokeWidth="1.5"><path d="M2 3l2 2 2-2" /></svg>
-              </div>
-              <div className="shrink-0" style={{ minWidth: "40px" }}>Action</div>
+              <div className="shrink-0 hidden sm:block" style={{ minWidth: "110px" }}>Status</div>
+              <div className="shrink-0 hidden sm:block" style={{ minWidth: "60px" }}>Score</div>
+              <div className="shrink-0 hidden md:block" style={{ minWidth: "90px" }}>Condition</div>
+              <div className="shrink-0 hidden lg:block" style={{ minWidth: "110px" }}>Last Check-In</div>
+              <div className="shrink-0" style={{ minWidth: "40px" }} />
             </div>
 
             {/* Rows */}
@@ -191,42 +188,53 @@ export default function DashboardPage() {
               />
             ))}
 
-            {/* Pagination — proper bordered buttons */}
-            <div
-              className="flex items-center justify-end gap-3 px-5 py-3.5"
-              style={{ borderTop: "1px solid #f0eaff" }}
-            >
-              <span className="text-[0.78rem]" style={{ fontWeight: 400, color: "#8e8aa0" }}>
-                1–{filtered.length} of {filtered.length}
-              </span>
-              <div className="flex items-center gap-1.5">
-                <button
-                  className="px-3.5 py-1.5 rounded-lg text-[0.78rem] transition-all"
-                  style={{
-                    fontWeight: 500,
-                    color: "#b8b3cc",
-                    border: "1px solid #ece5ff",
-                    background: "#fcfbff",
-                    cursor: "not-allowed",
-                    opacity: 0.6,
-                  }}
-                  disabled
-                >
-                  Previous
-                </button>
-                <button
-                  className="px-3.5 py-1.5 rounded-lg text-[0.78rem] transition-all hover:bg-[#f5f3ff]"
-                  style={{
-                    fontWeight: 500,
-                    color: "#7c3aed",
-                    border: "1px solid #ece5ff",
-                    background: "white",
-                  }}
-                >
-                  Next
-                </button>
+            {/* Pagination — only show when more than 1 page */}
+            {totalPages > 1 && (
+              <div
+                className="flex items-center justify-end gap-3 px-5 py-3.5"
+                style={{ borderTop: "1px solid #f0eaff" }}
+              >
+                <span className="text-[0.78rem]" style={{ fontWeight: 400, color: "#8e8aa0" }}>
+                  1–{filtered.length} of {filtered.length}
+                </span>
+                <div className="flex items-center gap-1.5">
+                  <button
+                    className="px-3.5 py-1.5 rounded-lg text-[0.78rem] transition-all"
+                    style={{
+                      fontWeight: 500,
+                      color: "#b8b3cc",
+                      border: "1px solid #ece5ff",
+                      background: "#fcfbff",
+                      cursor: "not-allowed",
+                      opacity: 0.6,
+                    }}
+                    disabled
+                  >
+                    Previous
+                  </button>
+                  <button
+                    className="px-3.5 py-1.5 rounded-lg text-[0.78rem] transition-all hover:bg-[#f5f3ff]"
+                    style={{
+                      fontWeight: 500,
+                      color: "#7c3aed",
+                      border: "1px solid #ece5ff",
+                      background: "white",
+                    }}
+                  >
+                    Next
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* Result count — subtle footer when single page */}
+            {totalPages <= 1 && filtered.length > 0 && (
+              <div className="px-5 py-3" style={{ borderTop: "1px solid #f0eaff" }}>
+                <span className="text-[0.76rem]" style={{ fontWeight: 400, color: "#b0aac2" }}>
+                  {filtered.length} {filtered.length === 1 ? "patient" : "patients"}
+                </span>
+              </div>
+            )}
           </>
         )}
       </div>

@@ -34,9 +34,14 @@ export function PatientCard({
   return (
     <Link href={`/patients/${doctorPatientId}`} className="block group">
       <div
-        className="flex items-center gap-4 px-5 py-4 transition-all group-hover:bg-[#fcfaff]"
+        className="flex items-center gap-4 px-5 py-4 transition-all group-hover:bg-[#fcfaff] relative"
         style={{ borderBottom: "1px solid #f5f0ff" }}
       >
+        {/* Hover accent — left purple bar */}
+        <div
+          className="absolute left-0 top-2 bottom-2 w-[3px] rounded-r-full bg-[#7c3aed] opacity-0 group-hover:opacity-100 transition-opacity"
+        />
+
         {/* Avatar with ring */}
         <div
           className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
@@ -56,17 +61,24 @@ export function PatientCard({
           </p>
         </div>
 
-        {/* Status */}
+        {/* Status badge */}
         <div className="shrink-0 hidden sm:flex items-center" style={{ minWidth: "110px" }}>
           <span
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[0.73rem]"
-            style={{ fontWeight: 500, color: status.color, background: status.bg }}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[0.74rem]"
+            style={{ fontWeight: 600, color: status.color, background: status.bg }}
           >
             <span
               className="w-1.5 h-1.5 rounded-full"
               style={{ background: status.color }}
             />
             {status.label}
+          </span>
+        </div>
+
+        {/* Score */}
+        <div className="shrink-0 hidden sm:block" style={{ minWidth: "60px" }}>
+          <span className="text-[0.88rem]" style={{ fontWeight: 700, color: status.color }}>
+            {complianceOverall}%
           </span>
         </div>
 
@@ -80,25 +92,82 @@ export function PatientCard({
           <span className="text-[0.84rem]" style={{ fontWeight: 400, color: "#8e8aa0" }}>{lastCheckInText}</span>
         </div>
 
-        {/* Action button — proper styled */}
-        <div className="shrink-0" style={{ minWidth: "40px" }}>
-          <button
-            className="w-8 h-8 rounded-lg flex items-center justify-center transition-all hover:bg-[#f0eaff]"
-            style={{ border: "1px solid transparent" }}
-            onClick={(e) => e.preventDefault()}
-            onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#e9e5f5"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.borderColor = "transparent"; }}
-          >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="#8e8aa0">
-              <circle cx="3" cy="8" r="1.5" />
-              <circle cx="8" cy="8" r="1.5" />
-              <circle cx="13" cy="8" r="1.5" />
-            </svg>
-          </button>
+        {/* Action button — three dots with dropdown menu */}
+        <div className="shrink-0 relative" style={{ minWidth: "40px" }}>
+          <PatientActions doctorPatientId={doctorPatientId} />
         </div>
       </div>
     </Link>
   );
+}
+
+// ─── Three-dot dropdown ───────────────────────────────────
+
+function PatientActions({ doctorPatientId }: { doctorPatientId: string }) {
+  return (
+    <div className="relative group/actions">
+      <button
+        className="w-8 h-8 rounded-lg flex items-center justify-center transition-all hover:bg-[#f0eaff]"
+        style={{ border: "1px solid transparent" }}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const menu = e.currentTarget.nextElementSibling as HTMLElement;
+          if (menu) menu.classList.toggle("hidden");
+        }}
+        onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#e9e5f5"; }}
+        onMouseLeave={(e) => { e.currentTarget.style.borderColor = "transparent"; }}
+      >
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="#8e8aa0">
+          <circle cx="3" cy="8" r="1.5" />
+          <circle cx="8" cy="8" r="1.5" />
+          <circle cx="13" cy="8" r="1.5" />
+        </svg>
+      </button>
+      {/* Dropdown */}
+      <div
+        className="hidden absolute right-0 top-9 z-20 min-w-[160px] py-1.5 rounded-xl bg-white"
+        style={{ boxShadow: "0 4px 20px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04)" }}
+        onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+      >
+        <button
+          className="flex items-center gap-2.5 w-full px-4 py-2.5 text-[0.82rem] transition-colors hover:bg-[#f8f6ff] text-left"
+          style={{ fontWeight: 500, color: "#2d2b3d" }}
+          onClick={() => { window.location.href = `/patients/${doctorPatientId}`; }}
+        >
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#8e8aa0" strokeWidth="1.5" strokeLinecap="round">
+            <circle cx="7" cy="7" r="6" />
+            <path d="M7 4v3l2 1.5" />
+          </svg>
+          View Details
+        </button>
+        <button
+          className="flex items-center gap-2.5 w-full px-4 py-2.5 text-[0.82rem] transition-colors hover:bg-[#f8f6ff] text-left"
+          style={{ fontWeight: 500, color: "#2d2b3d" }}
+          onClick={() => {
+            const url = `${window.location.origin}/p/${doctorPatientId}`;
+            navigator.clipboard.writeText(url);
+          }}
+        >
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#8e8aa0" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="4.5" y="4.5" width="7" height="7" rx="1.5" />
+            <path d="M9.5 4.5V3a1.5 1.5 0 0 0-1.5-1.5H3A1.5 1.5 0 0 0 1.5 3v5A1.5 1.5 0 0 0 3 9.5h1.5" />
+          </svg>
+          Copy Link
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Click-outside handler (close menus) ──────────────────
+
+if (typeof window !== "undefined") {
+  document.addEventListener("click", () => {
+    document.querySelectorAll(".group\\/actions > div:last-child").forEach((el) => {
+      el.classList.add("hidden");
+    });
+  });
 }
 
 function formatRelativeDate(dateStr: string): string {
