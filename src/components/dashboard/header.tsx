@@ -3,37 +3,25 @@
 import { useSession } from "next-auth/react";
 
 // ─── Header ────────────────────────────────────────────────
-// Top bar for dashboard pages. Shows greeting + doctor avatar.
-// Matched to design/doc_flow — clean, white bg, subtle border.
+// Clean, minimal. Just the doctor avatar on the right.
+// No notification/chat icons — no functionality for them.
 
 export function Header() {
   const { data: session } = useSession();
   const doctorName = session?.user?.name || "Doctor";
-  const firstName = doctorName.split(" ").pop() || doctorName;
-
-  // Time-based greeting
-  const hour = new Date().getHours();
-  const greeting =
-    hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+  const initials = doctorName.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
 
   return (
-    <header className="bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between">
-      <div>
-        <h1 className="text-lg font-700 text-gray-900">
-          {greeting}, {firstName} 👋
-        </h1>
-      </div>
-
-      {/* Avatar with initials */}
-      <div className="w-9 h-9 rounded-full bg-[#7c3aed] flex items-center justify-center">
-        <span className="text-white text-sm font-700">
-          {doctorName
-            .split(" ")
-            .map((w) => w[0])
-            .join("")
-            .slice(0, 2)
-            .toUpperCase()}
-        </span>
+    <header className="px-5 md:px-8 py-4 flex items-center justify-end">
+      <div
+        className="w-9 h-9 rounded-full flex items-center justify-center"
+        style={{
+          background: "#7c3aed",
+          boxShadow: "0 2px 8px rgba(124,58,237,0.25)",
+          border: "2px solid rgba(255,255,255,0.8)",
+        }}
+      >
+        <span className="text-white text-[0.65rem]" style={{ fontWeight: 600 }}>{initials}</span>
       </div>
     </header>
   );

@@ -1,8 +1,7 @@
 import type { QuestionMetric } from "@/lib/compliance/engine";
 
 // ─── Compliance Summary ────────────────────────────────────
-// Per-question horizontal progress bars with fraction labels.
-// Matched to design/doc_flow/patient_detail.png.
+// Polished progress bars with layered card style.
 
 interface ComplianceSummaryProps {
   overall: number;
@@ -10,46 +9,52 @@ interface ComplianceSummaryProps {
 }
 
 export function ComplianceSummary({ overall, metrics }: ComplianceSummaryProps) {
-  const overallColor =
-    overall >= 70 ? "text-green-600" : overall >= 40 ? "text-amber-500" : "text-red-500";
+  const overallColor = overall >= 70 ? "#059669" : overall >= 40 ? "#d97706" : "#dc2626";
+  const overallBg = overall >= 70 ? "#ecfdf5" : overall >= 40 ? "#fffbeb" : "#fef2f2";
 
   return (
-    <div className="card p-5">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="font-700 text-gray-900">Compliance (Last 7 Days)</h3>
-        <span className={`text-2xl font-800 ${overallColor}`}>{overall}%</span>
+    <div
+      className="bg-white rounded-2xl p-6"
+      style={{
+        boxShadow: "0 2px 0 rgba(139,92,246,0.06), 0 4px 16px rgba(0,0,0,0.04)",
+        border: "1px solid rgba(139,92,246,0.06)",
+      }}
+    >
+      <div className="flex items-center justify-between mb-5">
+        <h3 className="font-800 text-gray-900">Compliance (Last 7 Days)</h3>
+        <span
+          className="px-3.5 py-1.5 rounded-xl text-[0.85rem] font-800"
+          style={{ background: overallBg, color: overallColor }}
+        >
+          {overall}%
+        </span>
       </div>
 
       {metrics.length === 0 ? (
-        <p className="text-sm text-gray-400">No data yet</p>
+        <p className="text-[0.875rem] text-gray-400 font-500">No data yet — waiting for check-ins</p>
       ) : (
-        <div className="space-y-3">
-          {metrics.map((m) => (
-            <div key={m.key}>
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-sm text-gray-600 truncate pr-2">
-                  {m.label}
-                </span>
-                <span className="text-xs font-600 text-gray-500 shrink-0">
-                  {m.done}/{m.total}
-                </span>
+        <div className="space-y-4">
+          {metrics.map((m) => {
+            const barColor = m.percentage >= 70 ? "#8b5cf6" : m.percentage >= 40 ? "#f59e0b" : "#ef4444";
+            return (
+              <div key={m.key}>
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-[0.85rem] text-gray-600 font-600 truncate pr-3">{m.label}</span>
+                  <span className="text-[0.8rem] font-700 text-gray-400 shrink-0">{m.done}/{m.total}</span>
+                </div>
+                <div className="w-full h-2.5 rounded-full overflow-hidden" style={{ background: "#f3f4f6" }}>
+                  <div
+                    className="h-full rounded-full transition-all duration-500"
+                    style={{
+                      width: `${m.percentage}%`,
+                      background: `linear-gradient(90deg, ${barColor}, ${barColor}cc)`,
+                      boxShadow: m.percentage > 0 ? `0 1px 3px ${barColor}40` : "none",
+                    }}
+                  />
+                </div>
               </div>
-              <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                <div
-                  className="h-full rounded-full transition-all"
-                  style={{
-                    width: `${m.percentage}%`,
-                    background:
-                      m.percentage >= 70
-                        ? "#22c55e"
-                        : m.percentage >= 40
-                          ? "#f59e0b"
-                          : "#ef4444",
-                  }}
-                />
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

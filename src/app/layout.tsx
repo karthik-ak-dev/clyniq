@@ -1,33 +1,27 @@
 import type { Metadata, Viewport } from "next";
-import { Nunito } from "next/font/google";
+import { DM_Sans } from "next/font/google";
 import "./globals.css";
 
 // ─── Font ──────────────────────────────────────────────────
-// Nunito — rounded, friendly sans-serif matching the design
-// references. Has soft/rounded terminals, high x-height, and
-// warm character that works well on gradient backgrounds.
-// All weights loaded: 400 (tertiary), 500/600 (secondary),
-// 700/800 (headings), and italic for stylistic variety.
-const font = Nunito({
+// DM Sans — geometric, clean, modern SaaS font.
+// Excellent weight differentiation at 400/500/600/700.
+// Looks premium at both small dashboard text and large headings.
+const font = DM_Sans({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
-  style: ["normal", "italic"],
+  weight: ["400", "500", "600", "700"],
 });
 
-// ─── Metadata ──────────────────────────────────────────────
 export const metadata: Metadata = {
   title: "Clyniq",
   description: "Patient compliance tracking for chronic conditions",
 };
 
-// ─── Viewport ──────────────────────────────────────────────
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
 };
 
-// ─── Root Layout ───────────────────────────────────────────
 export default function RootLayout({
   children,
 }: {

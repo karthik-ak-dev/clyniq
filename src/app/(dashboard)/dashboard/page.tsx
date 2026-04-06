@@ -3,15 +3,8 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { PatientCard } from "@/components/dashboard/patient-card";
+import { apiFetch } from "@/lib/api-client";
 import type { Trend } from "@/lib/db/types";
-
-// ─── Dashboard Page ────────────────────────────────────────
-// Patient list with search, filters, and compliance overview.
-// Matched to design/doc_flow/patients.png:
-//   - Title "Patients" + search bar
-//   - Filter pills (All, Diabetes, Obesity)
-//   - Patient rows with avatar, name, condition, compliance %, trend
-//   - Floating "Add Patient" button
 
 type PatientRow = {
   patient: { id: string; name: string; phone: string; createdAt: string };
@@ -27,116 +20,216 @@ export default function DashboardPage() {
   const [patients, setPatients] = useState<PatientRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState<"all" | "diabetes" | "obesity">("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [conditionFilter, setConditionFilter] = useState("all");
 
   useEffect(() => {
     async function fetchPatients() {
       try {
-        const res = await fetch("/api/patients");
-        const json = await res.json();
-        if (json.success) {
-          setPatients(json.data);
-        }
-      } catch {
-        // Silent fail — empty state shown
-      } finally {
-        setLoading(false);
-      }
+        const data = await apiFetch<PatientRow[]>("/api/patients");
+        if (data) setPatients(data);
+      } catch { /* empty state */ }
+      finally { setLoading(false); }
     }
-
     fetchPatients();
   }, []);
 
-  // Filter + search
   const filtered = patients.filter((row) => {
-    const matchesFilter =
-      filter === "all" || row.doctorPatient.condition === filter;
+    const matchesCondition = conditionFilter === "all" || row.doctorPatient.condition === conditionFilter;
+    const matchesStatus =
+      statusFilter === "all" ||
+      (statusFilter === "on-track" && row.compliance.score.overall >= 70) ||
+      (statusFilter === "moderate" && row.compliance.score.overall >= 40 && row.compliance.score.overall < 70) ||
+      (statusFilter === "high-risk" && row.compliance.score.overall < 40);
     const matchesSearch =
       !search ||
       row.patient.name.toLowerCase().includes(search.toLowerCase()) ||
       row.patient.phone.includes(search);
-    return matchesFilter && matchesSearch;
+    return matchesCondition && matchesStatus && matchesSearch;
   });
-
-  // Find latest check-in date per patient (from compliance data)
-  // The API doesn't return lastCheckIn directly, so we use "today" as proxy
-  // if compliance score > 0. TODO: add lastCheckIn to API response.
 
   return (
     <div>
-      {/* Title + Add button */}
-      <div className="flex items-center justify-between mb-5">
-        <h1 className="text-2xl font-800 text-gray-900">Patients</h1>
-        <Link
-          href="/patients/add"
-          className="inline-flex items-center px-4 py-2 text-sm font-600 text-white bg-[#7c3aed] rounded-lg hover:bg-[#6d28d9] transition-colors shrink-0"
+      <h1 className="text-[1.35rem] mb-5" style={{ fontWeight: 600, color: "#2d2b3d" }}>Patients</h1>
+
+      {/* Main card */}
+      <div
+        className="bg-white rounded-2xl"
+        style={{ boxShadow: "0 1px 4px rgba(0,0,0,0.03), 0 6px 24px rgba(124,58,237,0.03)" }}
+      >
+        {/* Search + Filters */}
+        <div
+          className="flex flex-col sm:flex-row gap-3 px-5 py-4"
+          style={{ borderBottom: "1px solid #f0eaff" }}
         >
-          + Add Patient
-        </Link>
-      </div>
-
-      {/* Search */}
-      <div className="mb-4">
-        <input
-          type="text"
-          className="input-field"
-          placeholder="Search by name or phone..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-      </div>
-
-      {/* Filter pills */}
-      <div className="flex gap-2 mb-5">
-        {(["all", "diabetes", "obesity"] as const).map((f) => (
-          <button
-            key={f}
-            onClick={() => setFilter(f)}
-            className={`px-4 py-1.5 rounded-full text-sm font-600 transition-all ${
-              filter === f
-                ? "bg-[#7c3aed] text-white"
-                : "bg-white text-gray-500 border border-gray-200 hover:border-[#7c3aed] hover:text-[#7c3aed]"
-            }`}
-          >
-            {f === "all" ? "All" : f === "diabetes" ? "Diabetes" : "Obesity"}
-          </button>
-        ))}
-      </div>
-
-      {/* Patient list */}
-      {loading ? (
-        <div className="text-center py-12 text-gray-400">Loading...</div>
-      ) : filtered.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-gray-400 text-lg mb-2">
-            {patients.length === 0
-              ? "No patients yet"
-              : "No patients match your search"}
-          </p>
-          {patients.length === 0 && (
-            <Link
-              href="/patients/add"
-              className="text-[#7c3aed] font-600 text-sm"
-            >
-              + Add your first patient
-            </Link>
-          )}
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {filtered.map((row) => (
-            <PatientCard
-              key={row.doctorPatient.id}
-              doctorPatientId={row.doctorPatient.id}
-              name={row.patient.name}
-              condition={row.doctorPatient.condition}
-              complianceOverall={row.compliance.score.overall}
-              trend={row.compliance.trend}
-              lastCheckIn={null}
+          <div className="flex-1 relative">
+            <svg className="absolute left-3.5 top-1/2 -translate-y-1/2" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#8e8aa0" strokeWidth="1.5" strokeLinecap="round">
+              <circle cx="7" cy="7" r="5" />
+              <path d="M11 11l3.5 3.5" />
+            </svg>
+            <input
+              type="text"
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl text-[0.85rem] outline-none transition-all"
+              style={{
+                fontWeight: 400,
+                color: "#2d2b3d",
+                border: "1px solid #ece5ff",
+                background: "#fcfbff",
+              }}
+              placeholder="Search patients..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              onFocus={(e) => { e.currentTarget.style.borderColor = "#c4b5fd"; e.currentTarget.style.background = "#fff"; }}
+              onBlur={(e) => { e.currentTarget.style.borderColor = "#ece5ff"; e.currentTarget.style.background = "#fcfbff"; }}
             />
+          </div>
+
+          {[
+            { value: statusFilter, onChange: setStatusFilter, options: [["all", "All Statuses"], ["on-track", "On Track"], ["moderate", "Moderate"], ["high-risk", "High Risk"]] },
+            { value: conditionFilter, onChange: setConditionFilter, options: [["all", "All Conditions"], ["diabetes", "Diabetes"], ["obesity", "Obesity"]] },
+          ].map((dd, idx) => (
+            <select
+              key={idx}
+              value={dd.value}
+              onChange={(e) => dd.onChange(e.target.value)}
+              className="outline-none cursor-pointer rounded-xl py-2.5 px-3 text-[0.85rem] transition-all"
+              style={{
+                fontWeight: 500,
+                color: "#5a5773",
+                border: "1px solid #ece5ff",
+                background: "white",
+                appearance: "none",
+                paddingRight: "2rem",
+                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath d='M2.5 4l2.5 2.5 2.5-2.5' stroke='%238e8aa0' fill='none' stroke-width='1.5'/%3E%3C/svg%3E")`,
+                backgroundRepeat: "no-repeat",
+                backgroundPosition: "right 0.75rem center",
+              }}
+            >
+              {dd.options.map(([val, label]) => (
+                <option key={val} value={val}>{label}</option>
+              ))}
+            </select>
           ))}
         </div>
-      )}
+
+        {/* Content */}
+        {loading ? (
+          <div className="text-center py-24" style={{ color: "#8e8aa0", fontWeight: 400 }}>
+            <p className="text-[0.92rem]">Loading patients...</p>
+          </div>
+        ) : filtered.length === 0 ? (
+          /* Empty state — with illustration prompt */
+          <div className="text-center py-20 px-8">
+            <div
+              className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
+              style={{ background: "#f5f3ff" }}
+            >
+              <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="#8e8aa0" strokeWidth="1.5" strokeLinecap="round">
+                <circle cx="12" cy="10" r="5" />
+                <path d="M3 26c0-5.5 4-9 9-9" />
+                <line x1="21" y1="17" x2="21" y2="27" />
+                <line x1="16" y1="22" x2="26" y2="22" />
+              </svg>
+            </div>
+            <p className="text-[0.95rem] mb-1.5" style={{ fontWeight: 600, color: "#2d2b3d" }}>
+              {patients.length === 0 ? "No patients yet" : "No results found"}
+            </p>
+            <p className="text-[0.82rem] mb-5" style={{ fontWeight: 400, color: "#8e8aa0" }}>
+              {patients.length === 0
+                ? "Add your first patient to start tracking their compliance"
+                : "Try adjusting your search or filters"}
+            </p>
+            {patients.length === 0 && (
+              <Link
+                href="/patients/add"
+                className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-[0.84rem] text-white transition-all hover:opacity-90"
+                style={{ fontWeight: 600, background: "#7c3aed", boxShadow: "0 2px 8px rgba(124,58,237,0.25)" }}
+              >
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round">
+                  <line x1="7" y1="2" x2="7" y2="12" />
+                  <line x1="2" y1="7" x2="12" y2="7" />
+                </svg>
+                Add Patient
+              </Link>
+            )}
+          </div>
+        ) : (
+          <>
+            {/* Table header */}
+            <div
+              className="hidden sm:flex items-center gap-4 px-5 py-3 text-[0.8rem]"
+              style={{ fontWeight: 500, color: "#8e8aa0", borderBottom: "1px solid #f0eaff" }}
+            >
+              <div className="w-10 shrink-0" />
+              <div className="flex-1" style={{ minWidth: "180px" }}>Name</div>
+              <div className="shrink-0 hidden sm:block" style={{ minWidth: "110px" }}>
+                Status
+                <svg className="inline ml-1" width="8" height="8" viewBox="0 0 8 8" fill="none" stroke="#b8b3cc" strokeWidth="1.5"><path d="M2 3l2 2 2-2" /></svg>
+              </div>
+              <div className="shrink-0 hidden md:block" style={{ minWidth: "90px" }}>
+                Condition
+                <svg className="inline ml-1" width="8" height="8" viewBox="0 0 8 8" fill="none" stroke="#b8b3cc" strokeWidth="1.5"><path d="M2 3l2 2 2-2" /></svg>
+              </div>
+              <div className="shrink-0 hidden lg:block" style={{ minWidth: "110px" }}>
+                Last Check-In
+                <svg className="inline ml-1" width="8" height="8" viewBox="0 0 8 8" fill="none" stroke="#b8b3cc" strokeWidth="1.5"><path d="M2 3l2 2 2-2" /></svg>
+              </div>
+              <div className="shrink-0" style={{ minWidth: "40px" }}>Action</div>
+            </div>
+
+            {/* Rows */}
+            {filtered.map((row) => (
+              <PatientCard
+                key={row.doctorPatient.id}
+                doctorPatientId={row.doctorPatient.id}
+                name={row.patient.name}
+                phone={row.patient.phone}
+                condition={row.doctorPatient.condition}
+                complianceOverall={row.compliance.score.overall}
+                trend={row.compliance.trend}
+                lastCheckIn={null}
+              />
+            ))}
+
+            {/* Pagination — proper bordered buttons */}
+            <div
+              className="flex items-center justify-end gap-3 px-5 py-3.5"
+              style={{ borderTop: "1px solid #f0eaff" }}
+            >
+              <span className="text-[0.78rem]" style={{ fontWeight: 400, color: "#8e8aa0" }}>
+                1–{filtered.length} of {filtered.length}
+              </span>
+              <div className="flex items-center gap-1.5">
+                <button
+                  className="px-3.5 py-1.5 rounded-lg text-[0.78rem] transition-all"
+                  style={{
+                    fontWeight: 500,
+                    color: "#b8b3cc",
+                    border: "1px solid #ece5ff",
+                    background: "#fcfbff",
+                    cursor: "not-allowed",
+                    opacity: 0.6,
+                  }}
+                  disabled
+                >
+                  Previous
+                </button>
+                <button
+                  className="px-3.5 py-1.5 rounded-lg text-[0.78rem] transition-all hover:bg-[#f5f3ff]"
+                  style={{
+                    fontWeight: 500,
+                    color: "#7c3aed",
+                    border: "1px solid #ece5ff",
+                    background: "white",
+                  }}
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 }
