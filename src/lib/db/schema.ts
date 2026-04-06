@@ -4,6 +4,7 @@ import {
   uuid,
   varchar,
   text,
+  integer,
   boolean,
   timestamp,
   date,
@@ -16,6 +17,12 @@ import {
 // Supported chronic conditions. New conditions can be added here
 // and will propagate to templates + doctor_patients automatically.
 export const conditionEnum = pgEnum("condition", ["diabetes", "obesity"]);
+
+// Patient gender options
+export const genderEnum = pgEnum("gender", ["male", "female", "other"]);
+
+// Doctor-patient relationship status
+export const patientStatusEnum = pgEnum("patient_status", ["new", "active", "inactive"]);
 
 // ─── Template Question Shape ──────────────────────────────
 // Defines the structure of each question inside a tracking template's
@@ -73,6 +80,9 @@ export const patients = pgTable("patients", {
   id: uuid("id").defaultRandom().primaryKey(),               // PK, auto-generated UUID v4
   name: varchar("name", { length: 255 }).notNull(),           // Patient's full name
   phone: varchar("phone", { length: 15 }).notNull(),          // Phone in +91XXXXXXXXXX format
+  email: varchar("email", { length: 255 }),                    // Optional email address
+  age: integer("age"),                                         // Optional age in years
+  gender: genderEnum("gender"),                                // Optional: male, female, other
   createdAt: timestamp("created_at").defaultNow().notNull(),   // Row creation timestamp
 });
 
@@ -132,6 +142,7 @@ export const doctorPatients = pgTable(
     magicToken: varchar("magic_token", { length: 64 })        // Unique token for patient's magic link
       .unique()
       .notNull(),
+    status: patientStatusEnum("status").default("new").notNull(), // Relationship status: new, active, inactive
     createdAt: timestamp("created_at").defaultNow().notNull(), // Row creation timestamp
   },
   (table) => [

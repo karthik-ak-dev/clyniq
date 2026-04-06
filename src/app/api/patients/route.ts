@@ -2,17 +2,17 @@ import { NextRequest } from "next/server";
 import { getAuthenticatedDoctor } from "@/lib/auth/middleware";
 import { patientQueries, complianceQueries } from "@/lib/db/queries";
 import { createPatientSchema } from "@/lib/validators";
-import type { Condition } from "@/lib/db/types";
+import type { Condition, Gender, PatientStatus } from "@/lib/db/types";
 
 // ─── POST /api/patients ────────────────────────────────────
 // Create a new patient under the authenticated doctor.
 //
 // Request body:
-//   { name: string, phone: string, condition: "diabetes" | "obesity" }
+//   { name, phone, condition, email?, age?, gender?, status?, notes? }
 //
 // What happens:
 //   1. Validates input via Zod
-//   2. Creates patient record
+//   2. Creates patient record (with optional email, age, gender)
 //   3. Auto-assigns default template for the condition
 //   4. Enables all template questions by default
 //   5. Generates magic token for the patient's check-in link
@@ -33,8 +33,15 @@ export async function POST(request: NextRequest) {
 
     const result = await patientQueries.create(
       doctor.id,
-      { name: data.name, phone: data.phone },
-      data.condition as Condition
+      {
+        name: data.name,
+        phone: data.phone,
+        email: data.email || null,
+        age: data.age ?? null,
+        gender: (data.gender as Gender) || null,
+      },
+      data.condition as Condition,
+      (data.status as PatientStatus) || undefined
     );
 
     return Response.json({ success: true, data: result }, { status: 201 });

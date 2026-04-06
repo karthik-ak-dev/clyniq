@@ -4,9 +4,10 @@ import { db } from "@/lib/db";
 import { patients, doctorPatients, trackingTemplates } from "@/lib/db/schema";
 import type {
   Patient,
-  NewPatient,
   DoctorPatient,
   Condition,
+  Gender,
+  PatientStatus,
 } from "@/lib/db/types";
 
 // ─── Patient Queries ───────────────────────────────────────
@@ -26,13 +27,26 @@ export const patientQueries = {
   // Returns both the patient and doctor_patient records.
   async create(
     doctorId: string,
-    data: Pick<NewPatient, "name" | "phone">,
-    condition: Condition
+    data: {
+      name: string;
+      phone: string;
+      email?: string | null;
+      age?: number | null;
+      gender?: Gender | null;
+    },
+    condition: Condition,
+    status?: PatientStatus
   ): Promise<{ patient: Patient; doctorPatient: DoctorPatient }> {
     // Step 1: Create the patient record
     const [patient] = await db
       .insert(patients)
-      .values({ name: data.name, phone: data.phone })
+      .values({
+        name: data.name,
+        phone: data.phone,
+        email: data.email || null,
+        age: data.age || null,
+        gender: data.gender || null,
+      })
       .returning();
 
     // Step 2: Find the default template for this condition
@@ -67,6 +81,7 @@ export const patientQueries = {
         templateId: template.id,
         enabledQuestions,
         magicToken,
+        status: status || "new",
       })
       .returning();
 

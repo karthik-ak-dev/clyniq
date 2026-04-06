@@ -73,3 +73,19 @@ export const TREND = {
   WORSENING: "worsening",
 } as const;
 export type Trend = (typeof TREND)[keyof typeof TREND];
+
+// Patient gender
+export const GENDER = {
+  MALE: "male",
+  FEMALE: "female",
+  OTHER: "other",
+} as const;
+export type Gender = (typeof GENDER)[keyof typeof GENDER];
+
+// Doctor-patient relationship status
+export const PATIENT_STATUS = {
+  NEW: "new",
+  ACTIVE: "active",
+  INACTIVE: "inactive",
+} as const;
+export type PatientStatus = (typeof PATIENT_STATUS)[keyof typeof PATIENT_STATUS];
