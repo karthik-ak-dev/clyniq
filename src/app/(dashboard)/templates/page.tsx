@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { PageHeader } from "@/components/dashboard/page-header";
+import { PageLoader } from "@/components/ui/page-loader";
 import { apiFetch } from "@/lib/api-client";
 import type { TemplateQuestion } from "@/lib/db/types";
 
@@ -44,6 +45,15 @@ export default function TemplatesPage() {
     fetchTemplates();
   }, []);
 
+  if (loading) {
+    return (
+      <div>
+        <PageHeader title="Check-in Templates" />
+        <PageLoader message="Loading templates..." />
+      </div>
+    );
+  }
+
   return (
     <div>
       <PageHeader title="Check-in Templates" />
@@ -59,16 +69,7 @@ export default function TemplatesPage() {
       >
         <div className="rounded-2xl overflow-hidden" style={{ background: "#f0ecfa" }}>
 
-          {loading ? (
-            <div className="flex flex-col items-center justify-center" style={{ minHeight: "40vh" }}>
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-3" style={{ background: "#ede9f8" }}>
-                <svg className="animate-spin" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="#7c3aed" strokeWidth="2" strokeLinecap="round">
-                  <path d="M9 1.5a7.5 7.5 0 0 1 7.5 7.5" />
-                </svg>
-              </div>
-              <p className="text-[0.88rem]" style={{ color: "#8e8aa0", fontWeight: 500 }}>Loading templates...</p>
-            </div>
-          ) : templates.length === 0 ? (
+          {templates.length === 0 ? (
             <div className="text-center py-20 px-8">
               <p className="text-[0.95rem] mb-1.5" style={{ fontWeight: 600, color: "#2d2b3d" }}>No templates found</p>
               <p className="text-[0.82rem]" style={{ fontWeight: 400, color: "#8e8aa0" }}>Run the seed script to create default templates</p>

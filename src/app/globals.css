@@ -12,6 +12,15 @@ html, body {
   background: #e4ddf5;
 }
 
+/* Hide scrollbars globally while keeping scroll functionality */
+* {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+*::-webkit-scrollbar {
+  display: none; /* Chrome/Safari/Opera */
+}
+
 /* ─── Design System Theme ───────────────────────────────────
    Tailwind v4 CSS-first configuration.
    Colors extracted from design/ref_1, ref_2, ref_3.
