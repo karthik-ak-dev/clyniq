@@ -83,6 +83,7 @@ export const patients = pgTable("patients", {
   email: varchar("email", { length: 255 }),                    // Optional email address
   age: integer("age"),                                         // Optional age in years
   gender: genderEnum("gender"),                                // Optional: male, female, other
+  notes: text("notes"),                                        // Optional doctor notes about patient
   createdAt: timestamp("created_at").defaultNow().notNull(),   // Row creation timestamp
 });
 

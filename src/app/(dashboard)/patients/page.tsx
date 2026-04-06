@@ -16,6 +16,7 @@ type PatientRow = {
     trend: Trend;
     insights: string[];
   };
+  lastCheckIn: string | null;
 };
 
 export default function DashboardPage() {
@@ -225,7 +226,7 @@ export default function DashboardPage() {
                   condition={row.doctorPatient.condition}
                   complianceOverall={row.compliance.score.overall}
                   trend={row.compliance.trend}
-                  lastCheckIn={null}
+                  lastCheckIn={row.lastCheckIn}
                 />
               ))}
 

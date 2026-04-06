@@ -33,6 +33,7 @@ export const patientQueries = {
       email?: string | null;
       age?: number | null;
       gender?: Gender | null;
+      notes?: string | null;
     },
     condition: Condition,
     status?: PatientStatus
@@ -46,6 +47,7 @@ export const patientQueries = {
         email: data.email || null,
         age: data.age || null,
         gender: data.gender || null,
+        notes: data.notes || null,
       })
       .returning();
 

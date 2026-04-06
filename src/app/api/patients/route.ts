@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { getAuthenticatedDoctor } from "@/lib/auth/middleware";
-import { patientQueries, complianceQueries } from "@/lib/db/queries";
+import { patientQueries, complianceQueries, checkinQueries } from "@/lib/db/queries";
 import { createPatientSchema } from "@/lib/validators";
 import type { Condition, Gender, PatientStatus } from "@/lib/db/types";
 
@@ -39,6 +39,7 @@ export async function POST(request: NextRequest) {
         email: data.email || null,
         age: data.age ?? null,
         gender: (data.gender as Gender) || null,
+        notes: data.notes || null,
       },
       data.condition as Condition,
       (data.status as PatientStatus) || undefined
@@ -82,8 +83,11 @@ export async function GET() {
     // Enrich each patient with compliance data
     const data = await Promise.all(
       rows.map(async ({ patient, doctorPatient }) => {
-        const compliance = await complianceQueries.getForPatient(doctorPatient);
-        return { patient, doctorPatient, compliance };
+        const [compliance, lastCheckIn] = await Promise.all([
+          complianceQueries.getForPatient(doctorPatient),
+          checkinQueries.getLastCheckInDate(doctorPatient.id),
+        ]);
+        return { patient, doctorPatient, compliance, lastCheckIn };
       })
     );
 

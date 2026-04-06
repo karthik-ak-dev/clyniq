@@ -59,4 +59,16 @@ export const checkinQueries = {
       )
       .orderBy(desc(checkIns.date));
   },
+
+  // Get the most recent check-in date for a patient.
+  // Used by the patient list to show "Last Check-In" column.
+  async getLastCheckInDate(doctorPatientId: string): Promise<string | null> {
+    const [row] = await db
+      .select({ date: checkIns.date })
+      .from(checkIns)
+      .where(eq(checkIns.doctorPatientId, doctorPatientId))
+      .orderBy(desc(checkIns.date))
+      .limit(1);
+    return row?.date ?? null;
+  },
 };

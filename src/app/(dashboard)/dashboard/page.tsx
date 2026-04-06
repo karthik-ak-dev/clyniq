@@ -15,6 +15,7 @@ type PatientRow = {
     trend: Trend;
     insights: string[];
   };
+  lastCheckIn: string | null;
 };
 
 export default function DashboardHome() {

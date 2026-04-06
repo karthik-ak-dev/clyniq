@@ -165,71 +165,63 @@ export default function TemplatesPage() {
                       {template.questions.sort((a, b) => a.order - b.order).map((q, idx) => (
                         <div
                           key={q.key}
-                          className="flex items-center gap-3.5 px-5 py-3.5"
+                          className="px-5 py-4"
                           style={{ borderBottom: idx < template.questions.length - 1 ? "1px solid #ece7f8" : "none" }}
                         >
-                          {/* Check icon */}
-                          <div
-                            className="w-6 h-6 rounded-full flex items-center justify-center shrink-0"
-                            style={{ background: "rgba(124,58,237,0.1)" }}
-                          >
-                            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#7c3aed" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M2.5 6.5l2.5 2.5 4.5-5" />
-                            </svg>
-                          </div>
-
-                          {/* Question label + options preview */}
-                          <div className="flex-1 min-w-0">
-                            <p className="text-[0.9rem] truncate" style={{ fontWeight: 500, color: "#2d2b3d" }}>
-                              {q.label}
-                            </p>
-                            {q.options && (
-                              <div className="flex gap-1.5 mt-1 flex-wrap">
-                                {q.options.slice(0, 4).map((opt) => (
-                                  <span
-                                    key={opt}
-                                    className="px-2 py-0.5 rounded-md text-[0.78rem]"
-                                    style={{ fontWeight: 500, color: "#7c3aed", background: "#ede9f8" }}
-                                  >
-                                    {opt}
-                                  </span>
-                                ))}
-                                {q.options.length > 4 && (
-                                  <span className="text-[0.78rem]" style={{ fontWeight: 400, color: "#8e8aa0" }}>
-                                    +{q.options.length - 4} more
-                                  </span>
-                                )}
-                              </div>
-                            )}
-                            {q.unit && (
-                              <span className="text-[0.78rem] mt-0.5 block" style={{ fontWeight: 400, color: "#8e8aa0" }}>
-                                Unit: {q.unit}
-                              </span>
-                            )}
-                          </div>
-
-                          {/* Type badge */}
-                          <span
-                            className="shrink-0 text-[0.78rem] px-2.5 py-1 rounded-lg"
-                            style={{
-                              fontWeight: 500,
-                              color: "#8e8aa0",
-                              background: "#ede9f8",
-                            }}
-                          >
-                            {QUESTION_META[q.type]?.label || q.type}
-                          </span>
-
-                          {/* Toggle — visual only in MVP */}
-                          <div
-                            className="w-10 h-6 rounded-full shrink-0 flex items-center px-0.5"
-                            style={{ background: "linear-gradient(135deg, #a78bfa, #8b5cf6)", boxShadow: "0 2px 4px rgba(124,58,237,0.2)" }}
-                          >
+                          <div className="flex items-start gap-3">
+                            {/* Check icon */}
                             <div
-                              className="w-5 h-5 rounded-full ml-auto"
-                              style={{ background: "white", boxShadow: "0 1px 3px rgba(0,0,0,0.1)" }}
-                            />
+                              className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5"
+                              style={{ background: "rgba(124,58,237,0.1)" }}
+                            >
+                              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#7c3aed" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M2.5 6.5l2.5 2.5 4.5-5" />
+                              </svg>
+                            </div>
+
+                            {/* Label — full width, no truncation */}
+                            <div className="flex-1 min-w-0">
+                              <p className="text-[0.92rem]" style={{ fontWeight: 500, color: "#2d2b3d" }}>
+                                {q.label}
+                              </p>
+                              {q.unit && (
+                                <span className="text-[0.8rem] mt-0.5 block" style={{ fontWeight: 400, color: "#8e8aa0" }}>
+                                  Unit: {q.unit}
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Type badge + toggle — right side */}
+                            <div className="flex items-center gap-2.5 shrink-0">
+                              <span
+                                className="hidden sm:inline text-[0.78rem] px-2.5 py-1 rounded-lg"
+                                style={{ fontWeight: 500, color: "#8e8aa0", background: "#ede9f8" }}
+                              >
+                                {QUESTION_META[q.type]?.label || q.type}
+                              </span>
+                              <div
+                                className="w-10 h-6 rounded-full flex items-center px-0.5"
+                                style={{ background: "linear-gradient(135deg, #a78bfa, #8b5cf6)", boxShadow: "0 2px 4px rgba(124,58,237,0.2)" }}
+                              >
+                                <div className="w-5 h-5 rounded-full ml-auto" style={{ background: "white", boxShadow: "0 1px 3px rgba(0,0,0,0.1)" }} />
+                              </div>
+                            </div>
                           </div>
+
+                          {/* Options pills — below the label */}
+                          {q.options && (
+                            <div className="flex gap-1.5 mt-2 ml-9 flex-wrap">
+                              {q.options.map((opt) => (
+                                <span
+                                  key={opt}
+                                  className="px-2.5 py-0.5 rounded-md text-[0.8rem]"
+                                  style={{ fontWeight: 500, color: "#7c3aed", background: "#ede9f8" }}
+                                >
+                                  {opt}
+                                </span>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>
