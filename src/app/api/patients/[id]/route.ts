@@ -47,8 +47,13 @@ export async function GET(
 
     const { patient, doctorPatient } = row;
 
-    // Fetch template for question definitions (labels, types, units)
-    const template = await templateQueries.getById(doctorPatient.templateId);
+    // Fetch template + last 14 days of check-ins in parallel
+    // (14 days covers both compliance calculation and the 7-day timeline)
+    const [template, checkIns14Days] = await Promise.all([
+      templateQueries.getById(doctorPatient.templateId),
+      checkinQueries.getLastNDays(doctorPatient.id, 14),
+    ]);
+
     if (!template) {
       return Response.json(
         { success: false, error: "Template not found for this patient" },
@@ -56,14 +61,17 @@ export async function GET(
       );
     }
 
-    // Calculate compliance (score, trend, insights)
-    const compliance = await complianceQueries.getForPatient(doctorPatient);
-
-    // Fetch last 7 days of check-ins for the activity timeline
-    const recentCheckIns = await checkinQueries.getLastNDays(
-      doctorPatient.id,
-      7
+    // Calculate compliance using pre-fetched data (no additional queries)
+    const compliance = await complianceQueries.getForPatient(
+      doctorPatient,
+      { template, checkIns: checkIns14Days }
     );
+
+    // Filter to last 7 days for the activity timeline (from already-fetched data)
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const sevenDaysAgoStr = sevenDaysAgo.toISOString().split("T")[0];
+    const recentCheckIns = checkIns14Days.filter((ci) => ci.date >= sevenDaysAgoStr);
 
     return Response.json({
       success: true,

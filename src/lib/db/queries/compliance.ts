@@ -1,4 +1,4 @@
-import { eq, gte, desc, inArray } from "drizzle-orm";
+import { eq, gte, desc, inArray, and } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { checkIns } from "@/lib/db/schema";
 import { checkinQueries } from "./checkins";
@@ -20,32 +20,36 @@ export const complianceQueries = {
   // Get full compliance data for one patient.
   // Returns score, per-question breakdown, trend, and insights.
   // Used by GET /api/compliance/[patientId] and the patient detail page.
-  async getForPatient(doctorPatient: DoctorPatient) {
-    // Fetch the template to get question definitions
-    const template = await templateQueries.getById(doctorPatient.templateId);
+  // Accepts optional pre-fetched template and checkIns to avoid duplicate queries.
+  async getForPatient(
+    doctorPatient: DoctorPatient,
+    prefetched?: { template?: Awaited<ReturnType<typeof templateQueries.getById>>; checkIns?: CheckIn[] }
+  ) {
+    // Use prefetched data or fetch in parallel
+    const [template, patientCheckIns] = prefetched?.template && prefetched?.checkIns
+      ? [prefetched.template, prefetched.checkIns]
+      : await Promise.all([
+          prefetched?.template ?? templateQueries.getById(doctorPatient.templateId),
+          prefetched?.checkIns ?? checkinQueries.getLastNDays(doctorPatient.id, 14),
+        ]);
+
     if (!template) {
       throw new Error("Template not found");
     }
 
-    // Fetch last 14 days of check-ins (needed for trend: current 7 vs previous 7)
-    const checkIns = await checkinQueries.getLastNDays(
-      doctorPatient.id,
-      14
-    );
-
     // Calculate everything via the compliance engine
     const score = complianceEngine.calculateScore(
-      checkIns,
+      patientCheckIns,
       doctorPatient.enabledQuestions,
       template.questions
     );
     const trend = complianceEngine.detectTrend(
-      checkIns,
+      patientCheckIns,
       doctorPatient.enabledQuestions,
       template.questions
     );
     const insights = complianceEngine.generateInsights(
-      checkIns,
+      patientCheckIns,
       doctorPatient.enabledQuestions,
       template.questions
     );
@@ -63,25 +67,32 @@ export const complianceQueries = {
     since.setDate(since.getDate() - 14);
     const sinceStr = since.toISOString().split("T")[0];
 
-    // Single query: all check-ins for all patients in last 14 days
-    const allCheckIns = await db
-      .select()
-      .from(checkIns)
-      .where(gte(checkIns.date, sinceStr))
-      .orderBy(desc(checkIns.date));
+    // Batch fetch unique templates (usually just 1-2)
+    const templateIds = [...new Set(doctorPatients.map((dp) => dp.templateId))];
+
+    // Run both queries in parallel — check-ins + templates
+    const [allCheckIns, ...templates] = await Promise.all([
+      db
+        .select()
+        .from(checkIns)
+        .where(
+          and(
+            inArray(checkIns.doctorPatientId, dpIds),
+            gte(checkIns.date, sinceStr)
+          )
+        )
+        .orderBy(desc(checkIns.date)),
+      ...templateIds.map((id) => templateQueries.getById(id)),
+    ]);
 
     // Group by doctorPatientId
     const checkInMap = new Map<string, CheckIn[]>();
     for (const ci of allCheckIns) {
-      if (!dpIds.includes(ci.doctorPatientId)) continue;
       const list = checkInMap.get(ci.doctorPatientId) || [];
       list.push(ci);
       checkInMap.set(ci.doctorPatientId, list);
     }
 
-    // Batch fetch unique templates (usually just 1-2)
-    const templateIds = [...new Set(doctorPatients.map((dp) => dp.templateId))];
-    const templates = await Promise.all(templateIds.map((id) => templateQueries.getById(id)));
     const templateMap = new Map(templates.filter(Boolean).map((t) => [t!.id, t!]));
 
     // Calculate compliance for each patient

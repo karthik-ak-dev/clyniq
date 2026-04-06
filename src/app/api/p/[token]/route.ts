@@ -38,8 +38,14 @@ export async function GET(
 
     const { patient, doctorPatient } = row;
 
-    // Fetch the doctor's name for the greeting
-    const doctor = await doctorQueries.findById(doctorPatient.doctorId);
+    // Fetch doctor, template, and today's check-in status in parallel
+    const today = getTodayUTC();
+    const [doctor, template, alreadyCheckedIn] = await Promise.all([
+      doctorQueries.findById(doctorPatient.doctorId),
+      templateQueries.getById(doctorPatient.templateId),
+      checkinQueries.existsForDate(doctorPatient.id, today),
+    ]);
+
     if (!doctor) {
       return Response.json(
         { success: false, error: "Doctor not found" },
@@ -47,8 +53,6 @@ export async function GET(
       );
     }
 
-    // Fetch the template to get full question definitions
-    const template = await templateQueries.getById(doctorPatient.templateId);
     if (!template) {
       return Response.json(
         { success: false, error: "Template not found" },
@@ -61,13 +65,6 @@ export async function GET(
     const questions = template.questions
       .filter((q) => enabledSet.has(q.key))
       .sort((a, b) => a.order - b.order);
-
-    // Check if the patient has already checked in today
-    const today = getTodayUTC();
-    const alreadyCheckedIn = await checkinQueries.existsForDate(
-      doctorPatient.id,
-      today
-    );
 
     return Response.json({
       success: true,
