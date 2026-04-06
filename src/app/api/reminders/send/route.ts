@@ -17,7 +17,13 @@ import { sendWhatsAppReminder } from "@/lib/notifications/whatsapp";
 //
 // This is a Phase 3 feature — safe to deploy in Phase 1/2 as the
 // feature flag and dynamic Twilio import prevent any actual sends.
-export async function POST() {
+export async function POST(request: Request) {
+  // Security — validate cron secret to prevent unauthorized triggers
+  const authHeader = request.headers.get("authorization");
+  if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    return Response.json({ success: false, error: "Unauthorized" }, { status: 401 });
+  }
+
   // Feature flag — early exit if WhatsApp is not enabled
   if (process.env.WHATSAPP_ENABLED !== "true") {
     return Response.json({

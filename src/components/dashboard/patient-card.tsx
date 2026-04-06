@@ -41,7 +41,7 @@ export function PatientCard({
       >
         {/* Hover accent — left purple bar */}
         <div
-          className="absolute left-0 top-2 bottom-2 w-[3px] rounded-r-full bg-[#7c3aed] opacity-0 group-hover:opacity-100 transition-opacity"
+          className="absolute left-0 top-2 bottom-2 w-0.75 rounded-r-full bg-[#7c3aed] opacity-0 group-hover:opacity-100 transition-opacity"
         />
 
         {/* Avatar — 3D embossed */}
@@ -138,7 +138,7 @@ function PatientActions({ doctorPatientId }: { doctorPatientId: string }) {
       </button>
       {/* Dropdown */}
       <div
-        className="hidden absolute right-0 top-9 z-20 min-w-[160px] py-1.5 rounded-xl"
+        className="hidden absolute right-0 top-9 z-20 min-w-40 py-1.5 rounded-xl"
         style={{ background: "#f5f2fc", boxShadow: "0 4px 20px rgba(124,58,237,0.1), 0 0 0 1px rgba(124,58,237,0.06)" }}
         onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
       >

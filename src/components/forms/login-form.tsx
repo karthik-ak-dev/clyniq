@@ -79,9 +79,8 @@ export function LoginForm() {
         </button>
       </div>
 
-      {/* Forgot password — compact row */}
-      <div className="flex items-center justify-between mt-3 mb-4">
-        <span className="text-[0.75rem] text-gray-300" style={{ fontWeight: 400 }}>Forgot password?</span>
+      {/* Forgot password */}
+      <div className="flex items-center justify-end mt-3 mb-4">
         <span className="text-[0.75rem] text-[#7c3aed]" style={{ fontWeight: 500 }}>Forgot password?</span>
       </div>
 

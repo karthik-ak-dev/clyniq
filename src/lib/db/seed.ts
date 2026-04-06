@@ -166,7 +166,7 @@ async function seed() {
           .set({ enabledQuestions, templateId: template.id })
           .where(eq(doctorPatients.id, existingLink.doctor_patients.id));
         console.log(`  ✓ Test patient — updated (enabled ${enabledQuestions.length} questions)`);
-        console.log(`  → Check-in URL: http://localhost:3000/p/${existingLink.doctor_patients.magicToken}`);
+        console.log(`  → Check-in URL: ${process.env.NEXTAUTH_URL || "http://localhost:3000"}/p/${existingLink.doctor_patients.magicToken}`);
       } else {
         // Create patient
         const [patient] = await db
@@ -191,7 +191,7 @@ async function seed() {
         });
 
         console.log(`  ✓ Test patient — created (Ravi Kumar, +919876543210)`);
-        console.log(`  → Check-in URL: http://localhost:3000/p/${magicToken}`);
+        console.log(`  → Check-in URL: ${process.env.NEXTAUTH_URL || "http://localhost:3000"}/p/${magicToken}`);
       }
     }
   }

@@ -8,7 +8,7 @@ import type { Trend } from "@/lib/db/types";
 import type { QuestionMetric } from "@/lib/compliance/engine";
 
 type PatientDetail = {
-  patient: { name: string; phone: string; createdAt: string };
+  patient: { name: string; phone: string; email: string | null; age: number | null; gender: string | null; createdAt: string };
   doctorPatient: { id: string; condition: string; magicToken: string; enabledQuestions: string[] };
   template: { questions: { key: string; label: string; type: string }[] } | null;
   compliance: {
@@ -130,7 +130,7 @@ export default function PatientDetailPage() {
                 className="w-14 h-14 rounded-full flex items-center justify-center"
                 style={{ background: "linear-gradient(135deg, #e8e2f6, #ddd6ee)" }}
               >
-                <span className="text-[1rem] text-[#7c3aed]" style={{ fontWeight: 700 }}>{initials}</span>
+                <span className="text-base text-[#7c3aed]" style={{ fontWeight: 700 }}>{initials}</span>
               </div>
             </div>
 
@@ -145,7 +145,12 @@ export default function PatientDetailPage() {
                 </span>
               </div>
               <p className="text-[0.8rem] mt-0.5" style={{ fontWeight: 400, color: "#8e8aa0" }}>
-                {patient.phone} · Since {sinceDate}
+                {[
+                  patient.age && `${patient.age}y`,
+                  patient.gender && patient.gender.charAt(0).toUpperCase() + patient.gender.slice(1),
+                  patient.phone,
+                  patient.email,
+                ].filter(Boolean).join(" · ")} · Since {sinceDate}
               </p>
             </div>
 
@@ -247,7 +252,7 @@ export default function PatientDetailPage() {
                         boxShadow: `0 0 0 3px ${overallBg}`,
                       }}
                     >
-                      <span className="text-[1rem]" style={{ fontWeight: 700, color: overallColor }}>{compliance.score.overall}%</span>
+                      <span className="text-base" style={{ fontWeight: 700, color: overallColor }}>{compliance.score.overall}%</span>
                     </div>
                   </div>
 

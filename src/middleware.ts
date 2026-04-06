@@ -44,6 +44,5 @@ export const config = {
     "/templates/:path*",
     "/api/patients/:path*",
     "/api/templates/:path*",
-    "/api/compliance/:path*",
   ],
 };

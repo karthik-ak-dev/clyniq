@@ -12,7 +12,7 @@ export default function DashboardLayout({
     <SessionProvider>
       <div className="min-h-dvh" style={{ background: "#e4ddf5" }}>
         <Sidebar />
-        <div className="md:ml-[240px] flex flex-col min-h-dvh">
+        <div className="md:ml-60 flex flex-col min-h-dvh">
           <main className="flex-1 px-5 md:px-8 pt-5 pb-20 md:pb-4">
             {children}
           </main>

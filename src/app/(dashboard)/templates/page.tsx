@@ -126,7 +126,7 @@ export default function TemplatesPage() {
                           <line x1="5.5" y1="9.5" x2="12.5" y2="9.5" />
                           <line x1="5.5" y1="13" x2="9.5" y2="13" />
                         </svg>
-                        <h2 className="text-[1rem]" style={{ fontWeight: 600, color: "#2d2b3d" }}>{template.name}</h2>
+                        <h2 className="text-base" style={{ fontWeight: 600, color: "#2d2b3d" }}>{template.name}</h2>
                       </div>
                       <p className="text-[0.82rem] pl-7" style={{ fontWeight: 400, color: "#8e8aa0" }}>
                         {template.condition === "diabetes"

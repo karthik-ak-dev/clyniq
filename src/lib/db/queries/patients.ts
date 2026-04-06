@@ -1,4 +1,4 @@
-import { eq, and, or, ilike } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import crypto from "crypto";
 import { db } from "@/lib/db";
 import { patients, doctorPatients, trackingTemplates } from "@/lib/db/schema";
@@ -153,31 +153,5 @@ export const patientQueries = {
       .limit(1);
 
     return row ?? null;
-  },
-
-  // Search patients by name or phone for a given doctor.
-  // Case-insensitive partial match on both fields.
-  // Used by GET /api/patients/search?q=query.
-  async search(
-    doctorId: string,
-    query: string
-  ): Promise<{ patient: Patient; doctorPatient: DoctorPatient }[]> {
-    const pattern = `%${query}%`;
-
-    const rows = await db
-      .select({
-        patient: patients,
-        doctorPatient: doctorPatients,
-      })
-      .from(doctorPatients)
-      .innerJoin(patients, eq(patients.id, doctorPatients.patientId))
-      .where(
-        and(
-          eq(doctorPatients.doctorId, doctorId),
-          or(ilike(patients.name, pattern), ilike(patients.phone, pattern))
-        )
-      );
-
-    return rows;
   },
 };

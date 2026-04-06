@@ -35,13 +35,3 @@ export const createPatientSchema = z.object({
 });
 export type CreatePatientInput = z.infer<typeof createPatientSchema>;
 
-// ─── Assign Template Validator ─────────────────────────────
-// Used by POST /api/templates/assign when a doctor configures
-// which questions a patient should see.
-export const assignTemplateSchema = z.object({
-  doctorPatientId: z.string().uuid("Invalid doctor-patient ID"),
-  enabledQuestions: z
-    .array(z.string())
-    .min(1, "At least one question must be enabled"),
-});
-export type AssignTemplateInput = z.infer<typeof assignTemplateSchema>;

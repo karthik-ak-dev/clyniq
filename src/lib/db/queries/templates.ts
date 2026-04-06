@@ -1,6 +1,6 @@
 import { eq, and } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { trackingTemplates, doctorPatients } from "@/lib/db/schema";
+import { trackingTemplates } from "@/lib/db/schema";
 import type { TrackingTemplate, Condition } from "@/lib/db/types";
 
 // ─── Template Queries ──────────────────────────────────────
@@ -48,47 +48,5 @@ export const templateQueries = {
       .select()
       .from(trackingTemplates)
       .where(eq(trackingTemplates.condition, condition));
-  },
-
-  // Update which questions are enabled for a specific doctor_patient.
-  // Validates that the provided keys exist in the assigned template
-  // before updating. Throws if any key is invalid.
-  //
-  // Used by POST /api/templates/assign when a doctor toggles questions.
-  async updateEnabledQuestions(
-    doctorPatientId: string,
-    enabledQuestions: string[]
-  ): Promise<void> {
-    // Fetch the doctor_patient to get the template ID
-    const [dp] = await db
-      .select()
-      .from(doctorPatients)
-      .where(eq(doctorPatients.id, doctorPatientId))
-      .limit(1);
-
-    if (!dp) {
-      throw new Error("Doctor-patient record not found");
-    }
-
-    // Fetch the template to validate question keys
-    const template = await this.getById(dp.templateId);
-    if (!template) {
-      throw new Error("Template not found");
-    }
-
-    // Validate that every enabled key exists in the template
-    const validKeys = new Set(template.questions.map((q) => q.key));
-    const invalidKeys = enabledQuestions.filter((k) => !validKeys.has(k));
-    if (invalidKeys.length > 0) {
-      throw new Error(
-        `Invalid question keys: ${invalidKeys.join(", ")}`
-      );
-    }
-
-    // Update the enabled questions on the doctor_patient record
-    await db
-      .update(doctorPatients)
-      .set({ enabledQuestions })
-      .where(eq(doctorPatients.id, doctorPatientId));
   },
 };

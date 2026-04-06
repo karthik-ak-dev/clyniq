@@ -59,17 +59,4 @@ export const checkinQueries = {
       )
       .orderBy(desc(checkIns.date));
   },
-
-  // Get all check-ins for a patient (no date filter).
-  // Used for the full activity timeline view.
-  // Returns check-ins sorted by date descending.
-  async findByDoctorPatientId(
-    doctorPatientId: string
-  ): Promise<CheckIn[]> {
-    return db
-      .select()
-      .from(checkIns)
-      .where(eq(checkIns.doctorPatientId, doctorPatientId))
-      .orderBy(desc(checkIns.date));
-  },
 };
