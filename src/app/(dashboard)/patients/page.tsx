@@ -207,7 +207,7 @@ export default function DashboardPage() {
                 <div className="shrink-0 hidden sm:block" style={{ minWidth: "60px" }}>Score</div>
                 <div className="shrink-0 hidden md:block" style={{ minWidth: "90px" }}>Condition</div>
                 <div className="shrink-0 hidden lg:block" style={{ minWidth: "110px" }}>Last Check-In</div>
-                <div className="shrink-0" style={{ minWidth: "40px" }} />
+                <div className="shrink-0" style={{ minWidth: "24px" }} />
               </div>
 
               {/* Rows */}

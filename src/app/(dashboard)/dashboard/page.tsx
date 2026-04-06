@@ -48,7 +48,7 @@ export default function DashboardHome() {
   const totalInsights = patients.reduce((sum, r) => sum + r.compliance.insights.length, 0);
 
   return (
-    <div className="flex flex-col overflow-hidden" style={{ height: "calc(100vh - 4rem)" }}>
+    <div className="flex flex-col lg:overflow-hidden" style={{ minHeight: "auto" }}>
       {/* Greeting header */}
       <div className="flex items-center justify-between mb-4">
         <div>
@@ -67,11 +67,16 @@ export default function DashboardHome() {
       </div>
 
       {loading ? (
-        <div className="flex-1 flex items-center justify-center">
-          <p className="text-[0.92rem]" style={{ color: "#8e8aa0", fontWeight: 400 }}>Loading dashboard...</p>
+        <div className="flex-1 flex flex-col items-center justify-center" style={{ minHeight: "60vh" }}>
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-3" style={{ background: "#ede9f8" }}>
+            <svg className="animate-spin" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="#7c3aed" strokeWidth="2" strokeLinecap="round">
+              <path d="M9 1.5a7.5 7.5 0 0 1 7.5 7.5" />
+            </svg>
+          </div>
+          <p className="text-[0.88rem]" style={{ color: "#8e8aa0", fontWeight: 500 }}>Loading dashboard...</p>
         </div>
       ) : (
-        <div className="flex-1 grid grid-rows-[auto_1fr_auto] gap-3 min-h-0 overflow-hidden">
+        <div className="flex-1 flex flex-col lg:grid lg:grid-rows-[auto_1fr_auto] gap-3 lg:min-h-0 lg:overflow-hidden">
 
           {/* Row 1: Stats */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
@@ -82,9 +87,9 @@ export default function DashboardHome() {
           </div>
 
           {/* Row 2: Main content — fills remaining space */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 min-h-0 overflow-hidden">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 lg:min-h-0 lg:overflow-hidden">
             {/* Left: Needs Attention + Follow-Up stacked */}
-            <div className="lg:col-span-2 grid grid-rows-2 gap-3 min-h-0">
+            <div className="lg:col-span-2 flex flex-col lg:grid lg:grid-rows-2 gap-3 lg:min-h-0">
               <PatientSection
                 title="Needs Attention"
                 dotColor="#dc2626"
@@ -102,7 +107,7 @@ export default function DashboardHome() {
             </div>
 
             {/* Right: On Track + Quick Actions stacked */}
-            <div className="grid grid-rows-2 gap-3 min-h-0">
+            <div className="flex flex-col lg:grid lg:grid-rows-2 gap-3 lg:min-h-0">
               <PatientSection
                 title="On Track"
                 dotColor="#16a34a"
@@ -165,7 +170,7 @@ function PatientSection({ title, dotColor, patients, emptyText, emptyIcon }: {
 }) {
   return (
     <Card3D>
-      <div className="px-5 pt-5 pb-4 h-full flex flex-col">
+      <div className="px-5 pt-5 pb-4 h-full flex flex-col min-h-40">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full" style={{ background: dotColor }} />
@@ -276,13 +281,12 @@ function StatCard({ label, value, icon, color }: { label: string; value: string;
   return (
     <div
       style={{
-        padding: "1px 1px 3px 1px",
-        background: "linear-gradient(180deg, #cdc4de, #c2b8d6)",
+        paddingBottom: "2px",
+        background: "linear-gradient(180deg, #ddd6ee 0%, #d6cee6 100%)",
         borderRadius: "0.75rem",
-        boxShadow: "0 3px 10px rgba(124,58,237,0.06)",
       }}
     >
-      <div className="rounded-xl p-4 flex items-center gap-3" style={{ background: "#f6f3fc" }}>
+      <div className="rounded-xl p-4 flex items-center gap-3" style={{ background: "#f0ecfa" }}>
         <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: "#ede9f8" }}>
           {icon}
         </div>
