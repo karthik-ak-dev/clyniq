@@ -1,7 +1,10 @@
 {
-  "deploymentEnabled": {
-    "patient-compliance-tracker": true,
-    "stage-patient-compliance-tracker": true,
-    "*": false
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "git": {
+    "deploymentEnabled": {
+      "patient-compliance-tracker": true,
+      "stage-patient-compliance-tracker": true,
+      "*": false
+    }
   }
 }
