@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { getAuthenticatedDoctor } from "@/lib/auth/middleware";
-import { patientQueries, complianceQueries, checkinQueries } from "@/lib/db/queries";
+import { patientQueries, complianceQueries } from "@/lib/db/queries";
 import { createPatientSchema } from "@/lib/validators";
 import type { Condition, Gender, PatientStatus } from "@/lib/db/types";
 
@@ -47,10 +47,10 @@ export async function POST(request: NextRequest) {
 
     return Response.json({ success: true, data: result }, { status: 201 });
   } catch (error) {
-    // Zod validation errors have a `issues` property
     if (error instanceof Error && "issues" in error) {
+      const zodErr = error as { issues: { message: string }[] };
       return Response.json(
-        { success: false, error: (error as { issues: { message: string }[] }).issues[0]?.message ?? "Validation error" },
+        { success: false, error: zodErr.issues[0]?.message ?? "Validation error" },
         { status: 400 }
       );
     }
@@ -80,16 +80,20 @@ export async function GET() {
   try {
     const rows = await patientQueries.findByDoctorId(doctor.id);
 
-    // Enrich each patient with compliance data
-    const data = await Promise.all(
-      rows.map(async ({ patient, doctorPatient }) => {
-        const [compliance, lastCheckIn] = await Promise.all([
-          complianceQueries.getForPatient(doctorPatient),
-          checkinQueries.getLastCheckInDate(doctorPatient.id),
-        ]);
-        return { patient, doctorPatient, compliance, lastCheckIn };
-      })
+    // Batch fetch compliance + lastCheckIn (2 queries instead of N*3)
+    const complianceMap = await complianceQueries.getForPatients(
+      rows.map((r) => r.doctorPatient)
     );
+
+    const data = rows.map(({ patient, doctorPatient }) => {
+      const result = complianceMap.get(doctorPatient.id);
+      return {
+        patient,
+        doctorPatient,
+        compliance: result?.compliance ?? { score: { overall: 0, metrics: [] }, trend: "stable" as const, insights: [] },
+        lastCheckIn: result?.lastCheckIn ?? null,
+      };
+    });
 
     return Response.json({ success: true, data });
   } catch {

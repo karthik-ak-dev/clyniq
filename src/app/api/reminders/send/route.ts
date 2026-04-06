@@ -20,7 +20,7 @@ import { sendWhatsAppReminder } from "@/lib/notifications/whatsapp";
 export async function POST(request: Request) {
   // Security — validate cron secret to prevent unauthorized triggers
   const authHeader = request.headers.get("authorization");
-  if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (!process.env.CRON_SECRET || authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return Response.json({ success: false, error: "Unauthorized" }, { status: 401 });
   }
 

@@ -49,6 +49,12 @@ export async function GET(
 
     // Fetch template for question definitions (labels, types, units)
     const template = await templateQueries.getById(doctorPatient.templateId);
+    if (!template) {
+      return Response.json(
+        { success: false, error: "Template not found for this patient" },
+        { status: 404 }
+      );
+    }
 
     // Calculate compliance (score, trend, insights)
     const compliance = await complianceQueries.getForPatient(doctorPatient);

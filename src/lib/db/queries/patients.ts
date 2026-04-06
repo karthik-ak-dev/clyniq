@@ -70,24 +70,33 @@ export const patientQueries = {
     // Step 3: Enable all questions from the template by default
     const enabledQuestions = template.questions.map((q) => q.key);
 
-    // Step 4: Generate a unique magic token (64 hex chars = 32 bytes)
-    const magicToken = crypto.randomBytes(32).toString("hex");
+    // Step 4+5: Generate magic token and create doctor-patient link
+    // Retry on token collision (extremely rare with 256-bit entropy)
+    let doctorPatient;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const magicToken = crypto.randomBytes(32).toString("hex");
+      try {
+        const [row] = await db
+          .insert(doctorPatients)
+          .values({
+            doctorId,
+            patientId: patient.id,
+            condition,
+            templateId: template.id,
+            enabledQuestions,
+            magicToken,
+            status: status || "new",
+          })
+          .returning();
+        doctorPatient = row;
+        break;
+      } catch (err: unknown) {
+        const isUniqueViolation = err instanceof Error && err.message.includes("unique");
+        if (!isUniqueViolation || attempt === 2) throw err;
+      }
+    }
 
-    // Step 5: Create the doctor-patient link
-    const [doctorPatient] = await db
-      .insert(doctorPatients)
-      .values({
-        doctorId,
-        patientId: patient.id,
-        condition,
-        templateId: template.id,
-        enabledQuestions,
-        magicToken,
-        status: status || "new",
-      })
-      .returning();
-
-    return { patient, doctorPatient };
+    return { patient, doctorPatient: doctorPatient! };
   },
 
   // List all patients for a given doctor.

@@ -1,0 +1,7 @@
+{
+  "deploymentEnabled": {
+    "patient-compliance-tracker": true,
+    "stage-patient-compliance-tracker": true,
+    "*": false
+  }
+}

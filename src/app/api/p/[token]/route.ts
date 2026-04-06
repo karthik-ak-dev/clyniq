@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import { getTodayUTC } from "@/lib/utils";
 import {
   patientQueries,
   templateQueries,
@@ -62,7 +63,7 @@ export async function GET(
       .sort((a, b) => a.order - b.order);
 
     // Check if the patient has already checked in today
-    const today = new Date().toISOString().split("T")[0];
+    const today = getTodayUTC();
     const alreadyCheckedIn = await checkinQueries.existsForDate(
       doctorPatient.id,
       today

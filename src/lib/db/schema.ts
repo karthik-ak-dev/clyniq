@@ -11,6 +11,7 @@ import {
   time,
   jsonb,
   uniqueIndex,
+  index,
 } from "drizzle-orm/pg-core";
 
 // ─── Enums ─────────────────────────────────────────────────
@@ -147,11 +148,9 @@ export const doctorPatients = pgTable(
     createdAt: timestamp("created_at").defaultNow().notNull(), // Row creation timestamp
   },
   (table) => [
-    // A doctor can only have one relationship with a given patient
-    uniqueIndex("doctor_patients_doctor_patient_idx").on(
-      table.doctorId,
-      table.patientId
-    ),
+    uniqueIndex("doctor_patients_doctor_patient_idx").on(table.doctorId, table.patientId),
+    index("doctor_patients_doctor_id_idx").on(table.doctorId),
+    index("doctor_patients_magic_token_idx").on(table.magicToken),
   ]
 );
 
@@ -191,11 +190,8 @@ export const checkIns = pgTable(
     createdAt: timestamp("created_at").defaultNow().notNull(), // Row creation timestamp
   },
   (table) => [
-    // One check-in per patient per day
-    uniqueIndex("check_ins_doctor_patient_date_idx").on(
-      table.doctorPatientId,
-      table.date
-    ),
+    uniqueIndex("check_ins_doctor_patient_date_idx").on(table.doctorPatientId, table.date),
+    index("check_ins_doctor_patient_id_idx").on(table.doctorPatientId),
   ]
 );
 
@@ -204,12 +200,18 @@ export const checkIns = pgTable(
 // WHATSAPP_ENABLED env var. The cron job (/api/reminders/send)
 // queries for enabled reminders whose reminderTime falls within
 // the current hour window, then sends via Twilio.
-export const reminderConfigs = pgTable("reminder_configs", {
-  id: uuid("id").defaultRandom().primaryKey(),               // PK, auto-generated UUID v4
-  doctorPatientId: uuid("doctor_patient_id")                  // FK → doctor_patients.id
-    .references(() => doctorPatients.id)
-    .notNull(),
-  reminderTime: time("reminder_time").notNull(),              // Daily reminder time (e.g., "09:00")
-  enabled: boolean("enabled").default(true).notNull(),        // Toggle reminders on/off
-  lastSentAt: timestamp("last_sent_at"),                      // Tracks when last reminder was sent
-});
+export const reminderConfigs = pgTable(
+  "reminder_configs",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    doctorPatientId: uuid("doctor_patient_id")
+      .references(() => doctorPatients.id)
+      .notNull(),
+    reminderTime: time("reminder_time").notNull(),
+    enabled: boolean("enabled").default(true).notNull(),
+    lastSentAt: timestamp("last_sent_at"),
+  },
+  (table) => [
+    index("reminder_configs_doctor_patient_id_idx").on(table.doctorPatientId),
+  ]
+);

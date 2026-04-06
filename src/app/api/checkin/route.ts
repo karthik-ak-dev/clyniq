@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { patientQueries, checkinQueries } from "@/lib/db/queries";
 import { checkinSchema } from "@/lib/validators";
+import { getTodayUTC } from "@/lib/utils";
 
 // ─── POST /api/checkin ─────────────────────────────────────
 // Submit a daily check-in for a patient.
@@ -39,7 +40,7 @@ export async function POST(request: NextRequest) {
     const { doctorPatient } = row;
 
     // Step 2: Check if already checked in today
-    const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+    const today = getTodayUTC();
     const alreadyCheckedIn = await checkinQueries.existsForDate(
       doctorPatient.id,
       today
@@ -65,18 +66,30 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Step 4: Create the check-in
-    const checkin = await checkinQueries.create({
-      doctorPatientId: doctorPatient.id,
-      date: today,
-      responses: data.responses,
-    });
+    // Step 4: Create the check-in (catch UNIQUE constraint from race condition)
+    let checkin;
+    try {
+      checkin = await checkinQueries.create({
+        doctorPatientId: doctorPatient.id,
+        date: today,
+        responses: data.responses,
+      });
+    } catch (insertErr: unknown) {
+      if (insertErr instanceof Error && insertErr.message.includes("unique")) {
+        return Response.json(
+          { success: false, error: "Already checked in today" },
+          { status: 409 }
+        );
+      }
+      throw insertErr;
+    }
 
     return Response.json({ success: true, data: checkin }, { status: 201 });
   } catch (error) {
     if (error instanceof Error && "issues" in error) {
+      const zodErr = error as { issues: { message: string }[] };
       return Response.json(
-        { success: false, error: (error as { issues: { message: string }[] }).issues[0]?.message ?? "Validation error" },
+        { success: false, error: zodErr.issues[0]?.message ?? "Validation error" },
         { status: 400 }
       );
     }
