@@ -62,7 +62,7 @@ export default function PatientDetailPage() {
         <Card3D>
           <div className="text-center py-16">
             <p className="text-[0.92rem] mb-3" style={{ fontWeight: 500, color: "#8e8aa0" }}>Patient not found</p>
-            <button onClick={() => router.back()} className="text-[0.84rem]" style={{ fontWeight: 600, color: "#7c3aed" }}>
+            <button onClick={() => router.back()} className="text-[0.9rem]" style={{ fontWeight: 600, color: "#7c3aed" }}>
               ← Go back
             </button>
           </div>
@@ -135,11 +135,11 @@ export default function PatientDetailPage() {
 
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <h2 className="text-[1.15rem]" style={{ fontWeight: 600, color: "#2d2b3d" }}>{patient.name}</h2>
-                <span className="px-2.5 py-0.5 rounded-lg text-[0.7rem]" style={{ fontWeight: 600, color: "#7c3aed", background: "#ede9f8" }}>
+                <h2 className="text-[1.25rem]" style={{ fontWeight: 600, color: "#2d2b3d" }}>{patient.name}</h2>
+                <span className="px-2.5 py-0.5 rounded-lg text-[0.78rem]" style={{ fontWeight: 600, color: "#7c3aed", background: "#ede9f8" }}>
                   {conditionLabel}
                 </span>
-                <span className="px-2.5 py-0.5 rounded-lg text-[0.7rem]" style={{ fontWeight: 600, color: trendConfig.color, background: trendConfig.bg }}>
+                <span className="px-2.5 py-0.5 rounded-lg text-[0.78rem]" style={{ fontWeight: 600, color: trendConfig.color, background: trendConfig.bg }}>
                   {trendConfig.label}
                 </span>
               </div>
@@ -165,7 +165,7 @@ export default function PatientDetailPage() {
               <button
                 key={t}
                 onClick={() => setTab(t)}
-                className="px-4 py-2 rounded-t-lg text-[0.82rem] transition-all"
+                className="px-4 py-2 rounded-t-lg text-[0.9rem] transition-all"
                 style={{
                   fontWeight: tab === t ? 600 : 400,
                   color: tab === t ? "#7c3aed" : "#8e8aa0",
@@ -191,16 +191,16 @@ export default function PatientDetailPage() {
                       <circle cx="8" cy="8" r="6" />
                       <path d="M8 5v3l2 1.5" />
                     </svg>
-                    <h3 className="text-[0.88rem]" style={{ fontWeight: 600, color: "#2d2b3d" }}>Summary</h3>
+                    <h3 className="text-[1.05rem]" style={{ fontWeight: 600, color: "#2d2b3d" }}>Summary</h3>
                   </div>
                   {summaryItems.length === 0 ? (
-                    <p className="text-[0.82rem]" style={{ fontWeight: 400, color: "#8e8aa0" }}>No check-in data yet</p>
+                    <p className="text-[0.9rem]" style={{ fontWeight: 400, color: "#8e8aa0" }}>No check-in data yet</p>
                   ) : (
                     <div className="space-y-2">
                       {summaryItems.slice(0, 6).map((item, i) => (
                         <div key={i} className="flex items-center gap-2.5">
                           <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: "#7c3aed" }} />
-                          <span className="text-[0.82rem]" style={{ fontWeight: 400, color: "#5a5773" }}>
+                          <span className="text-[0.9rem]" style={{ fontWeight: 400, color: "#5a5773" }}>
                             {item.label}: <span style={{ fontWeight: 600, color: "#2d2b3d" }}>{item.value}</span>
                           </span>
                         </div>
@@ -211,9 +211,9 @@ export default function PatientDetailPage() {
 
                 {/* Recent Check-ins — date list */}
                 <Section3D>
-                  <h3 className="text-[0.88rem] mb-4" style={{ fontWeight: 600, color: "#2d2b3d" }}>Recent Check-ins</h3>
+                  <h3 className="text-[1.05rem] mb-4" style={{ fontWeight: 600, color: "#2d2b3d" }}>Recent Check-ins</h3>
                   {recentCheckIns.length === 0 ? (
-                    <p className="text-[0.82rem]" style={{ fontWeight: 400, color: "#8e8aa0" }}>No check-ins yet</p>
+                    <p className="text-[0.9rem]" style={{ fontWeight: 400, color: "#8e8aa0" }}>No check-ins yet</p>
                   ) : (
                     <div className="space-y-2.5">
                       {recentCheckIns.slice(-5).reverse().map((ci) => {
@@ -228,8 +228,8 @@ export default function PatientDetailPage() {
                             <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0" style={{ background: "rgba(124,58,237,0.08)" }}>
                               <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#7c3aed" strokeWidth="2" strokeLinecap="round"><path d="M2.5 6.5l2.5 2.5 4.5-5" /></svg>
                             </div>
-                            <span className="text-[0.82rem] flex-1" style={{ fontWeight: 500, color: "#2d2b3d" }}>{dateStr}</span>
-                            <span className="text-[0.82rem]" style={{ fontWeight: 700, color: pctColor }}>{pct}%</span>
+                            <span className="text-[0.9rem] flex-1" style={{ fontWeight: 500, color: "#2d2b3d" }}>{dateStr}</span>
+                            <span className="text-[0.9rem]" style={{ fontWeight: 700, color: pctColor }}>{pct}%</span>
                           </div>
                         );
                       })}
@@ -242,7 +242,7 @@ export default function PatientDetailPage() {
               <div className="mb-4">
                 <Section3D>
                   <div className="flex items-center justify-between mb-5">
-                    <h3 className="text-[0.88rem]" style={{ fontWeight: 600, color: "#2d2b3d" }}>Compliance Last 7 Days</h3>
+                    <h3 className="text-[1.05rem]" style={{ fontWeight: 600, color: "#2d2b3d" }}>Compliance Last 7 Days</h3>
                     {/* Big score circle */}
                     <div
                       className="w-14 h-14 rounded-full flex items-center justify-center"
@@ -256,7 +256,7 @@ export default function PatientDetailPage() {
                   </div>
 
                   {compliance.score.metrics.length === 0 ? (
-                    <p className="text-[0.82rem]" style={{ fontWeight: 400, color: "#8e8aa0" }}>No data yet — waiting for check-ins</p>
+                    <p className="text-[0.9rem]" style={{ fontWeight: 400, color: "#8e8aa0" }}>No data yet — waiting for check-ins</p>
                   ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
                       {compliance.score.metrics.map((m) => {
@@ -265,7 +265,7 @@ export default function PatientDetailPage() {
                           <div key={m.key}>
                             <div className="flex items-center justify-between mb-1">
                               <span className="text-[0.8rem] truncate pr-3" style={{ fontWeight: 500, color: "#2d2b3d" }}>{m.label}</span>
-                              <span className="text-[0.72rem] shrink-0" style={{ fontWeight: 600, color: "#8e8aa0" }}>{m.done}/{m.total}</span>
+                              <span className="text-[0.78rem] shrink-0" style={{ fontWeight: 600, color: "#8e8aa0" }}>{m.done}/{m.total}</span>
                             </div>
                             <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: "#e8e3f4" }}>
                               <div
@@ -290,16 +290,16 @@ export default function PatientDetailPage() {
                 {/* Insights — 2 cols */}
                 <div className="lg:col-span-2">
                   <Section3D>
-                    <h3 className="text-[0.88rem] mb-4" style={{ fontWeight: 600, color: "#2d2b3d" }}>Insights</h3>
+                    <h3 className="text-[1.05rem] mb-4" style={{ fontWeight: 600, color: "#2d2b3d" }}>Insights</h3>
                     {compliance.insights.length === 0 ? (
-                      <div className="flex items-center gap-2.5 px-4 py-3 rounded-xl text-[0.82rem]" style={{ fontWeight: 500, color: "#16a34a", background: "rgba(22,163,74,0.06)" }}>
+                      <div className="flex items-center gap-2.5 px-4 py-3 rounded-xl text-[0.9rem]" style={{ fontWeight: 500, color: "#16a34a", background: "rgba(22,163,74,0.06)" }}>
                         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#16a34a" strokeWidth="2" strokeLinecap="round"><circle cx="7" cy="7" r="5" /><path d="M4.5 7.5l2 2 3-4" /></svg>
                         Everything looks good this week!
                       </div>
                     ) : (
                       <div className="space-y-2">
                         {compliance.insights.map((insight, i) => (
-                          <div key={i} className="flex items-start gap-2.5 px-4 py-3 rounded-xl text-[0.82rem]" style={{ fontWeight: 500, color: "#d97706", background: "rgba(217,119,6,0.06)" }}>
+                          <div key={i} className="flex items-start gap-2.5 px-4 py-3 rounded-xl text-[0.9rem]" style={{ fontWeight: 500, color: "#d97706", background: "rgba(217,119,6,0.06)" }}>
                             <svg className="shrink-0 mt-0.5" width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="#d97706" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                               <path d="M7 1l6 11H1L7 1z" /><line x1="7" y1="5.5" x2="7" y2="8" /><circle cx="7" cy="10" r="0.5" fill="#d97706" />
                             </svg>
@@ -313,7 +313,7 @@ export default function PatientDetailPage() {
 
                 {/* Quick Actions — 1 col */}
                 <Section3D>
-                  <h3 className="text-[0.88rem] mb-4" style={{ fontWeight: 600, color: "#2d2b3d" }}>Quick Actions</h3>
+                  <h3 className="text-[1.05rem] mb-4" style={{ fontWeight: 600, color: "#2d2b3d" }}>Quick Actions</h3>
                   <div className="space-y-2.5">
                     <Btn3DOutline onClick={copyMagicLink} full>
                       <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#7c3aed" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -330,13 +330,13 @@ export default function PatientDetailPage() {
 
           {tab === "history" && (
             <div className="flex items-center justify-center" style={{ minHeight: "50vh" }}>
-              <p className="text-[0.88rem]" style={{ fontWeight: 500, color: "#8e8aa0" }}>Check-in history coming soon</p>
+              <p className="text-[1.05rem]" style={{ fontWeight: 500, color: "#8e8aa0" }}>Check-in history coming soon</p>
             </div>
           )}
 
           {tab === "notes" && (
             <div className="flex items-center justify-center" style={{ minHeight: "50vh" }}>
-              <p className="text-[0.88rem]" style={{ fontWeight: 500, color: "#8e8aa0" }}>Notes coming soon</p>
+              <p className="text-[1.05rem]" style={{ fontWeight: 500, color: "#8e8aa0" }}>Notes coming soon</p>
             </div>
           )}
         </div>
@@ -390,7 +390,7 @@ function Btn3DOutline({ children, onClick, full }: { children: React.ReactNode; 
     }}>
       <button
         onClick={onClick}
-        className={`${full ? "w-full" : ""} flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-[0.82rem] transition-all active:scale-[0.98]`}
+        className={`${full ? "w-full" : ""} flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-[0.9rem] transition-all active:scale-[0.98]`}
         style={{ fontWeight: 600, color: "#7c3aed", background: "#f6f3fc" }}
       >
         {children}

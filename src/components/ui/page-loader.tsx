@@ -6,7 +6,7 @@ export function PageLoader({ message = "Loading..." }: { message?: string }) {
           <path d="M9 1.5a7.5 7.5 0 0 1 7.5 7.5" />
         </svg>
       </div>
-      <p className="text-[0.88rem]" style={{ color: "#8e8aa0", fontWeight: 500 }}>{message}</p>
+      <p className="text-[0.92rem]" style={{ color: "#8e8aa0", fontWeight: 500 }}>{message}</p>
     </div>
   );
 }

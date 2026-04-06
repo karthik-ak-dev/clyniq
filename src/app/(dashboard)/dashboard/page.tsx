@@ -53,14 +53,14 @@ export default function DashboardHome() {
       {/* Greeting header */}
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h1 className="text-[1.4rem]" style={{ fontWeight: 600, color: "#2d2b3d" }}>
+          <h1 className="text-[1.5rem] sm:text-[1.6rem]" style={{ fontWeight: 600, color: "#2d2b3d" }}>
             {greeting}, {doctorName}
           </h1>
-          <p className="text-[0.84rem] mt-0.5" style={{ fontWeight: 400, color: "#8e8aa0" }}>{today}</p>
+          <p className="text-[0.95rem] mt-0.5" style={{ fontWeight: 400, color: "#8e8aa0" }}>{today}</p>
         </div>
         <div style={{ paddingBottom: "2px", background: "linear-gradient(135deg, #6d28d9, #5b21b6)", borderRadius: "9999px", boxShadow: "0 3px 10px rgba(124,58,237,0.25)" }}>
-          <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: "linear-gradient(135deg, #a78bfa, #8b5cf6)" }}>
-            <span className="text-white text-[0.65rem]" style={{ fontWeight: 600 }}>
+          <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: "linear-gradient(135deg, #a78bfa, #8b5cf6)" }}>
+            <span className="text-white text-[0.72rem]" style={{ fontWeight: 600 }}>
               {doctorName.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase()}
             </span>
           </div>
@@ -80,40 +80,19 @@ export default function DashboardHome() {
             <StatCard label="Active Insights" value={String(totalInsights)} icon={<IconStat type="warning" />} color={totalInsights > 0 ? "#d97706" : "#16a34a"} />
           </div>
 
-          {/* Row 2: Main content — fills remaining space */}
+          {/* Row 2: Main content */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 lg:min-h-0 lg:overflow-hidden">
-            {/* Left: Needs Attention + Follow-Up stacked */}
             <div className="lg:col-span-2 flex flex-col lg:grid lg:grid-rows-2 gap-3 lg:min-h-0">
-              <PatientSection
-                title="Needs Attention"
-                dotColor="#dc2626"
-                patients={needsAttention}
-                emptyText="All patients are doing well"
-                emptyIcon="check"
-              />
-              <PatientSection
-                title="Follow-Up Needed"
-                dotColor="#d97706"
-                patients={followUp}
-                emptyText="No patients need follow-up"
-                emptyIcon="check"
-              />
+              <PatientSection title="Needs Attention" dotColor="#dc2626" patients={needsAttention} emptyText="All patients are doing well" emptyIcon="check" />
+              <PatientSection title="Follow-Up Needed" dotColor="#d97706" patients={followUp} emptyText="No patients need follow-up" emptyIcon="check" />
             </div>
 
-            {/* Right: On Track + Quick Actions stacked */}
             <div className="flex flex-col lg:grid lg:grid-rows-2 gap-3 lg:min-h-0">
-              <PatientSection
-                title="On Track"
-                dotColor="#16a34a"
-                patients={onTrack}
-                emptyText="No patients on track yet"
-                emptyIcon="patients"
-              />
+              <PatientSection title="On Track" dotColor="#16a34a" patients={onTrack} emptyText="No patients on track yet" emptyIcon="patients" />
 
-              {/* Quick Actions */}
               <Card3D>
                 <div className="px-5 pt-5 pb-5 h-full flex flex-col">
-                  <h3 className="text-[0.88rem] mb-4" style={{ fontWeight: 600, color: "#2d2b3d" }}>Quick Actions</h3>
+                  <h3 className="text-[1rem] mb-4" style={{ fontWeight: 600, color: "#2d2b3d" }}>Quick Actions</h3>
                   <div className="flex-1 flex flex-col justify-center space-y-2.5">
                     <ActionLink href="/patients/add" icon="add" label="Add New Patient" desc="Start tracking a new patient" purple />
                     <ActionLink href="/patients" icon="list" label="View All Patients" desc="See the full patient list" />
@@ -124,27 +103,27 @@ export default function DashboardHome() {
             </div>
           </div>
 
-          {/* Row 3: Recent activity footer */}
+          {/* Row 3: Footer */}
           <Card3D>
             <div className="px-5 py-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "#ede9f8" }}>
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#7c3aed" strokeWidth="1.5" strokeLinecap="round">
-                    <circle cx="7" cy="7" r="6" /><path d="M7 4v3l2 1.5" />
+                <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: "#ede9f8" }}>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#7c3aed" strokeWidth="1.5" strokeLinecap="round">
+                    <circle cx="8" cy="8" r="6.5" /><path d="M8 4.5v3.5l2.5 1.5" />
                   </svg>
                 </div>
                 <div>
-                  <p className="text-[0.82rem]" style={{ fontWeight: 600, color: "#2d2b3d" }}>
+                  <p className="text-[0.95rem]" style={{ fontWeight: 600, color: "#2d2b3d" }}>
                     {patients.length === 0 ? "Get started by adding your first patient" : `${patients.length} patient${patients.length !== 1 ? "s" : ""} being tracked`}
                   </p>
-                  <p className="text-[0.72rem]" style={{ fontWeight: 400, color: "#8e8aa0" }}>
+                  <p className="text-[0.85rem]" style={{ fontWeight: 400, color: "#8e8aa0" }}>
                     {totalInsights === 0 ? "No active insights — all patients are on track" : `${totalInsights} insight${totalInsights !== 1 ? "s" : ""} need your attention`}
                   </p>
                 </div>
               </div>
               <Link
                 href={patients.length === 0 ? "/patients/add" : "/patients"}
-                className="text-[0.8rem] px-4 py-2 rounded-xl transition-all hover:bg-[#ece7f8]"
+                className="text-[0.92rem] px-4 py-2 rounded-xl transition-all hover:bg-[#ece7f8]"
                 style={{ fontWeight: 600, color: "#7c3aed" }}
               >
                 {patients.length === 0 ? "Add Patient →" : "View Patients →"}
@@ -167,26 +146,26 @@ function PatientSection({ title, dotColor, patients, emptyText, emptyIcon }: {
       <div className="px-5 pt-5 pb-4 h-full flex flex-col min-h-40">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full" style={{ background: dotColor }} />
-            <h3 className="text-[0.86rem]" style={{ fontWeight: 600, color: "#2d2b3d" }}>{title}</h3>
+            <div className="w-2.5 h-2.5 rounded-full" style={{ background: dotColor }} />
+            <h3 className="text-[1rem]" style={{ fontWeight: 600, color: "#2d2b3d" }}>{title}</h3>
             {patients.length > 0 && (
-              <span className="text-[0.7rem] px-2 py-0.5 rounded-full" style={{ fontWeight: 600, color: dotColor, background: `${dotColor}14` }}>
+              <span className="text-[0.78rem] px-2 py-0.5 rounded-full" style={{ fontWeight: 600, color: dotColor, background: `${dotColor}14` }}>
                 {patients.length}
               </span>
             )}
           </div>
-          <Link href="/patients" className="text-[0.74rem]" style={{ fontWeight: 500, color: "#7c3aed" }}>View All</Link>
+          <Link href="/patients" className="text-[0.88rem]" style={{ fontWeight: 500, color: "#7c3aed" }}>View All</Link>
         </div>
         {patients.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center gap-2">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "#ede9f8" }}>
+            <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: "#ede9f8" }}>
               {emptyIcon === "check" ? (
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#7c3aed" strokeWidth="2" strokeLinecap="round"><path d="M3.5 8.5l3 3 6-7" /></svg>
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="#7c3aed" strokeWidth="2" strokeLinecap="round"><path d="M4 9.5l3.5 3.5 7-8" /></svg>
               ) : (
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#7c3aed" strokeWidth="1.5" strokeLinecap="round"><circle cx="6" cy="5" r="3" /><path d="M1 14c0-3 2-4.5 5-4.5s5 1.5 5 4.5" /></svg>
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="#7c3aed" strokeWidth="1.5" strokeLinecap="round"><circle cx="7" cy="6" r="3.5" /><path d="M1 16c0-3.5 2.5-5.5 6-5.5s6 2 6 5.5" /></svg>
               )}
             </div>
-            <p className="text-[0.78rem]" style={{ fontWeight: 400, color: "#a8a2bc" }}>{emptyText}</p>
+            <p className="text-[0.92rem]" style={{ fontWeight: 400, color: "#a8a2bc" }}>{emptyText}</p>
           </div>
         ) : (
           <div className="flex-1 overflow-y-auto space-y-0.5">
@@ -194,7 +173,7 @@ function PatientSection({ title, dotColor, patients, emptyText, emptyIcon }: {
               <PatientMiniCard key={row.doctorPatient.id} row={row} />
             ))}
             {patients.length > 5 && (
-              <Link href="/patients" className="block text-center py-2 text-[0.76rem]" style={{ fontWeight: 500, color: "#7c3aed" }}>
+              <Link href="/patients" className="block text-center py-2 text-[0.84rem]" style={{ fontWeight: 500, color: "#7c3aed" }}>
                 +{patients.length - 5} more
               </Link>
             )}
@@ -221,15 +200,15 @@ function PatientMiniCard({ row }: { row: PatientRow }) {
     <Link href={`/patients/${row.doctorPatient.id}`} className="block group">
       <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group-hover:bg-[#ece7f8]">
         <div style={{ paddingBottom: "1px", background: "linear-gradient(180deg, #d4cbe6, #c8bedd)", borderRadius: "9999px" }}>
-          <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "linear-gradient(135deg, #e8e2f6, #ddd6ee)" }}>
-            <span className="text-[0.6rem] text-[#7c3aed]" style={{ fontWeight: 600 }}>{initials}</span>
+          <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: "linear-gradient(135deg, #e8e2f6, #ddd6ee)" }}>
+            <span className="text-[0.68rem] text-[#7c3aed]" style={{ fontWeight: 600 }}>{initials}</span>
           </div>
         </div>
         <div className="flex-1 min-w-0">
-          <span className="text-[0.8rem] block truncate" style={{ fontWeight: 600, color: "#2d2b3d" }}>{row.patient.name}</span>
-          <span className="text-[0.7rem]" style={{ fontWeight: 400, color: "#8e8aa0" }}>{conditionLabel}</span>
+          <span className="text-[0.95rem] block truncate" style={{ fontWeight: 600, color: "#2d2b3d" }}>{row.patient.name}</span>
+          <span className="text-[0.85rem]" style={{ fontWeight: 400, color: "#8e8aa0" }}>{conditionLabel}</span>
         </div>
-        <span className="text-[0.68rem] px-2 py-0.5 rounded-full shrink-0" style={{ fontWeight: 600, color: status.color, background: status.bg }}>
+        <span className="text-[0.82rem] px-2.5 py-1 rounded-full shrink-0" style={{ fontWeight: 600, color: status.color, background: status.bg }}>
           {status.label}
         </span>
       </div>
@@ -243,23 +222,23 @@ function ActionLink({ href, icon, label, desc, purple }: { href: string; icon: s
   return (
     <Link href={href} className="block group">
       <div
-        className="flex items-center gap-3 px-3.5 py-3 rounded-xl transition-all group-hover:bg-[#ece7f8]"
+        className="flex items-center gap-3.5 px-4 py-3.5 rounded-xl transition-all group-hover:bg-[#ece7f8]"
         style={purple ? {
           background: "linear-gradient(135deg, #a78bfa, #8b5cf6)",
           boxShadow: "0 3px 10px rgba(124,58,237,0.2)",
         } : {}}
       >
         <div
-          className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+          className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
           style={{ background: purple ? "rgba(255,255,255,0.2)" : "#ede9f8" }}
         >
-          {icon === "add" && <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke={purple ? "white" : "#7c3aed"} strokeWidth="2" strokeLinecap="round"><line x1="7" y1="2" x2="7" y2="12" /><line x1="2" y1="7" x2="12" y2="7" /></svg>}
-          {icon === "list" && <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#7c3aed" strokeWidth="1.5" strokeLinecap="round"><circle cx="5" cy="4" r="2.5" /><path d="M0.5 12c0-2.5 2-4 4.5-4s4.5 1.5 4.5 4" /><circle cx="10.5" cy="4.5" r="1.5" /><path d="M10.5 8c1.5 0 2.5 1 2.5 2.5" /></svg>}
-          {icon === "template" && <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#7c3aed" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="1.5" y="1" width="11" height="12" rx="1.5" /><line x1="4" y1="4.5" x2="10" y2="4.5" /><line x1="4" y1="7.5" x2="10" y2="7.5" /><line x1="4" y1="10.5" x2="7.5" y2="10.5" /></svg>}
+          {icon === "add" && <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke={purple ? "white" : "#7c3aed"} strokeWidth="2" strokeLinecap="round"><line x1="8" y1="3" x2="8" y2="13" /><line x1="3" y1="8" x2="13" y2="8" /></svg>}
+          {icon === "list" && <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#7c3aed" strokeWidth="1.5" strokeLinecap="round"><circle cx="6" cy="5" r="3" /><path d="M1 14c0-3 2.5-4.5 5-4.5s5 1.5 5 4.5" /><circle cx="12" cy="5.5" r="1.5" /><path d="M12 9c1.5 0 2.5 1 2.5 2.5" /></svg>}
+          {icon === "template" && <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#7c3aed" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="1.5" width="12" height="13" rx="1.5" /><line x1="5" y1="5.5" x2="11" y2="5.5" /><line x1="5" y1="8.5" x2="11" y2="8.5" /><line x1="5" y1="11.5" x2="8.5" y2="11.5" /></svg>}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-[0.8rem]" style={{ fontWeight: 600, color: purple ? "white" : "#2d2b3d" }}>{label}</p>
-          <p className="text-[0.68rem]" style={{ fontWeight: 400, color: purple ? "rgba(255,255,255,0.7)" : "#8e8aa0" }}>{desc}</p>
+          <p className="text-[0.95rem]" style={{ fontWeight: 600, color: purple ? "white" : "#2d2b3d" }}>{label}</p>
+          <p className="text-[0.82rem]" style={{ fontWeight: 400, color: purple ? "rgba(255,255,255,0.7)" : "#8e8aa0" }}>{desc}</p>
         </div>
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke={purple ? "rgba(255,255,255,0.5)" : "#b0aac2"} strokeWidth="1.5" strokeLinecap="round">
           <path d="M5 3l4 4-4 4" />
@@ -281,12 +260,12 @@ function StatCard({ label, value, icon, color }: { label: string; value: string;
       }}
     >
       <div className="rounded-xl p-4 flex items-center gap-3" style={{ background: "#f0ecfa" }}>
-        <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: "#ede9f8" }}>
+        <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{ background: "#ede9f8" }}>
           {icon}
         </div>
         <div>
-          <p className="text-[1.15rem]" style={{ fontWeight: 700, color: color || "#2d2b3d" }}>{value}</p>
-          <p className="text-[0.7rem]" style={{ fontWeight: 500, color: "#8e8aa0" }}>{label}</p>
+          <p className="text-[1.5rem]" style={{ fontWeight: 700, color: color || "#2d2b3d" }}>{value}</p>
+          <p className="text-[0.85rem]" style={{ fontWeight: 500, color: "#8e8aa0" }}>{label}</p>
         </div>
       </div>
     </div>
@@ -296,22 +275,22 @@ function StatCard({ label, value, icon, color }: { label: string; value: string;
 function IconStat({ type }: { type: "patients" | "alert" | "warning" | "chart" }) {
   const stroke = type === "alert" ? "#dc2626" : type === "warning" ? "#d97706" : "#7c3aed";
   if (type === "patients") return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke={stroke} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="20" height="20" viewBox="0 0 18 18" fill="none" stroke={stroke} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="7" cy="5.5" r="3" /><path d="M1.5 16c0-3 2.5-5 5.5-5s5.5 2 5.5 5" /><circle cx="13" cy="6" r="2" /><path d="M13 10c2 0 3.5 1.2 3.5 3.5" />
     </svg>
   );
   if (type === "alert") return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke={stroke} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="20" height="20" viewBox="0 0 18 18" fill="none" stroke={stroke} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <path d="M9 2l7.5 13H1.5L9 2z" /><line x1="9" y1="7" x2="9" y2="10.5" /><circle cx="9" cy="13" r="0.5" fill={stroke} />
     </svg>
   );
   if (type === "warning") return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke={stroke} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="20" height="20" viewBox="0 0 18 18" fill="none" stroke={stroke} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="9" cy="9" r="7" /><line x1="9" y1="6" x2="9" y2="9.5" /><circle cx="9" cy="12" r="0.5" fill={stroke} />
     </svg>
   );
   return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke={stroke} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="20" height="20" viewBox="0 0 18 18" fill="none" stroke={stroke} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <path d="M2 14l4-5 3 3 5-7" /><path d="M11 5h5v5" />
     </svg>
   );
@@ -335,4 +314,3 @@ function Card3D({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
-

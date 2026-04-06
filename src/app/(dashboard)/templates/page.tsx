@@ -71,8 +71,8 @@ export default function TemplatesPage() {
 
           {templates.length === 0 ? (
             <div className="text-center py-20 px-8">
-              <p className="text-[0.95rem] mb-1.5" style={{ fontWeight: 600, color: "#2d2b3d" }}>No templates found</p>
-              <p className="text-[0.82rem]" style={{ fontWeight: 400, color: "#8e8aa0" }}>Run the seed script to create default templates</p>
+              <p className="text-[1.05rem] mb-1.5" style={{ fontWeight: 600, color: "#2d2b3d" }}>No templates found</p>
+              <p className="text-[0.9rem]" style={{ fontWeight: 400, color: "#8e8aa0" }}>Run the seed script to create default templates</p>
             </div>
           ) : (
             <div>
@@ -94,7 +94,7 @@ export default function TemplatesPage() {
                           boxShadow: "0 2px 8px rgba(124,58,237,0.2)",
                         }}>
                           <div
-                            className="px-4 py-2 rounded-xl text-[0.84rem]"
+                            className="px-4 py-2 rounded-xl text-[0.9rem]"
                             style={{ fontWeight: 600, color: "white", background: "linear-gradient(135deg, #a78bfa, #8b5cf6)" }}
                           >
                             {t.condition === "diabetes" ? "Diabetes" : "Obesity"}
@@ -107,7 +107,7 @@ export default function TemplatesPage() {
                           borderRadius: "0.75rem",
                         }}>
                           <div
-                            className="px-4 py-2 rounded-xl text-[0.84rem]"
+                            className="px-4 py-2 rounded-xl text-[0.9rem]"
                             style={{ fontWeight: 500, color: "#5a5773", background: "#f6f3fc" }}
                           >
                             {t.condition === "diabetes" ? "Diabetes" : "Obesity"}
@@ -134,7 +134,7 @@ export default function TemplatesPage() {
                         </svg>
                         <h2 className="text-base" style={{ fontWeight: 600, color: "#2d2b3d" }}>{template.name}</h2>
                       </div>
-                      <p className="text-[0.82rem] pl-7" style={{ fontWeight: 400, color: "#8e8aa0" }}>
+                      <p className="text-[0.9rem] pl-7" style={{ fontWeight: 400, color: "#8e8aa0" }}>
                         {template.condition === "diabetes"
                           ? "Daily tracking questions for diabetes patients — medication, diet, activity, and vitals."
                           : "Daily tracking questions for obesity patients — diet, exercise, weight, and lifestyle."}
@@ -180,7 +180,7 @@ export default function TemplatesPage() {
 
                           {/* Question label + options preview */}
                           <div className="flex-1 min-w-0">
-                            <p className="text-[0.84rem] truncate" style={{ fontWeight: 500, color: "#2d2b3d" }}>
+                            <p className="text-[0.9rem] truncate" style={{ fontWeight: 500, color: "#2d2b3d" }}>
                               {q.label}
                             </p>
                             {q.options && (
@@ -188,21 +188,21 @@ export default function TemplatesPage() {
                                 {q.options.slice(0, 4).map((opt) => (
                                   <span
                                     key={opt}
-                                    className="px-2 py-0.5 rounded-md text-[0.7rem]"
+                                    className="px-2 py-0.5 rounded-md text-[0.78rem]"
                                     style={{ fontWeight: 500, color: "#7c3aed", background: "#ede9f8" }}
                                   >
                                     {opt}
                                   </span>
                                 ))}
                                 {q.options.length > 4 && (
-                                  <span className="text-[0.7rem]" style={{ fontWeight: 400, color: "#8e8aa0" }}>
+                                  <span className="text-[0.78rem]" style={{ fontWeight: 400, color: "#8e8aa0" }}>
                                     +{q.options.length - 4} more
                                   </span>
                                 )}
                               </div>
                             )}
                             {q.unit && (
-                              <span className="text-[0.72rem] mt-0.5 block" style={{ fontWeight: 400, color: "#8e8aa0" }}>
+                              <span className="text-[0.78rem] mt-0.5 block" style={{ fontWeight: 400, color: "#8e8aa0" }}>
                                 Unit: {q.unit}
                               </span>
                             )}
@@ -210,7 +210,7 @@ export default function TemplatesPage() {
 
                           {/* Type badge */}
                           <span
-                            className="shrink-0 text-[0.72rem] px-2.5 py-1 rounded-lg"
+                            className="shrink-0 text-[0.78rem] px-2.5 py-1 rounded-lg"
                             style={{
                               fontWeight: 500,
                               color: "#8e8aa0",
@@ -237,10 +237,10 @@ export default function TemplatesPage() {
 
                   {/* Footer stats */}
                   <div className="flex items-center gap-4 mt-3 px-1">
-                    <span className="text-[0.78rem]" style={{ fontWeight: 500, color: "#8e8aa0" }}>
+                    <span className="text-[0.85rem]" style={{ fontWeight: 500, color: "#8e8aa0" }}>
                       {template.questions.length} Default Questions
                     </span>
-                    <span className="text-[0.78rem]" style={{ fontWeight: 500, color: "#8e8aa0" }}>
+                    <span className="text-[0.85rem]" style={{ fontWeight: 500, color: "#8e8aa0" }}>
                       {template.questions.filter((q) => q.type === "yes_no" || q.type === "choice").length} Scored
                     </span>
                   </div>

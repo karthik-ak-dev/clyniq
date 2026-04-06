@@ -100,8 +100,8 @@ export function AddPatientForm() {
             </div>
           </div>
 
-          <h2 className="text-[1.15rem] mb-1" style={{ fontWeight: 600, color: "#2d2b3d" }}>Patient Created</h2>
-          <p className="text-[0.84rem] mb-6" style={{ fontWeight: 400, color: "#8e8aa0" }}>
+          <h2 className="text-[1.25rem] mb-1" style={{ fontWeight: 600, color: "#2d2b3d" }}>Patient Created</h2>
+          <p className="text-[0.9rem] mb-6" style={{ fontWeight: 400, color: "#8e8aa0" }}>
             Share this link with {name} for daily check-ins
           </p>
 
@@ -114,7 +114,7 @@ export function AddPatientForm() {
               <input
                 readOnly
                 value={magicLink}
-                className="flex-1 px-3 py-2 text-[0.82rem] bg-transparent outline-none truncate"
+                className="flex-1 px-3 py-2 text-[0.9rem] bg-transparent outline-none truncate"
                 style={{ fontWeight: 400, color: "#5a5773" }}
               />
               {/* Copy button — 3D */}
@@ -125,7 +125,7 @@ export function AddPatientForm() {
               }}>
                 <button
                   onClick={() => navigator.clipboard.writeText(magicLink)}
-                  className="shrink-0 px-4 py-2 rounded-lg text-[0.82rem] text-white transition-all active:scale-[0.97]"
+                  className="shrink-0 px-4 py-2 rounded-lg text-[0.9rem] text-white transition-all active:scale-[0.97]"
                   style={{ fontWeight: 600, background: "linear-gradient(135deg, #a78bfa, #8b5cf6)" }}
                 >
                   Copy
@@ -148,7 +148,7 @@ export function AddPatientForm() {
                   setName(""); setAge(""); setGender(""); setCondition("");
                   setStatus("new"); setNotes(""); setPhone(""); setEmail("");
                 }}
-                className="w-full py-2.5 rounded-xl text-[0.84rem] transition-all active:scale-[0.98]"
+                className="w-full py-2.5 rounded-xl text-[0.9rem] transition-all active:scale-[0.98]"
                 style={{ fontWeight: 600, color: "#7c3aed", background: "#f6f3fc" }}
               >
                 Add Another
@@ -163,7 +163,7 @@ export function AddPatientForm() {
             }}>
               <button
                 onClick={() => router.push("/dashboard")}
-                className="w-full py-2.5 rounded-xl text-[0.84rem] text-white transition-all active:scale-[0.98]"
+                className="w-full py-2.5 rounded-xl text-[0.9rem] text-white transition-all active:scale-[0.98]"
                 style={{ fontWeight: 600, background: "linear-gradient(135deg, #a78bfa, #8b5cf6)" }}
               >
                 Go to Patients
@@ -181,13 +181,13 @@ export function AddPatientForm() {
 
       {/* Section: Personal Information */}
       <div className="px-6 pt-6 pb-5 sm:px-8" style={{ borderBottom: "1px solid #e0daf0" }}>
-        <h3 className="text-[0.88rem] mb-5" style={{ fontWeight: 600, color: "#2d2b3d" }}>
+        <h3 className="text-[1.05rem] mb-5" style={{ fontWeight: 600, color: "#2d2b3d" }}>
           Personal Information
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-6 gap-4">
           {/* Full Name — 3 cols */}
           <div className="sm:col-span-3">
-            <label className="block text-[0.78rem] mb-1.5" style={{ fontWeight: 500, color: "#5a5773" }}>Full Name</label>
+            <label className="block text-[0.85rem] mb-1.5" style={{ fontWeight: 500, color: "#5a5773" }}>Full Name</label>
             <div style={inputWrapper}>
               <div className="relative">
                 <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 z-10" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="#b0aac2" strokeWidth="1.5" strokeLinecap="round">
@@ -200,7 +200,7 @@ export function AddPatientForm() {
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Full Name"
                   required
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl text-[0.85rem] outline-none transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl text-[0.92rem] outline-none transition-all"
                   style={{ fontWeight: 400, color: "#2d2b3d", background: "#f8f6ff" }}
                   onFocus={handleFocus}
                   onBlur={handleBlur}
@@ -211,7 +211,7 @@ export function AddPatientForm() {
 
           {/* Age — 1 col */}
           <div className="sm:col-span-1">
-            <label className="block text-[0.78rem] mb-1.5" style={{ fontWeight: 500, color: "#5a5773" }}>Age</label>
+            <label className="block text-[0.85rem] mb-1.5" style={{ fontWeight: 500, color: "#5a5773" }}>Age</label>
             <div style={inputWrapper}>
               <input
                 type="number"
@@ -220,7 +220,7 @@ export function AddPatientForm() {
                 placeholder="Age"
                 min={1}
                 max={150}
-                className="w-full px-4 py-2.5 rounded-xl text-[0.85rem] outline-none transition-all"
+                className="w-full px-4 py-2.5 rounded-xl text-[0.92rem] outline-none transition-all"
                 style={{ fontWeight: 400, color: "#2d2b3d", background: "#f8f6ff" }}
                 onFocus={handleFocus}
                 onBlur={handleBlur}
@@ -230,12 +230,12 @@ export function AddPatientForm() {
 
           {/* Gender — 2 cols */}
           <div className="sm:col-span-2">
-            <label className="block text-[0.78rem] mb-1.5" style={{ fontWeight: 500, color: "#5a5773" }}>Gender</label>
+            <label className="block text-[0.85rem] mb-1.5" style={{ fontWeight: 500, color: "#5a5773" }}>Gender</label>
             <div style={inputWrapper}>
               <select
                 value={gender}
                 onChange={(e) => setGender(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-xl text-[0.85rem] outline-none cursor-pointer transition-all"
+                className="w-full px-4 py-2.5 rounded-xl text-[0.92rem] outline-none cursor-pointer transition-all"
                 style={{
                   fontWeight: 400,
                   color: gender ? "#2d2b3d" : "#8e8aa0",
@@ -261,18 +261,18 @@ export function AddPatientForm() {
 
       {/* Section: Medical Details */}
       <div className="px-6 pt-5 pb-5 sm:px-8" style={{ borderBottom: "1px solid #e0daf0" }}>
-        <h3 className="text-[0.88rem] mb-5" style={{ fontWeight: 600, color: "#2d2b3d" }}>
+        <h3 className="text-[1.05rem] mb-5" style={{ fontWeight: 600, color: "#2d2b3d" }}>
           Medical Details
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-[0.78rem] mb-1.5" style={{ fontWeight: 500, color: "#5a5773" }}>Condition</label>
+            <label className="block text-[0.85rem] mb-1.5" style={{ fontWeight: 500, color: "#5a5773" }}>Condition</label>
             <div style={inputWrapper}>
               <select
                 value={condition}
                 onChange={(e) => setCondition(e.target.value)}
                 required
-                className="w-full px-4 py-2.5 rounded-xl text-[0.85rem] outline-none cursor-pointer transition-all"
+                className="w-full px-4 py-2.5 rounded-xl text-[0.92rem] outline-none cursor-pointer transition-all"
                 style={{
                   fontWeight: 400,
                   color: condition ? "#2d2b3d" : "#8e8aa0",
@@ -294,12 +294,12 @@ export function AddPatientForm() {
           </div>
 
           <div>
-            <label className="block text-[0.78rem] mb-1.5" style={{ fontWeight: 500, color: "#5a5773" }}>Status</label>
+            <label className="block text-[0.85rem] mb-1.5" style={{ fontWeight: 500, color: "#5a5773" }}>Status</label>
             <div style={inputWrapper}>
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-xl text-[0.85rem] outline-none cursor-pointer transition-all"
+                className="w-full px-4 py-2.5 rounded-xl text-[0.92rem] outline-none cursor-pointer transition-all"
                 style={{
                   fontWeight: 400,
                   color: "#2d2b3d",
@@ -324,7 +324,7 @@ export function AddPatientForm() {
 
       {/* Section: Notes */}
       <div className="px-6 pt-5 pb-5 sm:px-8" style={{ borderBottom: "1px solid #e0daf0" }}>
-        <h3 className="text-[0.88rem] mb-5" style={{ fontWeight: 600, color: "#2d2b3d" }}>
+        <h3 className="text-[1.05rem] mb-5" style={{ fontWeight: 600, color: "#2d2b3d" }}>
           Notes
         </h3>
         <div style={inputWrapper}>
@@ -333,7 +333,7 @@ export function AddPatientForm() {
             onChange={(e) => setNotes(e.target.value)}
             placeholder="Add any additional notes here..."
             rows={3}
-            className="w-full px-4 py-3 rounded-xl text-[0.85rem] outline-none transition-all resize-none"
+            className="w-full px-4 py-3 rounded-xl text-[0.92rem] outline-none transition-all resize-none"
             style={{ fontWeight: 400, color: "#2d2b3d", background: "#f8f6ff" }}
             onFocus={handleFocus}
             onBlur={handleBlur}
@@ -343,17 +343,17 @@ export function AddPatientForm() {
 
       {/* Section: Additional Information */}
       <div className="px-6 pt-5 pb-5 sm:px-8" style={{ borderBottom: "1px solid #e0daf0" }}>
-        <h3 className="text-[0.88rem] mb-5" style={{ fontWeight: 600, color: "#2d2b3d" }}>
+        <h3 className="text-[1.05rem] mb-5" style={{ fontWeight: 600, color: "#2d2b3d" }}>
           Additional Information
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* Phone */}
           <div>
-            <label className="block text-[0.78rem] mb-1.5" style={{ fontWeight: 500, color: "#5a5773" }}>Phone Number</label>
+            <label className="block text-[0.85rem] mb-1.5" style={{ fontWeight: 500, color: "#5a5773" }}>Phone Number</label>
             <div style={inputWrapper}>
               <div className="flex rounded-xl overflow-hidden" style={{ background: "#f8f6ff" }}>
                 <div
-                  className="flex items-center justify-center px-3.5 text-[0.85rem] shrink-0"
+                  className="flex items-center justify-center px-3.5 text-[0.92rem] shrink-0"
                   style={{
                     fontWeight: 600,
                     color: "#5a5773",
@@ -373,7 +373,7 @@ export function AddPatientForm() {
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="Phone Number"
                     required
-                    className="w-full pl-10 pr-4 py-2.5 text-[0.85rem] outline-none transition-all"
+                    className="w-full pl-10 pr-4 py-2.5 text-[0.92rem] outline-none transition-all"
                     style={{ fontWeight: 400, color: "#2d2b3d", background: "transparent" }}
                     onFocus={handleFocus}
                     onBlur={handleBlur}
@@ -385,14 +385,14 @@ export function AddPatientForm() {
 
           {/* Email */}
           <div>
-            <label className="block text-[0.78rem] mb-1.5" style={{ fontWeight: 500, color: "#5a5773" }}>Email Address</label>
+            <label className="block text-[0.85rem] mb-1.5" style={{ fontWeight: 500, color: "#5a5773" }}>Email Address</label>
             <div style={inputWrapper}>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Email Address"
-                className="w-full px-4 py-2.5 rounded-xl text-[0.85rem] outline-none transition-all"
+                className="w-full px-4 py-2.5 rounded-xl text-[0.92rem] outline-none transition-all"
                 style={{ fontWeight: 400, color: "#2d2b3d", background: "#f8f6ff" }}
                 onFocus={handleFocus}
                 onBlur={handleBlur}
@@ -406,7 +406,7 @@ export function AddPatientForm() {
       {error && (
         <div className="mx-6 mt-4 sm:mx-8">
           <div
-            className="px-4 py-2.5 rounded-xl text-[0.84rem] text-center"
+            className="px-4 py-2.5 rounded-xl text-[0.9rem] text-center"
             style={{ fontWeight: 500, color: "#dc2626", background: "rgba(220,38,38,0.06)", border: "1px solid rgba(220,38,38,0.12)" }}
           >
             {error}
@@ -425,7 +425,7 @@ export function AddPatientForm() {
           <button
             type="button"
             onClick={() => router.back()}
-            className="px-5 py-2.5 rounded-xl text-[0.84rem] transition-all active:scale-[0.98]"
+            className="px-5 py-2.5 rounded-xl text-[0.9rem] transition-all active:scale-[0.98]"
             style={{ fontWeight: 600, color: "#5a5773", background: "#f6f3fc" }}
           >
             Cancel
@@ -443,7 +443,7 @@ export function AddPatientForm() {
           <button
             type="submit"
             disabled={loading || !canSubmit}
-            className="px-6 py-2.5 rounded-xl text-[0.84rem] text-white transition-all active:scale-[0.98] disabled:cursor-not-allowed"
+            className="px-6 py-2.5 rounded-xl text-[0.9rem] text-white transition-all active:scale-[0.98] disabled:cursor-not-allowed"
             style={{
               fontWeight: 600,
               background: canSubmit

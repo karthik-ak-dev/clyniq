@@ -9,8 +9,7 @@ export function PageHeader({ title }: { title: string }) {
 
   return (
     <div className="flex items-center justify-between mb-5">
-      <h1 className="text-[1.35rem]" style={{ fontWeight: 600, color: "#2d2b3d" }}>{title}</h1>
-      {/* Avatar — 3D embossed */}
+      <h1 className="text-[1.5rem]" style={{ fontWeight: 600, color: "#2d2b3d" }}>{title}</h1>
       <div
         style={{
           paddingBottom: "2px",
@@ -20,10 +19,10 @@ export function PageHeader({ title }: { title: string }) {
         }}
       >
         <div
-          className="w-9 h-9 rounded-full flex items-center justify-center"
+          className="w-10 h-10 rounded-full flex items-center justify-center"
           style={{ background: "linear-gradient(135deg, #a78bfa, #8b5cf6)" }}
         >
-          <span className="text-white text-[0.65rem]" style={{ fontWeight: 600 }}>{initials}</span>
+          <span className="text-white text-[0.72rem]" style={{ fontWeight: 600 }}>{initials}</span>
         </div>
       </div>
     </div>

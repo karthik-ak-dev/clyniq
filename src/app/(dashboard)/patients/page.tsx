@@ -95,7 +95,7 @@ export default function DashboardPage() {
                   </svg>
                   <input
                     type="text"
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl text-[0.85rem] outline-none transition-all"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl text-[0.92rem] outline-none transition-all"
                     style={{ fontWeight: 400, color: "#2d2b3d", background: "#f8f6ff" }}
                     placeholder="Search patients..."
                     value={search}
@@ -125,7 +125,7 @@ export default function DashboardPage() {
                   <select
                     value={dd.value}
                     onChange={(e) => dd.onChange(e.target.value)}
-                    className="outline-none cursor-pointer rounded-xl py-2.5 px-3.5 text-[0.85rem] transition-all"
+                    className="outline-none cursor-pointer rounded-xl py-2.5 px-3.5 text-[0.92rem] transition-all"
                     style={{
                       fontWeight: 600,
                       color: "#2d2b3d",
@@ -160,10 +160,10 @@ export default function DashboardPage() {
                   <line x1="16" y1="22" x2="26" y2="22" />
                 </svg>
               </div>
-              <p className="text-[0.95rem] mb-1.5" style={{ fontWeight: 600, color: "#2d2b3d" }}>
+              <p className="text-[1.05rem] mb-1.5" style={{ fontWeight: 600, color: "#2d2b3d" }}>
                 {patients.length === 0 ? "No patients yet" : "No results found"}
               </p>
-              <p className="text-[0.82rem] mb-5" style={{ fontWeight: 400, color: "#8e8aa0" }}>
+              <p className="text-[0.9rem] mb-5" style={{ fontWeight: 400, color: "#8e8aa0" }}>
                 {patients.length === 0
                   ? "Add your first patient to start tracking their compliance"
                   : "Try adjusting your search or filters"}
@@ -177,7 +177,7 @@ export default function DashboardPage() {
                 }}>
                   <Link
                     href="/patients/add"
-                    className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-[0.84rem] text-white"
+                    className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-[0.9rem] text-white"
                     style={{ fontWeight: 600, background: "linear-gradient(135deg, #a78bfa, #8b5cf6)" }}
                   >
                     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round">
@@ -203,8 +203,8 @@ export default function DashboardPage() {
                <div className="rounded-xl overflow-hidden" style={{ background: "#f6f3fc" }}>
               {/* Table header */}
               <div
-                className="hidden sm:flex items-center gap-4 px-5 py-3 text-[0.78rem] tracking-wide uppercase"
-                style={{ fontWeight: 600, color: "#a8a2bc", background: "#eee9f8", boxShadow: "0 1px 0 rgba(124,58,237,0.06)", letterSpacing: "0.04em" }}
+                className="hidden sm:flex items-center gap-4 px-5 py-3 text-[0.85rem] tracking-wide uppercase"
+                style={{ fontWeight: 600, color: "#a8a2bc", background: "#eae5f6", borderBottom: "1.5px solid #ddd6ee", letterSpacing: "0.04em" }}
               >
                 <div className="w-10 shrink-0" />
                 <div className="flex-1" style={{ minWidth: "180px" }}>Name</div>
@@ -235,19 +235,19 @@ export default function DashboardPage() {
                   className="flex items-center justify-end gap-3 px-5 py-3.5"
                   style={{ borderTop: "1px solid #e0daf0" }}
                 >
-                  <span className="text-[0.78rem]" style={{ fontWeight: 400, color: "#8e8aa0" }}>
+                  <span className="text-[0.85rem]" style={{ fontWeight: 400, color: "#8e8aa0" }}>
                     1–{filtered.length} of {filtered.length}
                   </span>
                   <div className="flex items-center gap-1.5">
                     <button
-                      className="px-3.5 py-1.5 rounded-lg text-[0.78rem]"
+                      className="px-3.5 py-1.5 rounded-lg text-[0.85rem]"
                       style={{ fontWeight: 500, color: "#b8b3cc", background: "#eae5f6", cursor: "not-allowed", opacity: 0.6 }}
                       disabled
                     >
                       Previous
                     </button>
                     <button
-                      className="px-3.5 py-1.5 rounded-lg text-[0.78rem] transition-all hover:bg-[#e4def4]"
+                      className="px-3.5 py-1.5 rounded-lg text-[0.85rem] transition-all hover:bg-[#e4def4]"
                       style={{ fontWeight: 500, color: "#7c3aed", background: "#f0ecfa" }}
                     >
                       Next
@@ -259,7 +259,7 @@ export default function DashboardPage() {
               {/* Result count */}
               {totalPages <= 1 && filtered.length > 0 && (
                 <div className="px-5 py-2.5" style={{ borderTop: "1px solid #e0daf0" }}>
-                  <span className="text-[0.76rem]" style={{ fontWeight: 400, color: "#a8a2bc" }}>
+                  <span className="text-[0.82rem]" style={{ fontWeight: 400, color: "#a8a2bc" }}>
                     {filtered.length} {filtered.length === 1 ? "patient" : "patients"}
                   </span>
                 </div>

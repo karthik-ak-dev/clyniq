@@ -98,8 +98,8 @@ export function Sidebar() {
           </div>
         </div>
         <div>
-          <p className="text-[0.88rem]" style={{ fontWeight: 600, color: "#2d2b3d" }}>Clyniq</p>
-          <p className="text-[0.6rem]" style={{ fontWeight: 400, color: "#8e8aa0" }}>Doctor</p>
+          <p className="text-[0.92rem]" style={{ fontWeight: 600, color: "#2d2b3d" }}>Clyniq</p>
+          <p className="text-[0.65rem]" style={{ fontWeight: 400, color: "#8e8aa0" }}>Doctor</p>
         </div>
       </div>
 
@@ -123,7 +123,7 @@ export function Sidebar() {
                     className="flex items-center gap-3 px-3 py-2.5 rounded-xl"
                     style={{
                       fontWeight: 600,
-                      fontSize: "0.84rem",
+                      fontSize: "0.9rem",
                       color: "#5b21b6",
                       background: "rgba(255,255,255,0.85)",
                     }}
@@ -137,7 +137,7 @@ export function Sidebar() {
                   className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all hover:bg-white/30"
                   style={{
                     fontWeight: 400,
-                    fontSize: "0.84rem",
+                    fontSize: "0.9rem",
                     color: "#5a5773",
                   }}
                 >
@@ -180,8 +180,8 @@ export function Sidebar() {
               </div>
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-[0.78rem] truncate" style={{ fontWeight: 600, color: "#2d2b3d" }}>{doctorName}</p>
-              <p className="text-[0.62rem] truncate" style={{ fontWeight: 400, color: "#8e8aa0" }}>{doctorEmail}</p>
+              <p className="text-[0.85rem] truncate" style={{ fontWeight: 600, color: "#2d2b3d" }}>{doctorName}</p>
+              <p className="text-[0.7rem] truncate" style={{ fontWeight: 400, color: "#8e8aa0" }}>{doctorEmail}</p>
             </div>
             <button
               onClick={() => signOut({ callbackUrl: "/login" })}
@@ -199,7 +199,7 @@ export function Sidebar() {
       </div>
 
       <div className="px-4 pb-3">
-        <p className="text-[0.58rem]" style={{ fontWeight: 400, color: "#b8b3cc" }}>
+        <p className="text-[0.65rem]" style={{ fontWeight: 400, color: "#b8b3cc" }}>
           Privacy Policy · Terms of Service
         </p>
       </div>
@@ -236,7 +236,7 @@ export function BottomNav() {
           >
             <item.Icon active={active} />
             <span
-              className="text-[0.58rem]"
+              className="text-[0.65rem]"
               style={{ fontWeight: active ? 600 : 400, color: active ? "#7c3aed" : "#8e8aa0" }}
             >
               {item.label}
