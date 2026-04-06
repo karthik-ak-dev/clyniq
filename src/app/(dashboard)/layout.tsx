@@ -4,9 +4,6 @@ import { SessionProvider } from "next-auth/react";
 import { Sidebar, BottomNav } from "@/components/dashboard/sidebar";
 import { Header } from "@/components/dashboard/header";
 
-// ─── Dashboard Layout ──────────────────────────────────────
-// Sidebar (deeper lavender) + content area (light lavender)
-
 export default function DashboardLayout({
   children,
 }: {
@@ -14,7 +11,7 @@ export default function DashboardLayout({
 }) {
   return (
     <SessionProvider>
-      <div className="min-h-dvh" style={{ background: "#f8f6ff" }}>
+      <div className="min-h-dvh" style={{ background: "#eee8fa" }}>
         <Sidebar />
         <div className="md:ml-[240px] flex flex-col min-h-dvh">
           <Header />

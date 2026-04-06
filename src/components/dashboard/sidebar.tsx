@@ -5,18 +5,6 @@ import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 
 // ─── SVG Icons ─────────────────────────────────────────────
-// Clean, consistent line icons replacing emoji.
-
-function IconDashboard({ active }: { active: boolean }) {
-  return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke={active ? "#5b21b6" : "#8e8aa0"} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="1" y="1" width="7" height="7" rx="1.5" />
-      <rect x="10" y="1" width="7" height="4" rx="1.5" />
-      <rect x="1" y="10" width="7" height="4" rx="1.5" />
-      <rect x="10" y="7" width="7" height="7" rx="1.5" />
-    </svg>
-  );
-}
 
 function IconPatients({ active }: { active: boolean }) {
   return (
@@ -83,15 +71,27 @@ export function Sidebar() {
   return (
     <aside
       className="hidden md:flex md:flex-col md:w-[240px] md:fixed md:inset-y-0"
-      style={{ background: "linear-gradient(180deg, #ece5ff 0%, #f0eaff 100%)" }}
+      style={{
+        background: "linear-gradient(180deg, #e4dbf5 0%, #ece5ff 100%)",
+        boxShadow: "4px 0 20px rgba(124,58,237,0.08), 1px 0 0 rgba(124,58,237,0.06)",
+      }}
     >
-      {/* Logo */}
+      {/* Logo — 3D embossed */}
       <div className="px-5 pt-6 pb-5 flex items-center gap-2.5">
         <div
-          className="w-8 h-8 rounded-lg flex items-center justify-center"
-          style={{ background: "#7c3aed", boxShadow: "0 2px 8px rgba(124,58,237,0.3)" }}
+          style={{
+            paddingBottom: "3px",
+            background: "linear-gradient(135deg, #6d28d9, #5b21b6)",
+            borderRadius: "0.6rem",
+            boxShadow: "0 3px 10px rgba(109,40,217,0.35)",
+          }}
         >
-          <span className="text-white text-xs" style={{ fontWeight: 700 }}>C</span>
+          <div
+            className="w-8 h-8 rounded-lg flex items-center justify-center"
+            style={{ background: "linear-gradient(135deg, #a78bfa, #8b5cf6)" }}
+          >
+            <span className="text-white text-xs" style={{ fontWeight: 700 }}>C</span>
+          </div>
         </div>
         <div>
           <p className="text-[0.88rem]" style={{ fontWeight: 600, color: "#2d2b3d" }}>Clyniq</p>
@@ -105,71 +105,133 @@ export function Sidebar() {
           const active = isActive(item.href);
           return (
             <Link key={item.href} href={item.href} className="block">
-              <div
-                className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all"
-                style={{
-                  fontWeight: active ? 600 : 400,
-                  fontSize: "0.84rem",
-                  color: active ? "#5b21b6" : "#5a5773",
-                  background: active ? "rgba(255,255,255,0.65)" : "transparent",
-                  boxShadow: active ? "0 1px 3px rgba(124,58,237,0.06)" : "none",
-                }}
-              >
-                <item.Icon active={active} />
-                {item.label}
-              </div>
+              {active ? (
+                /* Active: 3D raised pill — outer darker edge + inner white face */
+                <div
+                  style={{
+                    paddingBottom: "2px",
+                    background: "linear-gradient(180deg, rgba(124,58,237,0.12), rgba(124,58,237,0.18))",
+                    borderRadius: "0.75rem",
+                    boxShadow: "0 2px 6px rgba(124,58,237,0.08)",
+                  }}
+                >
+                  <div
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl"
+                    style={{
+                      fontWeight: 600,
+                      fontSize: "0.84rem",
+                      color: "#5b21b6",
+                      background: "rgba(255,255,255,0.85)",
+                    }}
+                  >
+                    <item.Icon active={true} />
+                    {item.label}
+                  </div>
+                </div>
+              ) : (
+                <div
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all hover:bg-white/30"
+                  style={{
+                    fontWeight: 400,
+                    fontSize: "0.84rem",
+                    color: "#5a5773",
+                  }}
+                >
+                  <item.Icon active={false} />
+                  {item.label}
+                </div>
+              )}
             </Link>
           );
         })}
 
         {/* Divider */}
-        <div className="my-3" style={{ borderTop: "1px solid rgba(124,58,237,0.08)" }} />
+        <div className="my-3" style={{ borderTop: "1px solid rgba(124,58,237,0.1)" }} />
 
         {/* Settings */}
         <Link href="/settings" className="block">
-          <div
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all"
-            style={{
-              fontWeight: pathname === "/settings" ? 600 : 400,
-              fontSize: "0.84rem",
-              color: pathname === "/settings" ? "#5b21b6" : "#5a5773",
-              background: pathname === "/settings" ? "rgba(255,255,255,0.65)" : "transparent",
-            }}
-          >
-            <IconSettings active={pathname === "/settings"} />
-            Settings
-          </div>
+          {pathname === "/settings" ? (
+            <div
+              style={{
+                paddingBottom: "2px",
+                background: "linear-gradient(180deg, rgba(124,58,237,0.12), rgba(124,58,237,0.18))",
+                borderRadius: "0.75rem",
+                boxShadow: "0 2px 6px rgba(124,58,237,0.08)",
+              }}
+            >
+              <div
+                className="flex items-center gap-3 px-3 py-2.5 rounded-xl"
+                style={{
+                  fontWeight: 600,
+                  fontSize: "0.84rem",
+                  color: "#5b21b6",
+                  background: "rgba(255,255,255,0.85)",
+                }}
+              >
+                <IconSettings active={true} />
+                Settings
+              </div>
+            </div>
+          ) : (
+            <div
+              className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all hover:bg-white/30"
+              style={{
+                fontWeight: 400,
+                fontSize: "0.84rem",
+                color: "#5a5773",
+              }}
+            >
+              <IconSettings active={false} />
+              Settings
+            </div>
+          )}
         </Link>
       </nav>
 
-      {/* Doctor profile */}
-      <div className="px-4 py-4" style={{ borderTop: "1px solid rgba(124,58,237,0.08)" }}>
-        <div className="flex items-center gap-2.5">
+      {/* Doctor profile — 3D card */}
+      <div className="px-3 pb-2">
+        <div
+          style={{
+            paddingBottom: "2px",
+            background: "linear-gradient(180deg, rgba(124,58,237,0.08), rgba(124,58,237,0.14))",
+            borderRadius: "0.85rem",
+          }}
+        >
           <div
-            className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
-            style={{
-              background: "#7c3aed",
-              border: "2px solid rgba(255,255,255,0.6)",
-              boxShadow: "0 2px 6px rgba(124,58,237,0.2)",
-            }}
+            className="flex items-center gap-2.5 px-3 py-3 rounded-xl"
+            style={{ background: "rgba(255,255,255,0.7)" }}
           >
-            <span className="text-white text-[0.6rem]" style={{ fontWeight: 600 }}>{initials}</span>
+            <div
+              style={{
+                paddingBottom: "2px",
+                background: "linear-gradient(135deg, #6d28d9, #5b21b6)",
+                borderRadius: "9999px",
+                boxShadow: "0 2px 8px rgba(124,58,237,0.25)",
+              }}
+            >
+              <div
+                className="w-9 h-9 rounded-full flex items-center justify-center"
+                style={{ background: "linear-gradient(135deg, #a78bfa, #8b5cf6)" }}
+              >
+                <span className="text-white text-[0.6rem]" style={{ fontWeight: 600 }}>{initials}</span>
+              </div>
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-[0.78rem] truncate" style={{ fontWeight: 600, color: "#2d2b3d" }}>{doctorName}</p>
+              <p className="text-[0.62rem] truncate" style={{ fontWeight: 400, color: "#8e8aa0" }}>{doctorEmail}</p>
+            </div>
+            <button
+              onClick={() => signOut({ callbackUrl: "/login" })}
+              className="w-8 h-8 rounded-lg flex items-center justify-center transition-all hover:bg-white/50"
+              title="Sign out"
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#8e8aa0" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M6 14H3.5A1.5 1.5 0 0 1 2 12.5v-9A1.5 1.5 0 0 1 3.5 2H6" />
+                <path d="M10.5 11.5L14 8l-3.5-3.5" />
+                <line x1="5.5" y1="8" x2="14" y2="8" />
+              </svg>
+            </button>
           </div>
-          <div className="min-w-0 flex-1">
-            <p className="text-[0.78rem] truncate" style={{ fontWeight: 600, color: "#2d2b3d" }}>{doctorName}</p>
-            <p className="text-[0.62rem] truncate" style={{ fontWeight: 400, color: "#8e8aa0" }}>{doctorEmail}</p>
-          </div>
-          <button
-            onClick={() => signOut({ callbackUrl: "/login" })}
-            className="w-8 h-8 rounded-lg flex items-center justify-center transition-all hover:bg-white/40"
-            title="Sign out"
-          >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#8e8aa0" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M6 14H3.5A1.5 1.5 0 0 1 2 12.5v-9A1.5 1.5 0 0 1 3.5 2H6" />
-              <path d="M10.5 11.5L14 8l-3.5-3.5" />
-              <line x1="5.5" y1="8" x2="14" y2="8" />
-            </svg>
-          </button>
         </div>
       </div>
 
@@ -195,7 +257,7 @@ export function BottomNav() {
   return (
     <nav
       className="md:hidden fixed bottom-0 left-0 right-0 bg-white flex justify-around py-2.5 z-50"
-      style={{ borderTop: "1px solid #f0eaff", boxShadow: "0 -2px 8px rgba(0,0,0,0.03)" }}
+      style={{ boxShadow: "0 -4px 16px rgba(124,58,237,0.06), 0 -1px 0 rgba(124,58,237,0.04)" }}
     >
       {items.map((item) => {
         const active = item.href === "/dashboard"

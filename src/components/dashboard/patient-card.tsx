@@ -34,23 +34,30 @@ export function PatientCard({
   return (
     <Link href={`/patients/${doctorPatientId}`} className="block group">
       <div
-        className="flex items-center gap-4 px-5 py-4 transition-all group-hover:bg-[#fcfaff] relative"
-        style={{ borderBottom: "1px solid #f5f0ff" }}
+        className="flex items-center gap-4 px-5 py-4 transition-all group-hover:bg-[#faf8ff] relative"
+        style={{ borderBottom: "1px solid #f0eaff" }}
+        onMouseEnter={(e) => { e.currentTarget.style.boxShadow = "0 2px 8px rgba(124,58,237,0.06)"; }}
+        onMouseLeave={(e) => { e.currentTarget.style.boxShadow = "none"; }}
       >
         {/* Hover accent — left purple bar */}
         <div
           className="absolute left-0 top-2 bottom-2 w-[3px] rounded-r-full bg-[#7c3aed] opacity-0 group-hover:opacity-100 transition-opacity"
         />
 
-        {/* Avatar with ring */}
-        <div
-          className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
+        {/* Avatar — 3D embossed */}
+        <div className="shrink-0"
           style={{
-            background: "linear-gradient(135deg, #ede9fe, #ddd6fe)",
-            border: "2px solid rgba(124,58,237,0.12)",
+            paddingBottom: "2px",
+            background: "linear-gradient(180deg, #d4cbe6, #c8bedd)",
+            borderRadius: "9999px",
           }}
         >
-          <span className="text-[0.72rem] text-[#7c3aed]" style={{ fontWeight: 600 }}>{initials}</span>
+          <div
+            className="w-10 h-10 rounded-full flex items-center justify-center"
+            style={{ background: "linear-gradient(135deg, #f0ecff, #e4ddf7)" }}
+          >
+            <span className="text-[0.72rem] text-[#7c3aed]" style={{ fontWeight: 600 }}>{initials}</span>
+          </div>
         </div>
 
         {/* Name */}
@@ -61,11 +68,16 @@ export function PatientCard({
           </p>
         </div>
 
-        {/* Status badge */}
+        {/* Status badge — subtle 3D */}
         <div className="shrink-0 hidden sm:flex items-center" style={{ minWidth: "110px" }}>
           <span
             className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[0.74rem]"
-            style={{ fontWeight: 600, color: status.color, background: status.bg }}
+            style={{
+              fontWeight: 600,
+              color: status.color,
+              background: status.bg,
+              boxShadow: "0 2px 0 rgba(0,0,0,0.03), 0 1px 4px rgba(0,0,0,0.02)",
+            }}
           >
             <span
               className="w-1.5 h-1.5 rounded-full"

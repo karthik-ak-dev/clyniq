@@ -2,10 +2,6 @@
 
 import { useSession } from "next-auth/react";
 
-// ─── Header ────────────────────────────────────────────────
-// Clean, minimal. Just the doctor avatar on the right.
-// No notification/chat icons — no functionality for them.
-
 export function Header() {
   const { data: session } = useSession();
   const doctorName = session?.user?.name || "Doctor";
@@ -13,15 +9,21 @@ export function Header() {
 
   return (
     <header className="px-5 md:px-8 py-4 flex items-center justify-end">
+      {/* Avatar — 3D embossed circle */}
       <div
-        className="w-9 h-9 rounded-full flex items-center justify-center"
         style={{
-          background: "#7c3aed",
-          boxShadow: "0 2px 8px rgba(124,58,237,0.25)",
-          border: "2px solid rgba(255,255,255,0.8)",
+          paddingBottom: "2px",
+          background: "linear-gradient(135deg, #6d28d9, #5b21b6)",
+          borderRadius: "9999px",
+          boxShadow: "0 3px 10px rgba(124,58,237,0.25)",
         }}
       >
-        <span className="text-white text-[0.65rem]" style={{ fontWeight: 600 }}>{initials}</span>
+        <div
+          className="w-9 h-9 rounded-full flex items-center justify-center"
+          style={{ background: "linear-gradient(135deg, #a78bfa, #8b5cf6)" }}
+        >
+          <span className="text-white text-[0.65rem]" style={{ fontWeight: 600 }}>{initials}</span>
+        </div>
       </div>
     </header>
   );
