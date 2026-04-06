@@ -1,4 +1,4 @@
-import { eq, gte, desc, inArray, and } from "drizzle-orm";
+import { gte, desc, inArray, and } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { checkIns } from "@/lib/db/schema";
 import { checkinQueries } from "./checkins";
