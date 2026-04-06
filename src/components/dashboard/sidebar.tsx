@@ -72,7 +72,7 @@ export function Sidebar() {
     <aside
       className="hidden md:flex md:flex-col md:w-[240px] md:fixed md:inset-y-0"
       style={{
-        background: "linear-gradient(180deg, #d8cef0 0%, #e0d8f2 100%)",
+        background: "linear-gradient(180deg, #cfc4ea 0%, #d8cef0 100%)",
         boxShadow: "4px 0 20px rgba(124,58,237,0.08), 1px 0 0 rgba(124,58,237,0.06)",
       }}
     >

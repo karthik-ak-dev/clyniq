@@ -74,7 +74,7 @@ export function AddPatientForm() {
     e.currentTarget.style.boxShadow = "0 0 0 3px rgba(124,58,237,0.08)";
   };
   const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    e.currentTarget.style.background = "#faf9ff";
+    e.currentTarget.style.background = "#f8f6ff";
     e.currentTarget.style.boxShadow = "none";
   };
 
@@ -149,7 +149,7 @@ export function AddPatientForm() {
                   setStatus("new"); setNotes(""); setPhone(""); setEmail("");
                 }}
                 className="w-full py-2.5 rounded-xl text-[0.84rem] transition-all active:scale-[0.98]"
-                style={{ fontWeight: 600, color: "#7c3aed", background: "#f5f2fc" }}
+                style={{ fontWeight: 600, color: "#7c3aed", background: "#f6f3fc" }}
               >
                 Add Another
               </button>
@@ -426,7 +426,7 @@ export function AddPatientForm() {
             type="button"
             onClick={() => router.back()}
             className="px-5 py-2.5 rounded-xl text-[0.84rem] transition-all active:scale-[0.98]"
-            style={{ fontWeight: 600, color: "#5a5773", background: "#f5f2fc" }}
+            style={{ fontWeight: 600, color: "#5a5773", background: "#f6f3fc" }}
           >
             Cancel
           </button>
