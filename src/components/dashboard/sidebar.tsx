@@ -6,6 +6,17 @@ import { useSession, signOut } from "next-auth/react";
 
 // ─── SVG Icons ─────────────────────────────────────────────
 
+function IconDashboard({ active }: { active: boolean }) {
+  return (
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke={active ? "#5b21b6" : "#8e8aa0"} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="1" y="1" width="7" height="7" rx="1.5" />
+      <rect x="10" y="1" width="7" height="4" rx="1.5" />
+      <rect x="1" y="10" width="7" height="4" rx="1.5" />
+      <rect x="10" y="7" width="7" height="7" rx="1.5" />
+    </svg>
+  );
+}
+
 function IconPatients({ active }: { active: boolean }) {
   return (
     <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke={active ? "#5b21b6" : "#8e8aa0"} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -42,7 +53,8 @@ function IconTemplates({ active }: { active: boolean }) {
 // ─── Sidebar ───────────────────────────────────────────────
 
 const NAV_ITEMS = [
-  { label: "Patients", href: "/dashboard", Icon: IconPatients },
+  { label: "Dashboard", href: "/dashboard", Icon: IconDashboard },
+  { label: "Patients", href: "/patients", Icon: IconPatients },
   { label: "Add Patient", href: "/patients/add", Icon: IconAddPatient },
   { label: "Templates", href: "/templates", Icon: IconTemplates },
 ];
@@ -55,7 +67,8 @@ export function Sidebar() {
   const initials = doctorName.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
 
   const isActive = (href: string) => {
-    if (href === "/dashboard") return pathname === "/dashboard" || (pathname.startsWith("/patients") && pathname !== "/patients/add");
+    if (href === "/dashboard") return pathname === "/dashboard";
+    if (href === "/patients") return pathname === "/patients" || (pathname.startsWith("/patients/") && pathname !== "/patients/add");
     return pathname === href || (href !== "/" && pathname.startsWith(href));
   };
 
@@ -198,7 +211,8 @@ export function Sidebar() {
 export function BottomNav() {
   const pathname = usePathname();
   const items = [
-    { label: "Patients", href: "/dashboard", Icon: IconPatients },
+    { label: "Home", href: "/dashboard", Icon: IconDashboard },
+    { label: "Patients", href: "/patients", Icon: IconPatients },
     { label: "Add", href: "/patients/add", Icon: IconAddPatient },
     { label: "Templates", href: "/templates", Icon: IconTemplates },
   ];
@@ -210,8 +224,10 @@ export function BottomNav() {
     >
       {items.map((item) => {
         const active = item.href === "/dashboard"
-          ? pathname === "/dashboard" || (pathname.startsWith("/patients") && pathname !== "/patients/add")
-          : pathname.startsWith(item.href);
+          ? pathname === "/dashboard"
+          : item.href === "/patients"
+            ? pathname === "/patients" || (pathname.startsWith("/patients/") && pathname !== "/patients/add")
+            : pathname === item.href || pathname.startsWith(item.href);
         return (
           <Link
             key={item.href}

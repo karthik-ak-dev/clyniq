@@ -8,6 +8,10 @@
   letter-spacing: -0.01em;
 }
 
+html, body {
+  background: #e4ddf5;
+}
+
 /* ─── Design System Theme ───────────────────────────────────
    Tailwind v4 CSS-first configuration.
    Colors extracted from design/ref_1, ref_2, ref_3.

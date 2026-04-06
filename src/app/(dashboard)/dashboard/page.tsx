@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { PatientCard } from "@/components/dashboard/patient-card";
-import { PageHeader } from "@/components/dashboard/page-header";
+import { useSession } from "next-auth/react";
 import { apiFetch } from "@/lib/api-client";
 import type { Trend } from "@/lib/db/types";
 
@@ -17,254 +16,325 @@ type PatientRow = {
   };
 };
 
-export default function DashboardPage() {
+export default function DashboardHome() {
+  const { data: session } = useSession();
   const [patients, setPatients] = useState<PatientRow[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [conditionFilter, setConditionFilter] = useState("all");
+
+  const doctorName = session?.user?.name || "Doctor";
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+  const today = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
 
   useEffect(() => {
     async function fetchPatients() {
       try {
         const data = await apiFetch<PatientRow[]>("/api/patients");
         if (data) setPatients(data);
-      } catch { /* empty state */ }
+      } catch { /* silent */ }
       finally { setLoading(false); }
     }
     fetchPatients();
   }, []);
 
-  const filtered = patients.filter((row) => {
-    const matchesCondition = conditionFilter === "all" || row.doctorPatient.condition === conditionFilter;
-    const matchesStatus =
-      statusFilter === "all" ||
-      (statusFilter === "on-track" && row.compliance.score.overall >= 70) ||
-      (statusFilter === "moderate" && row.compliance.score.overall >= 40 && row.compliance.score.overall < 70) ||
-      (statusFilter === "high-risk" && row.compliance.score.overall < 40);
-    const matchesSearch =
-      !search ||
-      row.patient.name.toLowerCase().includes(search.toLowerCase()) ||
-      row.patient.phone.includes(search);
-    return matchesCondition && matchesStatus && matchesSearch;
-  });
+  const needsAttention = patients.filter((r) => r.compliance.score.overall < 40);
+  const followUp = patients.filter((r) => r.compliance.score.overall >= 40 && r.compliance.score.overall < 70);
+  const onTrack = patients.filter((r) => r.compliance.score.overall >= 70);
 
-  const totalPages = 1;
+  const avgCompliance = patients.length > 0
+    ? Math.round(patients.reduce((sum, r) => sum + r.compliance.score.overall, 0) / patients.length)
+    : 0;
+
+  const totalInsights = patients.reduce((sum, r) => sum + r.compliance.insights.length, 0);
 
   return (
-    <div>
-      {/* Page header — title + avatar */}
-      <PageHeader title="Patients" />
+    <div className="flex flex-col overflow-hidden" style={{ height: "calc(100vh - 4rem)" }}>
+      {/* Greeting header */}
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h1 className="text-[1.4rem]" style={{ fontWeight: 600, color: "#2d2b3d" }}>
+            {greeting}, {doctorName}
+          </h1>
+          <p className="text-[0.84rem] mt-0.5" style={{ fontWeight: 400, color: "#8e8aa0" }}>{today}</p>
+        </div>
+        <div style={{ paddingBottom: "2px", background: "linear-gradient(135deg, #6d28d9, #5b21b6)", borderRadius: "9999px", boxShadow: "0 3px 10px rgba(124,58,237,0.25)" }}>
+          <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: "linear-gradient(135deg, #a78bfa, #8b5cf6)" }}>
+            <span className="text-white text-[0.65rem]" style={{ fontWeight: 600 }}>
+              {doctorName.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase()}
+            </span>
+          </div>
+        </div>
+      </div>
 
-      {/* Main card — 3D raised */}
-      <div
-        style={{
-          paddingBottom: "2px",
-          background: "linear-gradient(180deg, #d4cce4 0%, #cdc4de 100%)",
-          borderRadius: "1rem",
-          boxShadow: "0 8px 28px rgba(124,58,237,0.07), 0 2px 4px rgba(0,0,0,0.03)",
-        }}
-      >
-        <div className="rounded-2xl overflow-hidden" style={{ background: "#f0ecfa" }}>
+      {loading ? (
+        <div className="flex-1 flex items-center justify-center">
+          <p className="text-[0.92rem]" style={{ color: "#8e8aa0", fontWeight: 400 }}>Loading dashboard...</p>
+        </div>
+      ) : (
+        <div className="flex-1 grid grid-rows-[auto_1fr_auto] gap-3 min-h-0 overflow-hidden">
 
-          {/* Search + Filters */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 px-5 py-4">
-            {/* Search — 3D embossed */}
-            <div className="flex-1">
-              <div
-                style={{
-                  padding: "1px 1px 3px 1px",
-                  background: "linear-gradient(180deg, #cdc4de, #c2b8d6)",
-                  borderRadius: "0.85rem",
-                  boxShadow: "0 2px 4px rgba(124,58,237,0.06)",
-                }}
-              >
-                <div className="relative">
-                  <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 z-10" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#8e8aa0" strokeWidth="1.5" strokeLinecap="round">
-                    <circle cx="7" cy="7" r="5" />
-                    <path d="M11 11l3.5 3.5" />
-                  </svg>
-                  <input
-                    type="text"
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl text-[0.85rem] outline-none transition-all"
-                    style={{ fontWeight: 400, color: "#2d2b3d", background: "#f8f6ff" }}
-                    placeholder="Search patients..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    onFocus={(e) => { e.currentTarget.style.background = "#fbfaff"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(124,58,237,0.08)"; }}
-                    onBlur={(e) => { e.currentTarget.style.background = "#f8f6ff"; e.currentTarget.style.boxShadow = "none"; }}
-                  />
-                </div>
-              </div>
+          {/* Row 1: Stats */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <StatCard label="Total Patients" value={String(patients.length)} icon={<IconStat type="patients" />} />
+            <StatCard label="Needs Attention" value={String(needsAttention.length)} icon={<IconStat type="alert" />} color="#dc2626" />
+            <StatCard label="Avg. Compliance" value={`${avgCompliance}%`} icon={<IconStat type="chart" />} color={avgCompliance >= 70 ? "#16a34a" : avgCompliance >= 40 ? "#d97706" : "#dc2626"} />
+            <StatCard label="Active Insights" value={String(totalInsights)} icon={<IconStat type="warning" />} color={totalInsights > 0 ? "#d97706" : "#16a34a"} />
+          </div>
+
+          {/* Row 2: Main content — fills remaining space */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 min-h-0 overflow-hidden">
+            {/* Left: Needs Attention + Follow-Up stacked */}
+            <div className="lg:col-span-2 grid grid-rows-2 gap-3 min-h-0">
+              <PatientSection
+                title="Needs Attention"
+                dotColor="#dc2626"
+                patients={needsAttention}
+                emptyText="All patients are doing well"
+                emptyIcon="check"
+              />
+              <PatientSection
+                title="Follow-Up Needed"
+                dotColor="#d97706"
+                patients={followUp}
+                emptyText="No patients need follow-up"
+                emptyIcon="check"
+              />
             </div>
 
-            {/* Filter dropdowns — 3D embossed */}
-            <div className="flex gap-2.5">
-              {[
-                { value: statusFilter, onChange: setStatusFilter, options: [["all", "All Statuses"], ["on-track", "On Track"], ["moderate", "Moderate"], ["high-risk", "High Risk"]] },
-                { value: conditionFilter, onChange: setConditionFilter, options: [["all", "All Conditions"], ["diabetes", "Diabetes"], ["obesity", "Obesity"]] },
-              ].map((dd, idx) => (
-                <div
-                  key={idx}
-                  style={{
-                    padding: "1px 1px 3px 1px",
-                    background: "linear-gradient(180deg, #cdc4de, #c2b8d6)",
-                    borderRadius: "0.85rem",
-                    boxShadow: "0 2px 4px rgba(124,58,237,0.06)",
-                  }}
-                >
-                  <select
-                    value={dd.value}
-                    onChange={(e) => dd.onChange(e.target.value)}
-                    className="outline-none cursor-pointer rounded-xl py-2.5 px-3.5 text-[0.85rem] transition-all"
-                    style={{
-                      fontWeight: 600,
-                      color: "#2d2b3d",
-                      background: "#f8f6ff",
-                      appearance: "none",
-                      paddingRight: "2.25rem",
-                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath d='M2.5 4l2.5 2.5 2.5-2.5' stroke='%238e8aa0' fill='none' stroke-width='1.5'/%3E%3C/svg%3E")`,
-                      backgroundRepeat: "no-repeat",
-                      backgroundPosition: "right 0.75rem center",
-                    }}
-                  >
-                    {dd.options.map(([val, label]) => (
-                      <option key={val} value={val}>{label}</option>
-                    ))}
-                  </select>
+            {/* Right: On Track + Quick Actions stacked */}
+            <div className="grid grid-rows-2 gap-3 min-h-0">
+              <PatientSection
+                title="On Track"
+                dotColor="#16a34a"
+                patients={onTrack}
+                emptyText="No patients on track yet"
+                emptyIcon="patients"
+              />
+
+              {/* Quick Actions */}
+              <Card3D>
+                <div className="px-5 pt-5 pb-5 h-full flex flex-col">
+                  <h3 className="text-[0.88rem] mb-4" style={{ fontWeight: 600, color: "#2d2b3d" }}>Quick Actions</h3>
+                  <div className="flex-1 flex flex-col justify-center space-y-2.5">
+                    <ActionLink href="/patients/add" icon="add" label="Add New Patient" desc="Start tracking a new patient" purple />
+                    <ActionLink href="/patients" icon="list" label="View All Patients" desc="See the full patient list" />
+                    <ActionLink href="/templates" icon="template" label="Manage Templates" desc="Configure check-in questions" />
+                  </div>
                 </div>
-              ))}
+              </Card3D>
             </div>
           </div>
 
-          {/* Content */}
-          {loading ? (
-            <div className="text-center py-24" style={{ color: "#8e8aa0", fontWeight: 400 }}>
-              <p className="text-[0.92rem]">Loading patients...</p>
-            </div>
-          ) : filtered.length === 0 ? (
-            <div className="text-center py-20 px-8">
-              <div
-                className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
-                style={{ background: "#ebe6f8" }}
-              >
-                <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="#8e8aa0" strokeWidth="1.5" strokeLinecap="round">
-                  <circle cx="12" cy="10" r="5" />
-                  <path d="M3 26c0-5.5 4-9 9-9" />
-                  <line x1="21" y1="17" x2="21" y2="27" />
-                  <line x1="16" y1="22" x2="26" y2="22" />
-                </svg>
-              </div>
-              <p className="text-[0.95rem] mb-1.5" style={{ fontWeight: 600, color: "#2d2b3d" }}>
-                {patients.length === 0 ? "No patients yet" : "No results found"}
-              </p>
-              <p className="text-[0.82rem] mb-5" style={{ fontWeight: 400, color: "#8e8aa0" }}>
-                {patients.length === 0
-                  ? "Add your first patient to start tracking their compliance"
-                  : "Try adjusting your search or filters"}
-              </p>
-              {patients.length === 0 && (
-                <div className="inline-block" style={{
-                  paddingBottom: "3px",
-                  background: "linear-gradient(135deg, #6d28d9, #5b21b6)",
-                  borderRadius: "0.85rem",
-                  boxShadow: "0 4px 12px rgba(109,40,217,0.3)",
-                }}>
-                  <Link
-                    href="/patients/add"
-                    className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-[0.84rem] text-white"
-                    style={{ fontWeight: 600, background: "linear-gradient(135deg, #a78bfa, #8b5cf6)" }}
-                  >
-                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round">
-                      <line x1="7" y1="2" x2="7" y2="12" />
-                      <line x1="2" y1="7" x2="12" y2="7" />
-                    </svg>
-                    Add Patient
-                  </Link>
+          {/* Row 3: Recent activity footer */}
+          <Card3D>
+            <div className="px-5 py-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "#ede9f8" }}>
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#7c3aed" strokeWidth="1.5" strokeLinecap="round">
+                    <circle cx="7" cy="7" r="6" /><path d="M7 4v3l2 1.5" />
+                  </svg>
                 </div>
+                <div>
+                  <p className="text-[0.82rem]" style={{ fontWeight: 600, color: "#2d2b3d" }}>
+                    {patients.length === 0 ? "Get started by adding your first patient" : `${patients.length} patient${patients.length !== 1 ? "s" : ""} being tracked`}
+                  </p>
+                  <p className="text-[0.72rem]" style={{ fontWeight: 400, color: "#8e8aa0" }}>
+                    {totalInsights === 0 ? "No active insights — all patients are on track" : `${totalInsights} insight${totalInsights !== 1 ? "s" : ""} need your attention`}
+                  </p>
+                </div>
+              </div>
+              <Link
+                href={patients.length === 0 ? "/patients/add" : "/patients"}
+                className="text-[0.8rem] px-4 py-2 rounded-xl transition-all hover:bg-[#ece7f8]"
+                style={{ fontWeight: 600, color: "#7c3aed" }}
+              >
+                {patients.length === 0 ? "Add Patient →" : "View Patients →"}
+              </Link>
+            </div>
+          </Card3D>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Patient section ────────────────────────────────────────
+
+function PatientSection({ title, dotColor, patients, emptyText, emptyIcon }: {
+  title: string; dotColor: string; patients: PatientRow[]; emptyText: string; emptyIcon: string;
+}) {
+  return (
+    <Card3D>
+      <div className="px-5 pt-5 pb-4 h-full flex flex-col">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full" style={{ background: dotColor }} />
+            <h3 className="text-[0.86rem]" style={{ fontWeight: 600, color: "#2d2b3d" }}>{title}</h3>
+            {patients.length > 0 && (
+              <span className="text-[0.7rem] px-2 py-0.5 rounded-full" style={{ fontWeight: 600, color: dotColor, background: `${dotColor}14` }}>
+                {patients.length}
+              </span>
+            )}
+          </div>
+          <Link href="/patients" className="text-[0.74rem]" style={{ fontWeight: 500, color: "#7c3aed" }}>View All</Link>
+        </div>
+        {patients.length === 0 ? (
+          <div className="flex-1 flex flex-col items-center justify-center gap-2">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "#ede9f8" }}>
+              {emptyIcon === "check" ? (
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#7c3aed" strokeWidth="2" strokeLinecap="round"><path d="M3.5 8.5l3 3 6-7" /></svg>
+              ) : (
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#7c3aed" strokeWidth="1.5" strokeLinecap="round"><circle cx="6" cy="5" r="3" /><path d="M1 14c0-3 2-4.5 5-4.5s5 1.5 5 4.5" /></svg>
               )}
             </div>
-          ) : (
-            /* Table — 3D raised on card surface */
-            <div className="mx-5 mb-4">
-              <div
-                style={{
-                  padding: "1px 1px 3px 1px",
-                  background: "linear-gradient(180deg, #cdc4de, #c2b8d6)",
-                  borderRadius: "0.75rem",
-                  boxShadow: "0 3px 10px rgba(124,58,237,0.06)",
-                }}
-              >
-               <div className="rounded-xl overflow-hidden" style={{ background: "#f6f3fc" }}>
-              {/* Table header */}
-              <div
-                className="hidden sm:flex items-center gap-4 px-5 py-3 text-[0.78rem] tracking-wide uppercase"
-                style={{ fontWeight: 600, color: "#a8a2bc", background: "#eee9f8", boxShadow: "0 1px 0 rgba(124,58,237,0.06)", letterSpacing: "0.04em" }}
-              >
-                <div className="w-10 shrink-0" />
-                <div className="flex-1" style={{ minWidth: "180px" }}>Name</div>
-                <div className="shrink-0 hidden sm:block" style={{ minWidth: "110px" }}>Status</div>
-                <div className="shrink-0 hidden sm:block" style={{ minWidth: "60px" }}>Score</div>
-                <div className="shrink-0 hidden md:block" style={{ minWidth: "90px" }}>Condition</div>
-                <div className="shrink-0 hidden lg:block" style={{ minWidth: "110px" }}>Last Check-In</div>
-                <div className="shrink-0" style={{ minWidth: "40px" }} />
-              </div>
+            <p className="text-[0.78rem]" style={{ fontWeight: 400, color: "#a8a2bc" }}>{emptyText}</p>
+          </div>
+        ) : (
+          <div className="flex-1 overflow-y-auto space-y-0.5">
+            {patients.slice(0, 5).map((row) => (
+              <PatientMiniCard key={row.doctorPatient.id} row={row} />
+            ))}
+            {patients.length > 5 && (
+              <Link href="/patients" className="block text-center py-2 text-[0.76rem]" style={{ fontWeight: 500, color: "#7c3aed" }}>
+                +{patients.length - 5} more
+              </Link>
+            )}
+          </div>
+        )}
+      </div>
+    </Card3D>
+  );
+}
 
-              {/* Rows */}
-              {filtered.map((row) => (
-                <PatientCard
-                  key={row.doctorPatient.id}
-                  doctorPatientId={row.doctorPatient.id}
-                  name={row.patient.name}
-                  phone={row.patient.phone}
-                  condition={row.doctorPatient.condition}
-                  complianceOverall={row.compliance.score.overall}
-                  trend={row.compliance.trend}
-                  lastCheckIn={null}
-                />
-              ))}
+// ─── Mini patient card ──────────────────────────────────────
 
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div
-                  className="flex items-center justify-end gap-3 px-5 py-3.5"
-                  style={{ borderTop: "1px solid #e0daf0" }}
-                >
-                  <span className="text-[0.78rem]" style={{ fontWeight: 400, color: "#8e8aa0" }}>
-                    1–{filtered.length} of {filtered.length}
-                  </span>
-                  <div className="flex items-center gap-1.5">
-                    <button
-                      className="px-3.5 py-1.5 rounded-lg text-[0.78rem]"
-                      style={{ fontWeight: 500, color: "#b8b3cc", background: "#eae5f6", cursor: "not-allowed", opacity: 0.6 }}
-                      disabled
-                    >
-                      Previous
-                    </button>
-                    <button
-                      className="px-3.5 py-1.5 rounded-lg text-[0.78rem] transition-all hover:bg-[#e4def4]"
-                      style={{ fontWeight: 500, color: "#7c3aed", background: "#f0ecfa" }}
-                    >
-                      Next
-                    </button>
-                  </div>
-                </div>
-              )}
+function PatientMiniCard({ row }: { row: PatientRow }) {
+  const initials = row.patient.name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
+  const conditionLabel = row.doctorPatient.condition === "diabetes" ? "Diabetes" : "Obesity";
+  const score = row.compliance.score.overall;
+  const status = score >= 70
+    ? { label: "On Track", color: "#16a34a", bg: "rgba(22,163,74,0.08)" }
+    : score >= 40
+      ? { label: "Moderate", color: "#d97706", bg: "rgba(217,119,6,0.08)" }
+      : { label: "High Risk", color: "#dc2626", bg: "rgba(220,38,38,0.08)" };
 
-              {/* Result count */}
-              {totalPages <= 1 && filtered.length > 0 && (
-                <div className="px-5 py-2.5" style={{ borderTop: "1px solid #e0daf0" }}>
-                  <span className="text-[0.76rem]" style={{ fontWeight: 400, color: "#a8a2bc" }}>
-                    {filtered.length} {filtered.length === 1 ? "patient" : "patients"}
-                  </span>
-                </div>
-              )}
-               </div>
-              </div>
-            </div>
-          )}
+  return (
+    <Link href={`/patients/${row.doctorPatient.id}`} className="block group">
+      <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group-hover:bg-[#ece7f8]">
+        <div style={{ paddingBottom: "1px", background: "linear-gradient(180deg, #d4cbe6, #c8bedd)", borderRadius: "9999px" }}>
+          <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "linear-gradient(135deg, #e8e2f6, #ddd6ee)" }}>
+            <span className="text-[0.6rem] text-[#7c3aed]" style={{ fontWeight: 600 }}>{initials}</span>
+          </div>
+        </div>
+        <div className="flex-1 min-w-0">
+          <span className="text-[0.8rem] block truncate" style={{ fontWeight: 600, color: "#2d2b3d" }}>{row.patient.name}</span>
+          <span className="text-[0.7rem]" style={{ fontWeight: 400, color: "#8e8aa0" }}>{conditionLabel}</span>
+        </div>
+        <span className="text-[0.68rem] px-2 py-0.5 rounded-full shrink-0" style={{ fontWeight: 600, color: status.color, background: status.bg }}>
+          {status.label}
+        </span>
+      </div>
+    </Link>
+  );
+}
+
+// ─── Action link ────────────────────────────────────────────
+
+function ActionLink({ href, icon, label, desc, purple }: { href: string; icon: string; label: string; desc: string; purple?: boolean }) {
+  return (
+    <Link href={href} className="block group">
+      <div
+        className="flex items-center gap-3 px-3.5 py-3 rounded-xl transition-all group-hover:bg-[#ece7f8]"
+        style={purple ? {
+          background: "linear-gradient(135deg, #a78bfa, #8b5cf6)",
+          boxShadow: "0 3px 10px rgba(124,58,237,0.2)",
+        } : {}}
+      >
+        <div
+          className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+          style={{ background: purple ? "rgba(255,255,255,0.2)" : "#ede9f8" }}
+        >
+          {icon === "add" && <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke={purple ? "white" : "#7c3aed"} strokeWidth="2" strokeLinecap="round"><line x1="7" y1="2" x2="7" y2="12" /><line x1="2" y1="7" x2="12" y2="7" /></svg>}
+          {icon === "list" && <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#7c3aed" strokeWidth="1.5" strokeLinecap="round"><circle cx="5" cy="4" r="2.5" /><path d="M0.5 12c0-2.5 2-4 4.5-4s4.5 1.5 4.5 4" /><circle cx="10.5" cy="4.5" r="1.5" /><path d="M10.5 8c1.5 0 2.5 1 2.5 2.5" /></svg>}
+          {icon === "template" && <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#7c3aed" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="1.5" y="1" width="11" height="12" rx="1.5" /><line x1="4" y1="4.5" x2="10" y2="4.5" /><line x1="4" y1="7.5" x2="10" y2="7.5" /><line x1="4" y1="10.5" x2="7.5" y2="10.5" /></svg>}
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-[0.8rem]" style={{ fontWeight: 600, color: purple ? "white" : "#2d2b3d" }}>{label}</p>
+          <p className="text-[0.68rem]" style={{ fontWeight: 400, color: purple ? "rgba(255,255,255,0.7)" : "#8e8aa0" }}>{desc}</p>
+        </div>
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke={purple ? "rgba(255,255,255,0.5)" : "#b0aac2"} strokeWidth="1.5" strokeLinecap="round">
+          <path d="M5 3l4 4-4 4" />
+        </svg>
+      </div>
+    </Link>
+  );
+}
+
+// ─── Stat card ──────────────────────────────────────────────
+
+function StatCard({ label, value, icon, color }: { label: string; value: string; icon: React.ReactNode; color?: string }) {
+  return (
+    <div
+      style={{
+        padding: "1px 1px 3px 1px",
+        background: "linear-gradient(180deg, #cdc4de, #c2b8d6)",
+        borderRadius: "0.75rem",
+        boxShadow: "0 3px 10px rgba(124,58,237,0.06)",
+      }}
+    >
+      <div className="rounded-xl p-4 flex items-center gap-3" style={{ background: "#f6f3fc" }}>
+        <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: "#ede9f8" }}>
+          {icon}
+        </div>
+        <div>
+          <p className="text-[1.15rem]" style={{ fontWeight: 700, color: color || "#2d2b3d" }}>{value}</p>
+          <p className="text-[0.7rem]" style={{ fontWeight: 500, color: "#8e8aa0" }}>{label}</p>
         </div>
       </div>
     </div>
   );
 }
+
+function IconStat({ type }: { type: "patients" | "alert" | "warning" | "chart" }) {
+  const stroke = type === "alert" ? "#dc2626" : type === "warning" ? "#d97706" : "#7c3aed";
+  if (type === "patients") return (
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke={stroke} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="7" cy="5.5" r="3" /><path d="M1.5 16c0-3 2.5-5 5.5-5s5.5 2 5.5 5" /><circle cx="13" cy="6" r="2" /><path d="M13 10c2 0 3.5 1.2 3.5 3.5" />
+    </svg>
+  );
+  if (type === "alert") return (
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke={stroke} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M9 2l7.5 13H1.5L9 2z" /><line x1="9" y1="7" x2="9" y2="10.5" /><circle cx="9" cy="13" r="0.5" fill={stroke} />
+    </svg>
+  );
+  if (type === "warning") return (
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke={stroke} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="9" cy="9" r="7" /><line x1="9" y1="6" x2="9" y2="9.5" /><circle cx="9" cy="12" r="0.5" fill={stroke} />
+    </svg>
+  );
+  return (
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke={stroke} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M2 14l4-5 3 3 5-7" /><path d="M11 5h5v5" />
+    </svg>
+  );
+}
+
+// ─── 3D Card wrapper ────────────────────────────────────────
+
+function Card3D({ children }: { children: React.ReactNode }) {
+  return (
+    <div
+      style={{
+        paddingBottom: "2px",
+        background: "linear-gradient(180deg, #d4cce4 0%, #cdc4de 100%)",
+        borderRadius: "1rem",
+        boxShadow: "0 8px 28px rgba(124,58,237,0.07), 0 2px 4px rgba(0,0,0,0.03)",
+      }}
+    >
+      <div className="rounded-2xl overflow-hidden h-full" style={{ background: "#f0ecfa" }}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
