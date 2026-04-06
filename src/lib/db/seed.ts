@@ -7,7 +7,14 @@ import type { TemplateQuestion } from "./schema";
 import bcrypt from "bcryptjs";
 import dotenv from "dotenv";
 
-dotenv.config({ path: ".env.local" });
+const envFile =
+  process.env.ENV === "production"
+    ? ".env.production"
+    : process.env.ENV === "staging"
+      ? ".env.staging"
+      : ".env.local";
+
+dotenv.config({ path: envFile });
 
 const sql = neon(process.env.DATABASE_URL!);
 const db = drizzle(sql);
