@@ -39,15 +39,6 @@ function IconTemplates({ active }: { active: boolean }) {
   );
 }
 
-function IconSettings({ active }: { active: boolean }) {
-  return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke={active ? "#5b21b6" : "#8e8aa0"} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="9" cy="9" r="2.5" />
-      <path d="M9 1.5v2M9 14.5v2M1.5 9h2M14.5 9h2M3.1 3.1l1.4 1.4M13.5 13.5l1.4 1.4M3.1 14.9l1.4-1.4M13.5 4.5l1.4-1.4" />
-    </svg>
-  );
-}
-
 // ─── Sidebar ───────────────────────────────────────────────
 
 const NAV_ITEMS = [
@@ -145,47 +136,6 @@ export function Sidebar() {
           );
         })}
 
-        {/* Divider */}
-        <div className="my-3" style={{ borderTop: "1px solid rgba(124,58,237,0.1)" }} />
-
-        {/* Settings */}
-        <Link href="/settings" className="block">
-          {pathname === "/settings" ? (
-            <div
-              style={{
-                paddingBottom: "2px",
-                background: "linear-gradient(180deg, rgba(124,58,237,0.12), rgba(124,58,237,0.18))",
-                borderRadius: "0.75rem",
-                boxShadow: "0 2px 6px rgba(124,58,237,0.08)",
-              }}
-            >
-              <div
-                className="flex items-center gap-3 px-3 py-2.5 rounded-xl"
-                style={{
-                  fontWeight: 600,
-                  fontSize: "0.84rem",
-                  color: "#5b21b6",
-                  background: "rgba(255,255,255,0.85)",
-                }}
-              >
-                <IconSettings active={true} />
-                Settings
-              </div>
-            </div>
-          ) : (
-            <div
-              className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all hover:bg-white/30"
-              style={{
-                fontWeight: 400,
-                fontSize: "0.84rem",
-                color: "#5a5773",
-              }}
-            >
-              <IconSettings active={false} />
-              Settings
-            </div>
-          )}
-        </Link>
       </nav>
 
       {/* Doctor profile — 3D card */}
@@ -251,7 +201,6 @@ export function BottomNav() {
     { label: "Patients", href: "/dashboard", Icon: IconPatients },
     { label: "Add", href: "/patients/add", Icon: IconAddPatient },
     { label: "Templates", href: "/templates", Icon: IconTemplates },
-    { label: "Settings", href: "/settings", Icon: IconSettings },
   ];
 
   return (
