@@ -1,18 +1,25 @@
 "use client";
 
 import { AddPatientForm } from "@/components/forms/add-patient-form";
+import { PageHeader } from "@/components/dashboard/page-header";
 
 export default function AddPatientPage() {
   return (
     <div>
-      <h1 className="text-[1.35rem] mb-5" style={{ fontWeight: 600, color: "#2d2b3d" }}>Add Patient</h1>
+      <PageHeader title="Add Patient" />
 
-      {/* Form card */}
+      {/* Form card — 3D raised */}
       <div
-        className="bg-white rounded-2xl"
-        style={{ boxShadow: "0 1px 4px rgba(0,0,0,0.03), 0 6px 24px rgba(124,58,237,0.03)" }}
+        style={{
+          paddingBottom: "2px",
+          background: "linear-gradient(180deg, #d4cce4 0%, #cdc4de 100%)",
+          borderRadius: "1rem",
+          boxShadow: "0 8px 28px rgba(124,58,237,0.07), 0 2px 4px rgba(0,0,0,0.03)",
+        }}
       >
-        <AddPatientForm />
+        <div className="rounded-2xl overflow-hidden" style={{ background: "#f0ecfa" }}>
+          <AddPatientForm />
+        </div>
       </div>
     </div>
   );

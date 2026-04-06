@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { PatientCard } from "@/components/dashboard/patient-card";
+import { PageHeader } from "@/components/dashboard/page-header";
 import { apiFetch } from "@/lib/api-client";
 import type { Trend } from "@/lib/db/types";
 
@@ -52,22 +53,23 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <h1 className="text-[1.35rem] mb-5" style={{ fontWeight: 600, color: "#2d2b3d" }}>Patients</h1>
+      {/* Page header — title + avatar */}
+      <PageHeader title="Patients" />
 
-      {/* Main card — 3D raised: outer darker base + inner white face */}
+      {/* Main card — 3D raised */}
       <div
         style={{
           paddingBottom: "2px",
-          background: "linear-gradient(180deg, #ddd6ee 0%, #d6cee6 100%)",
+          background: "linear-gradient(180deg, #d4cce4 0%, #cdc4de 100%)",
           borderRadius: "1rem",
           boxShadow: "0 8px 28px rgba(124,58,237,0.07), 0 2px 4px rgba(0,0,0,0.03)",
         }}
       >
-        <div className="rounded-2xl overflow-hidden" style={{ background: "white" }}>
+        <div className="rounded-2xl overflow-hidden" style={{ background: "#f0ecfa" }}>
 
           {/* Search + Filters */}
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 px-5 py-4">
-            {/* Search — 3D embossed input */}
+            {/* Search — 3D embossed */}
             <div className="flex-1">
               <div
                 style={{
@@ -85,16 +87,12 @@ export default function DashboardPage() {
                   <input
                     type="text"
                     className="w-full pl-10 pr-4 py-2.5 rounded-xl text-[0.85rem] outline-none transition-all"
-                    style={{
-                      fontWeight: 400,
-                      color: "#2d2b3d",
-                      background: "#fcfbff",
-                    }}
+                    style={{ fontWeight: 400, color: "#2d2b3d", background: "#f8f6ff" }}
                     placeholder="Search patients..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    onFocus={(e) => { e.currentTarget.style.background = "#fff"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(124,58,237,0.08)"; }}
-                    onBlur={(e) => { e.currentTarget.style.background = "#fcfbff"; e.currentTarget.style.boxShadow = "none"; }}
+                    onFocus={(e) => { e.currentTarget.style.background = "#fbfaff"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(124,58,237,0.08)"; }}
+                    onBlur={(e) => { e.currentTarget.style.background = "#f8f6ff"; e.currentTarget.style.boxShadow = "none"; }}
                   />
                 </div>
               </div>
@@ -122,7 +120,7 @@ export default function DashboardPage() {
                     style={{
                       fontWeight: 600,
                       color: "#2d2b3d",
-                      background: "white",
+                      background: "#f8f6ff",
                       appearance: "none",
                       paddingRight: "2.25rem",
                       backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath d='M2.5 4l2.5 2.5 2.5-2.5' stroke='%238e8aa0' fill='none' stroke-width='1.5'/%3E%3C/svg%3E")`,
@@ -148,7 +146,7 @@ export default function DashboardPage() {
             <div className="text-center py-20 px-8">
               <div
                 className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
-                style={{ background: "#f5f3ff" }}
+                style={{ background: "#ebe6f8" }}
               >
                 <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="#8e8aa0" strokeWidth="1.5" strokeLinecap="round">
                   <circle cx="12" cy="10" r="5" />
@@ -166,7 +164,6 @@ export default function DashboardPage() {
                   : "Try adjusting your search or filters"}
               </p>
               {patients.length === 0 && (
-                /* Add Patient CTA — 3D button */
                 <div className="inline-block" style={{
                   paddingBottom: "3px",
                   background: "linear-gradient(135deg, #6d28d9, #5b21b6)",
@@ -188,90 +185,81 @@ export default function DashboardPage() {
               )}
             </div>
           ) : (
-            /* Table — 3D raised container */
-            <div
-              className="mx-5 mb-4"
-              style={{
-                paddingBottom: "2px",
-                background: "linear-gradient(180deg, #ddd6f0 0%, #d4cbe6 100%)",
-                borderRadius: "0.75rem",
-                boxShadow: "0 3px 10px rgba(124,58,237,0.05)",
-              }}
-            >
-              <div className="rounded-xl overflow-hidden" style={{ background: "white" }}>
-                {/* Table header */}
+            /* Table — 3D raised on card surface */
+            <div className="mx-5 mb-4">
+              <div
+                style={{
+                  padding: "1px 1px 3px 1px",
+                  background: "linear-gradient(180deg, #cdc4de, #c2b8d6)",
+                  borderRadius: "0.75rem",
+                  boxShadow: "0 3px 10px rgba(124,58,237,0.06)",
+                }}
+              >
+               <div className="rounded-xl overflow-hidden" style={{ background: "#f6f3fc" }}>
+              {/* Table header */}
+              <div
+                className="hidden sm:flex items-center gap-4 px-5 py-3 text-[0.78rem] tracking-wide uppercase"
+                style={{ fontWeight: 600, color: "#a8a2bc", background: "#eee9f8", boxShadow: "0 1px 0 rgba(124,58,237,0.06)", letterSpacing: "0.04em" }}
+              >
+                <div className="w-10 shrink-0" />
+                <div className="flex-1" style={{ minWidth: "180px" }}>Name</div>
+                <div className="shrink-0 hidden sm:block" style={{ minWidth: "110px" }}>Status</div>
+                <div className="shrink-0 hidden sm:block" style={{ minWidth: "60px" }}>Score</div>
+                <div className="shrink-0 hidden md:block" style={{ minWidth: "90px" }}>Condition</div>
+                <div className="shrink-0 hidden lg:block" style={{ minWidth: "110px" }}>Last Check-In</div>
+                <div className="shrink-0" style={{ minWidth: "40px" }} />
+              </div>
+
+              {/* Rows */}
+              {filtered.map((row) => (
+                <PatientCard
+                  key={row.doctorPatient.id}
+                  doctorPatientId={row.doctorPatient.id}
+                  name={row.patient.name}
+                  phone={row.patient.phone}
+                  condition={row.doctorPatient.condition}
+                  complianceOverall={row.compliance.score.overall}
+                  trend={row.compliance.trend}
+                  lastCheckIn={null}
+                />
+              ))}
+
+              {/* Pagination */}
+              {totalPages > 1 && (
                 <div
-                  className="hidden sm:flex items-center gap-4 px-5 py-3 text-[0.78rem] tracking-wide uppercase"
-                  style={{ fontWeight: 600, color: "#b0aac2", background: "#f8f5ff", borderBottom: "1px solid #f0eaff", letterSpacing: "0.04em" }}
+                  className="flex items-center justify-end gap-3 px-5 py-3.5"
+                  style={{ borderTop: "1px solid #e0daf0" }}
                 >
-                  <div className="w-10 shrink-0" />
-                  <div className="flex-1" style={{ minWidth: "180px" }}>Name</div>
-                  <div className="shrink-0 hidden sm:block" style={{ minWidth: "110px" }}>Status</div>
-                  <div className="shrink-0 hidden sm:block" style={{ minWidth: "60px" }}>Score</div>
-                  <div className="shrink-0 hidden md:block" style={{ minWidth: "90px" }}>Condition</div>
-                  <div className="shrink-0 hidden lg:block" style={{ minWidth: "110px" }}>Last Check-In</div>
-                  <div className="shrink-0" style={{ minWidth: "40px" }} />
+                  <span className="text-[0.78rem]" style={{ fontWeight: 400, color: "#8e8aa0" }}>
+                    1–{filtered.length} of {filtered.length}
+                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      className="px-3.5 py-1.5 rounded-lg text-[0.78rem]"
+                      style={{ fontWeight: 500, color: "#b8b3cc", background: "#eae5f6", cursor: "not-allowed", opacity: 0.6 }}
+                      disabled
+                    >
+                      Previous
+                    </button>
+                    <button
+                      className="px-3.5 py-1.5 rounded-lg text-[0.78rem] transition-all hover:bg-[#e4def4]"
+                      style={{ fontWeight: 500, color: "#7c3aed", background: "#f0ecfa" }}
+                    >
+                      Next
+                    </button>
+                  </div>
                 </div>
+              )}
 
-                {/* Rows */}
-                {filtered.map((row) => (
-                  <PatientCard
-                    key={row.doctorPatient.id}
-                    doctorPatientId={row.doctorPatient.id}
-                    name={row.patient.name}
-                    phone={row.patient.phone}
-                    condition={row.doctorPatient.condition}
-                    complianceOverall={row.compliance.score.overall}
-                    trend={row.compliance.trend}
-                    lastCheckIn={null}
-                  />
-                ))}
-
-                {/* Pagination */}
-                {totalPages > 1 && (
-                  <div
-                    className="flex items-center justify-end gap-3 px-5 py-3.5"
-                    style={{ borderTop: "1px solid #f0eaff" }}
-                  >
-                    <span className="text-[0.78rem]" style={{ fontWeight: 400, color: "#8e8aa0" }}>
-                      1–{filtered.length} of {filtered.length}
-                    </span>
-                    <div className="flex items-center gap-1.5">
-                      <button
-                        className="px-3.5 py-1.5 rounded-lg text-[0.78rem] transition-all"
-                        style={{
-                          fontWeight: 500,
-                          color: "#b8b3cc",
-                          background: "#fcfbff",
-                          cursor: "not-allowed",
-                          opacity: 0.6,
-                        }}
-                        disabled
-                      >
-                        Previous
-                      </button>
-                      <button
-                        className="px-3.5 py-1.5 rounded-lg text-[0.78rem] transition-all hover:bg-[#f5f3ff]"
-                        style={{
-                          fontWeight: 500,
-                          color: "#7c3aed",
-                          background: "white",
-                        }}
-                      >
-                        Next
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                {/* Result count */}
-                {totalPages <= 1 && filtered.length > 0 && (
-                  <div className="px-5 py-2.5" style={{ borderTop: "1px solid #f0eaff" }}>
-                    <span className="text-[0.76rem]" style={{ fontWeight: 400, color: "#b0aac2" }}>
-                      {filtered.length} {filtered.length === 1 ? "patient" : "patients"}
-                    </span>
-                  </div>
-                )}
+              {/* Result count */}
+              {totalPages <= 1 && filtered.length > 0 && (
+                <div className="px-5 py-2.5" style={{ borderTop: "1px solid #e0daf0" }}>
+                  <span className="text-[0.76rem]" style={{ fontWeight: 400, color: "#a8a2bc" }}>
+                    {filtered.length} {filtered.length === 1 ? "patient" : "patients"}
+                  </span>
+                </div>
+              )}
+               </div>
               </div>
             </div>
           )}

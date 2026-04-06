@@ -34,8 +34,8 @@ export function PatientCard({
   return (
     <Link href={`/patients/${doctorPatientId}`} className="block group">
       <div
-        className="flex items-center gap-4 px-5 py-4 transition-all group-hover:bg-[#faf8ff] relative"
-        style={{ borderBottom: "1px solid #f0eaff" }}
+        className="flex items-center gap-4 px-5 py-4 transition-all group-hover:bg-[#ece7f8] relative"
+        style={{ borderBottom: "1px solid #e0daf0" }}
         onMouseEnter={(e) => { e.currentTarget.style.boxShadow = "0 2px 8px rgba(124,58,237,0.06)"; }}
         onMouseLeave={(e) => { e.currentTarget.style.boxShadow = "none"; }}
       >
@@ -54,7 +54,7 @@ export function PatientCard({
         >
           <div
             className="w-10 h-10 rounded-full flex items-center justify-center"
-            style={{ background: "linear-gradient(135deg, #f0ecff, #e4ddf7)" }}
+            style={{ background: "linear-gradient(135deg, #e8e2f6, #ddd6ee)" }}
           >
             <span className="text-[0.72rem] text-[#7c3aed]" style={{ fontWeight: 600 }}>{initials}</span>
           </div>
@@ -138,12 +138,12 @@ function PatientActions({ doctorPatientId }: { doctorPatientId: string }) {
       </button>
       {/* Dropdown */}
       <div
-        className="hidden absolute right-0 top-9 z-20 min-w-[160px] py-1.5 rounded-xl bg-white"
-        style={{ boxShadow: "0 4px 20px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04)" }}
+        className="hidden absolute right-0 top-9 z-20 min-w-[160px] py-1.5 rounded-xl"
+        style={{ background: "#f5f2fc", boxShadow: "0 4px 20px rgba(124,58,237,0.1), 0 0 0 1px rgba(124,58,237,0.06)" }}
         onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
       >
         <button
-          className="flex items-center gap-2.5 w-full px-4 py-2.5 text-[0.82rem] transition-colors hover:bg-[#f8f6ff] text-left"
+          className="flex items-center gap-2.5 w-full px-4 py-2.5 text-[0.82rem] transition-colors hover:bg-[#ece7f8] text-left"
           style={{ fontWeight: 500, color: "#2d2b3d" }}
           onClick={() => { window.location.href = `/patients/${doctorPatientId}`; }}
         >
@@ -154,7 +154,7 @@ function PatientActions({ doctorPatientId }: { doctorPatientId: string }) {
           View Details
         </button>
         <button
-          className="flex items-center gap-2.5 w-full px-4 py-2.5 text-[0.82rem] transition-colors hover:bg-[#f8f6ff] text-left"
+          className="flex items-center gap-2.5 w-full px-4 py-2.5 text-[0.82rem] transition-colors hover:bg-[#ece7f8] text-left"
           style={{ fontWeight: 500, color: "#2d2b3d" }}
           onClick={() => {
             const url = `${window.location.origin}/p/${doctorPatientId}`;
