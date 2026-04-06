@@ -86,6 +86,7 @@ export const patients = pgTable("patients", {
   gender: genderEnum("gender"),                                // Optional: male, female, other
   notes: text("notes"),                                        // Optional doctor notes about patient
   createdAt: timestamp("created_at").defaultNow().notNull(),   // Row creation timestamp
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),   // Last update timestamp
 });
 
 // ─── Tracking Templates ───────────────────────────────────
@@ -106,6 +107,7 @@ export const trackingTemplates = pgTable(
       .notNull(),
     isDefault: boolean("is_default").default(false).notNull(),  // true = system default, auto-assigned
     createdAt: timestamp("created_at").defaultNow().notNull(),   // Row creation timestamp
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),   // Last update timestamp
   },
 );
 
@@ -146,6 +148,7 @@ export const doctorPatients = pgTable(
       .notNull(),
     status: patientStatusEnum("status").default("new").notNull(), // Relationship status: new, active, inactive
     createdAt: timestamp("created_at").defaultNow().notNull(), // Row creation timestamp
+    updatedAt: timestamp("updated_at").defaultNow().notNull(), // Last update timestamp
   },
   (table) => [
     uniqueIndex("doctor_patients_doctor_patient_idx").on(table.doctorId, table.patientId),
@@ -188,6 +191,7 @@ export const checkIns = pgTable(
       .$type<Record<string, boolean | number | string | string[]>>()
       .notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(), // Row creation timestamp
+    updatedAt: timestamp("updated_at").defaultNow().notNull(), // Last update timestamp
   },
   (table) => [
     uniqueIndex("check_ins_doctor_patient_date_idx").on(table.doctorPatientId, table.date),
@@ -210,6 +214,8 @@ export const reminderConfigs = pgTable(
     reminderTime: time("reminder_time").notNull(),
     enabled: boolean("enabled").default(true).notNull(),
     lastSentAt: timestamp("last_sent_at"),
+    createdAt: timestamp("created_at").defaultNow().notNull(), // Row creation timestamp
+    updatedAt: timestamp("updated_at").defaultNow().notNull(), // Last update timestamp
   },
   (table) => [
     index("reminder_configs_doctor_patient_id_idx").on(table.doctorPatientId),
