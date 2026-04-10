@@ -98,7 +98,7 @@ async function seed() {
   }
 
   // 2. Seed test doctor (staging/dev only — skip in production)
-  //    Email: test@clyniq.in / Password: test1234
+  //    Email: test@hormonia.in / Password: test1234
   //    Check by email, then insert or update.
   if (process.env.NODE_ENV !== "production") {
     console.log("Seeding test doctor...");
@@ -107,7 +107,7 @@ async function seed() {
     const [existing] = await db
       .select()
       .from(doctors)
-      .where(eq(doctors.email, "test@clyniq.in"))
+      .where(eq(doctors.email, "test@hormonia.in"))
       .limit(1);
 
     if (existing) {
@@ -115,14 +115,14 @@ async function seed() {
         .update(doctors)
         .set({ name: "Dr. Test Sharma", passwordHash })
         .where(eq(doctors.id, existing.id));
-      console.log("  ✓ Test doctor — updated (test@clyniq.in / test1234)");
+      console.log("  ✓ Test doctor — updated (test@hormonia.in / test1234)");
     } else {
       await db.insert(doctors).values({
         name: "Dr. Test Sharma",
-        email: "test@clyniq.in",
+        email: "test@hormonia.in",
         passwordHash,
       });
-      console.log("  ✓ Test doctor — created (test@clyniq.in / test1234)");
+      console.log("  ✓ Test doctor — created (test@hormonia.in / test1234)");
     }
   }
 
@@ -136,7 +136,7 @@ async function seed() {
     const [doctor] = await db
       .select()
       .from(doctors)
-      .where(eq(doctors.email, "test@clyniq.in"))
+      .where(eq(doctors.email, "test@hormonia.in"))
       .limit(1);
 
     // Get the diabetes default template

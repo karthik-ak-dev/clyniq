@@ -45,7 +45,7 @@ export async function POST(request: Request) {
     );
 
     // Construct the base URL for magic links
-    const baseUrl = process.env.NEXTAUTH_URL || "https://clyniq.in";
+    const baseUrl = process.env.NEXTAUTH_URL || "https://doctorrx.in";
 
     let sentCount = 0;
 

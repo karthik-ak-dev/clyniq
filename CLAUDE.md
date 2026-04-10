@@ -1,4 +1,4 @@
-# Clyniq — Patient Compliance Tracker
+# DoctorRx — Patient Compliance Tracker (by Hormonia)
 
 ## What This Is
 

@@ -374,7 +374,7 @@ function Section3D({ children }: { children: React.ReactNode }) {
         boxShadow: "0 3px 10px rgba(124,58,237,0.06)",
       }}
     >
-      <div className="rounded-xl p-5" style={{ background: "#f6f3fc" }}>
+      <div className="rounded-xl p-5 h-full" style={{ background: "#f6f3fc" }}>
         {children}
       </div>
     </div>

@@ -1,4 +1,4 @@
-# Clyniq — MVP Plan (Patient Compliance Tracker)
+# DoctorRx — MVP Plan (Patient Compliance Tracker)
 
 ## Product Overview
 
@@ -162,7 +162,7 @@ Grid/calendar view showing daily check-in status:
 
 **Section 6: Magic Link**
 ```
-Patient link: https://clyniq.in/p/abc123...
+Patient link: https://doctorrx.in/p/abc123...
 [Copy Link] [Send via WhatsApp]
 ```
 
@@ -381,7 +381,7 @@ WHATSAPP_ENABLED=true
 Hi Ravi 👋
 Time for your daily check-in with Dr. Sharma
 
-👉 [Check-in now]: https://clyniq.in/p/[token]
+👉 [Check-in now]: https://doctorrx.in/p/[token]
 ```
 
 ### Cron Schedule

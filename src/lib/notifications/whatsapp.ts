@@ -16,7 +16,7 @@ type ReminderParams = {
   phone: string;       // Patient phone in +91XXXXXXXXXX format
   patientName: string; // For personalized greeting
   doctorName: string;  // For context ("Dr. Sharma")
-  magicLink: string;   // Full URL: https://clyniq.in/p/[token]
+  magicLink: string;   // Full URL: https://doctorrx.in/p/[token]
 };
 
 export async function sendWhatsAppReminder(

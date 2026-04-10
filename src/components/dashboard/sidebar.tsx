@@ -94,12 +94,12 @@ export function Sidebar() {
             className="w-8 h-8 rounded-lg flex items-center justify-center"
             style={{ background: "linear-gradient(135deg, #a78bfa, #8b5cf6)" }}
           >
-            <span className="text-white text-xs" style={{ fontWeight: 700 }}>C</span>
+            <span className="text-white text-xs" style={{ fontWeight: 700 }}>D</span>
           </div>
         </div>
         <div>
-          <p className="text-[0.92rem]" style={{ fontWeight: 600, color: "#2d2b3d" }}>Clyniq</p>
-          <p className="text-[0.65rem]" style={{ fontWeight: 400, color: "#8e8aa0" }}>Doctor</p>
+          <p className="text-[0.92rem]" style={{ fontWeight: 600, color: "#2d2b3d" }}>DoctorRx</p>
+          <p className="text-[0.65rem]" style={{ fontWeight: 400, color: "#8e8aa0" }}>by Hormonia</p>
         </div>
       </div>
 

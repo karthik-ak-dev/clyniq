@@ -28,8 +28,8 @@ export default function LoginPage() {
       >
         {/* App name */}
         <div className="text-center">
-          <p className="text-[0.95rem] text-[#7c3aed]" style={{ fontWeight: 600 }}>Clyniq</p>
-          <p className="text-[0.7rem] text-gray-400 mt-0.5" style={{ fontWeight: 400 }}>Doctor Portal</p>
+          <p className="text-[0.95rem] text-[#7c3aed]" style={{ fontWeight: 600 }}>DoctorRx</p>
+          <p className="text-[0.7rem] text-gray-400 mt-0.5" style={{ fontWeight: 400 }}>by Hormonia</p>
         </div>
 
         {/* Welcome Back */}

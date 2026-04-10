@@ -260,7 +260,7 @@ function StatCard({ label, value, icon, color }: { label: string; value: string;
         borderRadius: "0.75rem",
       }}
     >
-      <div className="rounded-xl p-4 flex items-center gap-3" style={{ background: "#f0ecfa" }}>
+      <div className="rounded-xl p-4 flex items-center gap-3 h-full" style={{ background: "#f0ecfa" }}>
         <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{ background: "#ede9f8" }}>
           {icon}
         </div>

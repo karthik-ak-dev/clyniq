@@ -12,8 +12,8 @@ const font = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Clyniq",
-  description: "Patient compliance tracking for chronic conditions",
+  title: "DoctorRx",
+  description: "Patient compliance tracking for chronic conditions — by Hormonia",
 };
 
 export const viewport: Viewport = {
