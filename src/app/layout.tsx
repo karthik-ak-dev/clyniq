@@ -1,14 +1,13 @@
 import type { Metadata, Viewport } from "next";
-import { DM_Sans } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 
 // ─── Font ──────────────────────────────────────────────────
-// DM Sans — geometric, clean, modern SaaS font.
-// Excellent weight differentiation at 400/500/600/700.
-// Looks premium at both small dashboard text and large headings.
-const font = DM_Sans({
+// Plus Jakarta Sans — clean, geometric, modern SaaS font.
+// Matches the Figma design system (TeamHub by Peterdraw).
+const font = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "500", "600", "700", "800"],
 });
 
 export const metadata: Metadata = {

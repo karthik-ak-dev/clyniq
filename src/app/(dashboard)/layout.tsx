@@ -1,7 +1,6 @@
 "use client";
 
 import { SessionProvider } from "next-auth/react";
-import { Sidebar, BottomNav } from "@/components/dashboard/sidebar";
 
 export default function DashboardLayout({
   children,
@@ -10,14 +9,8 @@ export default function DashboardLayout({
 }) {
   return (
     <SessionProvider>
-      <div className="min-h-dvh" style={{ background: "#e4ddf5" }}>
-        <Sidebar />
-        <div className="md:ml-60 flex flex-col min-h-dvh">
-          <main className="flex-1 px-5 md:px-8 pt-5 pb-20 md:pb-4">
-            {children}
-          </main>
-        </div>
-        <BottomNav />
+      <div className="min-h-dvh bg-[#F7F7F7]">
+        {children}
       </div>
     </SessionProvider>
   );
