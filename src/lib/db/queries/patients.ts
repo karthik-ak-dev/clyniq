@@ -166,6 +166,33 @@ export const patientQueries = {
     return row ?? null;
   },
 
+  // Get a single patient by the patient ID (for the detail page URL).
+  // Looks up via patient.id and ensures the doctor owns this relationship.
+  async findByPatientId(
+    patientId: string,
+    doctorId: string
+  ): Promise<{
+    patient: Patient;
+    doctorPatient: DoctorPatient;
+  } | null> {
+    const [row] = await db
+      .select({
+        patient: patients,
+        doctorPatient: doctorPatients,
+      })
+      .from(doctorPatients)
+      .innerJoin(patients, eq(patients.id, doctorPatients.patientId))
+      .where(
+        and(
+          eq(doctorPatients.patientId, patientId),
+          eq(doctorPatients.doctorId, doctorId)
+        )
+      )
+      .limit(1);
+
+    return row ?? null;
+  },
+
   // Find a doctor_patient record by magic token.
   // Used by the patient check-in page (/p/[token]) and POST /api/checkin.
   // Joins patient + doctor_patient + template so the check-in form

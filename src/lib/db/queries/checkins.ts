@@ -71,4 +71,14 @@ export const checkinQueries = {
       .limit(1);
     return row?.date ?? null;
   },
+
+  // Get ALL check-ins for a patient (for detail page charts/calendar).
+  // Returns sorted by date ascending (oldest first) for charting.
+  async getAll(doctorPatientId: string): Promise<CheckIn[]> {
+    return db
+      .select()
+      .from(checkIns)
+      .where(eq(checkIns.doctorPatientId, doctorPatientId))
+      .orderBy(checkIns.date);
+  },
 };
