@@ -1,12 +1,5 @@
 @import "tailwindcss";
 
-/* ─── Global Font Tuning ────────────────────────────────────
-   Tighter letter-spacing to match the Figma's compact rendering.
-*/
-* {
-  letter-spacing: -0.01em;
-}
-
 /* Hide scrollbars globally while keeping scroll functionality */
 * {
   scrollbar-width: none; /* Firefox */
@@ -30,9 +23,11 @@
   /* Neutrals */
   --color-black: #203430;
   --color-dark-grey: #63716E;
+  --color-grey: #757575;
   --color-light-grey: #A4ACAB;
   --color-border: #E5E6E6;
   --color-surface: #F7F7F7;
+  --color-sidebar-bg: #FEFEFE;
   --color-white: #FFFFFF;
 
   /* Status */

@@ -1,13 +1,22 @@
 import type { Metadata, Viewport } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { DM_Sans, Nunito } from "next/font/google";
 import "./globals.css";
 
-// ─── Font ──────────────────────────────────────────────────
-// Plus Jakarta Sans — clean, geometric, modern SaaS font.
-// Matches the Figma design system (TeamHub by Peterdraw).
-const font = Plus_Jakarta_Sans({
+// ─── Fonts ─────────────────────────────────────────────────
+// DM Sans — dashboard pages (matches Figma design system).
+// Nunito — patient check-in pages (warm, friendly).
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-dm-sans",
+  display: "swap",
+});
+
+const nunito = Nunito({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-nunito",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -28,7 +37,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${font.className} antialiased`}>{children}</body>
+      <body className={`${dmSans.variable} ${nunito.variable} font-(family-name:--font-dm-sans) antialiased`}>{children}</body>
     </html>
   );
 }
