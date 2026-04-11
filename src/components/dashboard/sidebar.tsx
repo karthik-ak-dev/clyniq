@@ -57,7 +57,7 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="fixed left-0 top-0 hidden h-dvh w-sidebar flex-col border-r border-border bg-sidebar-bg px-4 py-5 lg:flex">
+    <aside className="fixed left-0 top-0 hidden h-dvh w-sidebar flex-col bg-sidebar-bg px-4 py-5 lg:flex">
       {/* ─── Logo ──────────────────────────────────────────── */}
       <div className="flex items-center gap-2.5 py-1.75">
         <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
