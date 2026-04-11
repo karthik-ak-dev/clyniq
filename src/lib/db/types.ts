@@ -82,6 +82,15 @@ export const GENDER = {
 } as const;
 export type Gender = (typeof GENDER)[keyof typeof GENDER];
 
+// Blood type
+export const BLOOD_TYPE = {
+  "A+": "A+", "A-": "A-",
+  "B+": "B+", "B-": "B-",
+  "AB+": "AB+", "AB-": "AB-",
+  "O+": "O+", "O-": "O-",
+} as const;
+export type BloodType = (typeof BLOOD_TYPE)[keyof typeof BLOOD_TYPE];
+
 // Doctor-patient relationship status
 export const PATIENT_STATUS = {
   NEW: "new",

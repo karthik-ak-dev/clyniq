@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { getAuthenticatedDoctor } from "@/lib/auth/middleware";
 import { patientQueries, complianceQueries } from "@/lib/db/queries";
 import { createPatientSchema } from "@/lib/validators";
-import type { Condition, Gender, PatientStatus } from "@/lib/db/types";
+import type { Condition, Gender, BloodType, PatientStatus } from "@/lib/db/types";
 
 // ─── POST /api/patients ────────────────────────────────────
 // Create a new patient under the authenticated doctor.
@@ -37,8 +37,16 @@ export async function POST(request: NextRequest) {
         name: data.name,
         phone: data.phone,
         email: data.email || null,
+        dateOfBirth: data.dateOfBirth || null,
         age: data.age ?? null,
         gender: (data.gender as Gender) || null,
+        address: data.address || null,
+        emergencyContactName: data.emergencyContactName || null,
+        emergencyContactPhone: data.emergencyContactPhone || null,
+        bloodType: (data.bloodType as BloodType) || null,
+        allergies: data.allergies || null,
+        currentMedications: data.currentMedications || null,
+        preExistingConditions: data.preExistingConditions || null,
         notes: data.notes || null,
       },
       data.condition as Condition,

@@ -7,6 +7,7 @@ import type {
   DoctorPatient,
   Condition,
   Gender,
+  BloodType,
   PatientStatus,
 } from "@/lib/db/types";
 
@@ -31,8 +32,16 @@ export const patientQueries = {
       name: string;
       phone: string;
       email?: string | null;
+      dateOfBirth?: string | null;
       age?: number | null;
       gender?: Gender | null;
+      address?: string | null;
+      emergencyContactName?: string | null;
+      emergencyContactPhone?: string | null;
+      bloodType?: BloodType | null;
+      allergies?: string | null;
+      currentMedications?: string | null;
+      preExistingConditions?: string | null;
       notes?: string | null;
     },
     condition: Condition,
@@ -45,8 +54,16 @@ export const patientQueries = {
         name: data.name,
         phone: data.phone,
         email: data.email || null,
+        dateOfBirth: data.dateOfBirth || null,
         age: data.age || null,
         gender: data.gender || null,
+        address: data.address || null,
+        emergencyContactName: data.emergencyContactName || null,
+        emergencyContactPhone: data.emergencyContactPhone || null,
+        bloodType: data.bloodType || null,
+        allergies: data.allergies || null,
+        currentMedications: data.currentMedications || null,
+        preExistingConditions: data.preExistingConditions || null,
         notes: data.notes || null,
       })
       .returning();

@@ -77,13 +77,26 @@ export const doctors = pgTable("doctors", {
 // Patients are created by doctors. A patient has no login — they
 // interact solely through magic links. The same phone number can
 // exist for patients under different doctors (no global unique).
+// Blood type options
+export const bloodTypeEnum = pgEnum("blood_type", [
+  "A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-",
+]);
+
 export const patients = pgTable("patients", {
   id: uuid("id").defaultRandom().primaryKey(),               // PK, auto-generated UUID v4
   name: varchar("name", { length: 255 }).notNull(),           // Patient's full name
   phone: varchar("phone", { length: 15 }).notNull(),          // Phone in +91XXXXXXXXXX format
   email: varchar("email", { length: 255 }),                    // Optional email address
-  age: integer("age"),                                         // Optional age in years
+  dateOfBirth: date("date_of_birth"),                          // Optional DOB (YYYY-MM-DD)
+  age: integer("age"),                                         // Optional age (legacy, derive from DOB)
   gender: genderEnum("gender"),                                // Optional: male, female, other
+  address: text("address"),                                    // Optional address
+  emergencyContactName: varchar("emergency_contact_name", { length: 255 }), // Emergency contact
+  emergencyContactPhone: varchar("emergency_contact_phone", { length: 15 }), // Emergency contact phone
+  bloodType: bloodTypeEnum("blood_type"),                      // Optional blood type
+  allergies: text("allergies"),                                 // Optional known allergies
+  currentMedications: text("current_medications"),              // Optional current medications
+  preExistingConditions: text("pre_existing_conditions"),       // Optional other conditions
   notes: text("notes"),                                        // Optional doctor notes about patient
   createdAt: timestamp("created_at").defaultNow().notNull(),   // Row creation timestamp
   updatedAt: timestamp("updated_at").defaultNow().notNull(),   // Last update timestamp

@@ -2,24 +2,22 @@
 
 import { usePathname } from "next/navigation";
 
-const PAGE_TITLES: Record<string, string> = {
-  "/dashboard": "Dashboard",
-  "/patients": "Patients",
-  "/inbox": "Inbox",
-  "/calendar": "Calendar",
-  "/settings": "Settings",
-};
+type PageMeta = { title: string; breadcrumb: string[] };
 
-function getPageTitle(pathname: string): string {
-  for (const [path, title] of Object.entries(PAGE_TITLES)) {
-    if (pathname.startsWith(path)) return title;
-  }
-  return "Dashboard";
+function getPageMeta(pathname: string): PageMeta {
+  if (pathname.startsWith("/patients/add")) return { title: "Add New Patient", breadcrumb: ["Dashboard", "Patients", "Add New"] };
+  if (pathname.startsWith("/patients/")) return { title: "Patient Detail", breadcrumb: ["Dashboard", "Patients", "Detail"] };
+  if (pathname.startsWith("/patients")) return { title: "Patients", breadcrumb: ["Dashboard", "Patients"] };
+  if (pathname.startsWith("/dashboard")) return { title: "Dashboard", breadcrumb: ["Dashboard"] };
+  if (pathname.startsWith("/inbox")) return { title: "Inbox", breadcrumb: ["Dashboard", "Inbox"] };
+  if (pathname.startsWith("/calendar")) return { title: "Calendar", breadcrumb: ["Dashboard", "Calendar"] };
+  if (pathname.startsWith("/settings")) return { title: "Settings", breadcrumb: ["Dashboard", "Settings"] };
+  return { title: "Dashboard", breadcrumb: ["Dashboard"] };
 }
 
 export function DashboardHeader() {
   const pathname = usePathname();
-  const title = getPageTitle(pathname);
+  const { title, breadcrumb } = getPageMeta(pathname);
 
   return (
     <header className="hidden items-center justify-between lg:flex">
@@ -27,9 +25,14 @@ export function DashboardHeader() {
       <div>
         <h1 className="text-4xl font-bold leading-tight tracking-tight text-black">{title}</h1>
         <p className="mt-1 text-md font-normal leading-normal">
-          <span className="text-primary">Dashboard</span>
-          <span className="text-dark-grey">{" / "}</span>
-          <span className="text-black">{title}</span>
+          {breadcrumb.map((crumb, i) => (
+            <span key={crumb}>
+              {i > 0 && <span className="text-dark-grey">{" / "}</span>}
+              <span className={i === breadcrumb.length - 1 ? "text-black" : "text-primary"}>
+                {crumb}
+              </span>
+            </span>
+          ))}
         </p>
       </div>
 
