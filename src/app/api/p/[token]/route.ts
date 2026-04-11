@@ -60,10 +60,12 @@ export async function GET(
       );
     }
 
-    // Filter to only enabled questions, sorted by display order
+    // Filter to only enabled questions, merge custom questions, sort by order
     const enabledSet = new Set(doctorPatient.enabledQuestions);
-    const questions = template.questions
-      .filter((q) => enabledSet.has(q.key))
+    const defaultQuestions = template.questions
+      .filter((q) => enabledSet.has(q.key));
+    const custom = (doctorPatient.customQuestions as typeof template.questions) || [];
+    const questions = [...defaultQuestions, ...custom]
       .sort((a, b) => a.order - b.order);
 
     return Response.json({

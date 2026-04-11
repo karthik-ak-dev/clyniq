@@ -47,6 +47,17 @@ export const createPatientSchema = z.object({
   currentMedications: z.string().max(1000).optional().or(z.literal("")),
   preExistingConditions: z.string().max(1000).optional().or(z.literal("")),
 
+  // ── Step 2: Tracking Questions ──
+  enabledQuestions: z.array(z.string()).optional(),
+  customQuestions: z.array(z.object({
+    key: z.string().min(1),
+    label: z.string().min(1, "Question text is required"),
+    type: z.enum(["yes_no", "number", "text", "scale", "choice", "multi_choice", "time", "bp"]),
+    unit: z.string().optional(),
+    options: z.array(z.string()).optional(),
+    order: z.number(),
+  })).optional(),
+
   // ── Step 3: Settings ──
   status: z.enum(["new", "active", "inactive"]).optional(),
 

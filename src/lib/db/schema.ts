@@ -52,7 +52,7 @@ export const patientStatusEnum = pgEnum("patient_status", ["new", "active", "ina
 export type TemplateQuestion = {
   key: string;
   label: string;
-  type: "yes_no" | "number" | "text" | "scale" | "choice" | "multi_choice";
+  type: "yes_no" | "number" | "text" | "scale" | "choice" | "multi_choice" | "time" | "bp";
   unit?: string;
   options?: string[];
   order: number;
@@ -155,6 +155,10 @@ export const doctorPatients = pgTable(
       .notNull(),
     enabledQuestions: jsonb("enabled_questions")               // Question keys toggled ON by doctor
       .$type<string[]>()                                      // e.g., ["took_meds", "followed_diet"]
+      .notNull(),
+    customQuestions: jsonb("custom_questions")                 // Doctor-added custom questions for this patient
+      .$type<TemplateQuestion[]>()
+      .default([])
       .notNull(),
     magicToken: varchar("magic_token", { length: 64 })        // Unique token for patient's magic link
       .unique()

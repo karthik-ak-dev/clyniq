@@ -59,6 +59,8 @@ export const QUESTION_TYPE = {
   NUMBER: "number",
   TEXT: "text",
   SCALE: "scale",
+  TIME: "time",
+  BP: "bp",
 } as const;
 export type QuestionType = (typeof QUESTION_TYPE)[keyof typeof QUESTION_TYPE];
 

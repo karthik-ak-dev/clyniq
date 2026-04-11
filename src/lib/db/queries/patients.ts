@@ -2,6 +2,7 @@ import { eq, and } from "drizzle-orm";
 import crypto from "crypto";
 import { db } from "@/lib/db";
 import { patients, doctorPatients, trackingTemplates } from "@/lib/db/schema";
+import type { TemplateQuestion } from "@/lib/db/schema";
 import type {
   Patient,
   DoctorPatient,
@@ -45,7 +46,9 @@ export const patientQueries = {
       notes?: string | null;
     },
     condition: Condition,
-    status?: PatientStatus
+    status?: PatientStatus,
+    enabledQuestionsOverride?: string[],
+    customQuestions?: TemplateQuestion[],
   ): Promise<{ patient: Patient; doctorPatient: DoctorPatient }> {
     // Step 1: Create the patient record
     const [patient] = await db
@@ -84,8 +87,8 @@ export const patientQueries = {
       throw new Error(`No default template found for condition: ${condition}`);
     }
 
-    // Step 3: Enable all questions from the template by default
-    const enabledQuestions = template.questions.map((q) => q.key);
+    // Step 3: Use provided enabled questions, or enable all by default
+    const enabledQuestions = enabledQuestionsOverride ?? template.questions.map((q) => q.key);
 
     // Step 4+5: Generate magic token and create doctor-patient link
     // Retry on token collision (extremely rare with 256-bit entropy)
@@ -101,6 +104,7 @@ export const patientQueries = {
             condition,
             templateId: template.id,
             enabledQuestions,
+            customQuestions: customQuestions || [],
             magicToken,
             status: status || "new",
           })

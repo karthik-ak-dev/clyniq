@@ -50,7 +50,9 @@ export async function POST(request: NextRequest) {
         notes: data.notes || null,
       },
       data.condition as Condition,
-      (data.status as PatientStatus) || undefined
+      (data.status as PatientStatus) || undefined,
+      data.enabledQuestions,
+      data.customQuestions,
     );
 
     return Response.json({ success: true, data: result }, { status: 201 });

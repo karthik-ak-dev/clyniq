@@ -1,9 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 
 // ─── Types ───────────────────────────────────────────────
+type TemplateQuestion = {
+  key: string;
+  label: string;
+  type: "yes_no" | "number" | "text" | "scale" | "choice" | "multi_choice" | "time" | "bp";
+  unit?: string;
+  options?: string[];
+  order: number;
+};
+
 type FormData = {
   // Step 1
   name: string;
@@ -27,6 +36,17 @@ type FormData = {
 
 type FieldErrors = Partial<Record<keyof FormData, string>>;
 
+const QUESTION_TYPE_LABELS: Record<string, string> = {
+  yes_no: "Yes / No",
+  choice: "Choice",
+  multi_choice: "Multi-choice",
+  number: "Number",
+  text: "Text",
+  scale: "Scale (1-10)",
+  time: "Time",
+  bp: "Blood Pressure",
+};
+
 const INITIAL_DATA: FormData = {
   name: "",
   dateOfBirth: "",
@@ -47,8 +67,9 @@ const INITIAL_DATA: FormData = {
 
 const STEPS = [
   { number: 1, title: "Patient Information", description: "Personal details and contact information" },
-  { number: 2, title: "Condition & Medical", description: "Condition setup and medical profile" },
-  { number: 3, title: "Review & Confirm", description: "Review all details and finalize" },
+  { number: 2, title: "Medical Profile", description: "Condition, medical history and doctor notes" },
+  { number: 3, title: "Tracking Setup", description: "Configure daily tracking questions" },
+  { number: 4, title: "Review & Confirm", description: "Review all details and finalize" },
 ];
 
 const GENDER_OPTIONS = [
@@ -97,13 +118,15 @@ function FormField({ label, error, required, children }: {
   );
 }
 
-function TextInput({ value, onChange, placeholder, error, type = "text", prefix }: {
+function TextInput({ value, onChange, placeholder, error, type = "text", prefix, maxLength, inputMode }: {
   value: string;
   onChange: (v: string) => void;
   placeholder?: string;
   error?: string;
   type?: string;
   prefix?: string;
+  maxLength?: number;
+  inputMode?: "numeric" | "tel" | "email" | "text";
 }) {
   return (
     <div className={`flex items-center rounded-lg transition-colors ${error ? "bg-red-subtle ring-1 ring-red" : "bg-surface focus-within:ring-1 focus-within:ring-primary"}`}>
@@ -113,8 +136,15 @@ function TextInput({ value, onChange, placeholder, error, type = "text", prefix 
       <input
         type={type}
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) => {
+          let val = e.target.value;
+          if (inputMode === "numeric" || inputMode === "tel") val = val.replace(/\D/g, "");
+          if (maxLength) val = val.slice(0, maxLength);
+          onChange(val);
+        }}
         placeholder={placeholder}
+        maxLength={maxLength}
+        inputMode={inputMode}
         className="h-11 flex-1 bg-transparent px-3 text-md font-normal text-black placeholder:text-dark-grey outline-none"
       />
     </div>
@@ -275,7 +305,7 @@ function Step1Content({ data, errors, onChange }: {
         <h3 className="text-2xl font-bold text-black tracking-tighter">Contact Info</h3>
         <div className="mt-4 grid grid-cols-1 gap-5 md:grid-cols-2">
           <FormField label="Phone Number" required error={errors.phone}>
-            <TextInput value={data.phone} onChange={(v) => onChange("phone", v)} placeholder="Enter 10-digit mobile number" prefix="+91" error={errors.phone} />
+            <TextInput value={data.phone} onChange={(v) => onChange("phone", v)} placeholder="Enter 10-digit mobile number" prefix="+91" error={errors.phone} maxLength={10} inputMode="tel" />
           </FormField>
           <FormField label="Email Address" error={errors.email}>
             <TextInput type="email" value={data.email} onChange={(v) => onChange("email", v)} placeholder="patient@email.com" error={errors.email} />
@@ -296,7 +326,7 @@ function Step1Content({ data, errors, onChange }: {
             <TextInput value={data.emergencyContactName} onChange={(v) => onChange("emergencyContactName", v)} placeholder="e.g. Priya Kumar" />
           </FormField>
           <FormField label="Phone Number" error={errors.emergencyContactPhone}>
-            <TextInput value={data.emergencyContactPhone} onChange={(v) => onChange("emergencyContactPhone", v)} placeholder="Enter 10-digit mobile number" prefix="+91" error={errors.emergencyContactPhone} />
+            <TextInput value={data.emergencyContactPhone} onChange={(v) => onChange("emergencyContactPhone", v)} placeholder="Enter 10-digit mobile number" prefix="+91" error={errors.emergencyContactPhone} maxLength={10} inputMode="tel" />
           </FormField>
         </div>
       </div>
@@ -304,6 +334,117 @@ function Step1Content({ data, errors, onChange }: {
   );
 }
 
+// ─── Toggle Switch ───────────────────────────────────────
+function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <button
+      type="button"
+      onClick={() => onChange(!checked)}
+      className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${checked ? "bg-primary" : "bg-border"}`}
+    >
+      <span className={`absolute top-0.5 left-0.5 size-5 rounded-full bg-white shadow transition-transform ${checked ? "translate-x-5" : "translate-x-0"}`} />
+    </button>
+  );
+}
+
+// ─── Custom Question Form ────────────────────────────────
+function CustomQuestionForm({ onAdd, onCancel, nextOrder }: {
+  onAdd: (q: TemplateQuestion) => void;
+  onCancel: () => void;
+  nextOrder: number;
+}) {
+  const [label, setLabel] = useState("");
+  const [type, setType] = useState<TemplateQuestion["type"]>("yes_no");
+  const [unit, setUnit] = useState("");
+  const [options, setOptions] = useState<string[]>([]);
+  const [newOption, setNewOption] = useState("");
+  const [error, setError] = useState("");
+
+  const needsOptions = type === "choice" || type === "multi_choice";
+  const needsUnit = type === "number";
+
+  const handleAdd = () => {
+    if (!label.trim()) { setError("Question text is required"); return; }
+    if (needsOptions && options.length < 2) { setError("Add at least 2 options"); return; }
+
+    const key = `custom_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+    onAdd({
+      key,
+      label: label.trim(),
+      type,
+      unit: needsUnit && unit.trim() ? unit.trim() : undefined,
+      options: needsOptions ? options : undefined,
+      order: nextOrder,
+    });
+  };
+
+  const addOption = () => {
+    if (newOption.trim() && !options.includes(newOption.trim())) {
+      setOptions([...options, newOption.trim()]);
+      setNewOption("");
+    }
+  };
+
+  return (
+    <div className="rounded-lg bg-surface p-4 flex flex-col gap-4">
+      <FormField label="Question Text" required error={error}>
+        <TextInput value={label} onChange={(v) => { setLabel(v); setError(""); }} placeholder="e.g. Did you take your thyroid medication?" />
+      </FormField>
+
+      <FormField label="Question Type" required>
+        <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
+          {Object.entries(QUESTION_TYPE_LABELS).map(([val, lbl]) => (
+            <button
+              key={val}
+              type="button"
+              onClick={() => setType(val as TemplateQuestion["type"])}
+              className={`rounded-lg px-3 py-2 text-base transition-colors ${
+                type === val ? "bg-primary-subtle ring-1 ring-primary text-black font-medium" : "bg-white text-dark-grey hover:bg-border/50"
+              }`}
+            >
+              {lbl}
+            </button>
+          ))}
+        </div>
+      </FormField>
+
+      {needsUnit && (
+        <FormField label="Unit (optional)">
+          <TextInput value={unit} onChange={setUnit} placeholder="e.g. mg/dL, kg, steps" />
+        </FormField>
+      )}
+
+      {needsOptions && (
+        <FormField label="Options" required>
+          <div className="flex flex-wrap gap-2">
+            {options.map((opt) => (
+              <span key={opt} className="flex items-center gap-1.5 rounded-md bg-primary-light px-2.5 py-1 text-base text-primary-dark">
+                {opt}
+                <button type="button" onClick={() => setOptions(options.filter((o) => o !== opt))} className="text-dark-grey hover:text-red">
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M9 3L3 9M3 3l6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
+                </button>
+              </span>
+            ))}
+          </div>
+          <div className="mt-2 flex gap-2">
+            <TextInput value={newOption} onChange={setNewOption} placeholder="Type an option..." />
+            <button type="button" onClick={addOption} className="shrink-0 rounded-md bg-primary-light px-3 py-2 text-md font-medium text-primary-dark hover:bg-primary-hover transition-colors">
+              + Add
+            </button>
+          </div>
+        </FormField>
+      )}
+
+      <div className="flex justify-end gap-3 pt-2">
+        <button type="button" onClick={onCancel} className="text-md font-medium text-black hover:text-primary-dark transition-colors">Cancel</button>
+        <button type="button" onClick={handleAdd} className="rounded-md bg-primary px-4 py-2 text-md font-medium text-white hover:bg-primary-dark transition-colors">Add Question</button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Step 2 Content ──────────────────────────────────────
+// ─── Step 2: Medical Profile ─────────────────────────────
 function Step2Content({ data, errors, onChange }: {
   data: FormData;
   errors: FieldErrors;
@@ -311,9 +452,9 @@ function Step2Content({ data, errors, onChange }: {
 }) {
   return (
     <div className="flex flex-col gap-8">
-      {/* Condition Setup */}
+      {/* Condition */}
       <div>
-        <h3 className="text-2xl font-bold text-black tracking-tighter">Condition Setup</h3>
+        <h3 className="text-2xl font-bold text-black tracking-tighter">Condition</h3>
         <p className="mt-1 text-md text-dark-grey">Select the chronic condition to track for this patient.</p>
         <div className="mt-4">
           <FormField label="Condition" required error={errors.condition}>
@@ -327,16 +468,11 @@ function Step2Content({ data, errors, onChange }: {
             />
           </FormField>
         </div>
-        <div className="mt-5">
-          <FormField label="Doctor Notes">
-            <TextArea value={data.notes} onChange={(v) => onChange("notes", v)} placeholder="Any notes about this patient's condition, treatment plan, or special considerations..." rows={3} />
-          </FormField>
-        </div>
       </div>
 
-      {/* Medical Profile */}
+      {/* Medical History */}
       <div>
-        <h3 className="text-2xl font-bold text-black tracking-tighter">Medical Profile</h3>
+        <h3 className="text-2xl font-bold text-black tracking-tighter">Medical History</h3>
         <p className="mt-1 text-md text-dark-grey">Optional medical information for better context.</p>
         <div className="mt-4 grid grid-cols-1 gap-5 md:grid-cols-2">
           <FormField label="Blood Type">
@@ -355,11 +491,158 @@ function Step2Content({ data, errors, onChange }: {
           </FormField>
         </div>
       </div>
+
+      {/* Doctor Notes */}
+      <div>
+        <h3 className="text-2xl font-bold text-black tracking-tighter">Doctor Notes</h3>
+        <div className="mt-4">
+          <FormField label="Notes">
+            <TextArea value={data.notes} onChange={(v) => onChange("notes", v)} placeholder="Any notes about this patient's condition, treatment plan, or special considerations..." rows={3} />
+          </FormField>
+        </div>
+      </div>
     </div>
   );
 }
 
-function Step3Content({ data, onChange }: { data: FormData; onChange: (field: keyof FormData, value: string) => void }) {
+// ─── Step 3: Tracking Setup ──────────────────────────────
+function Step3Content_Tracking({ data, templateQuestions, enabledQuestions, setEnabledQuestions, customQuestions, setCustomQuestions }: {
+  data: FormData;
+  templateQuestions: TemplateQuestion[];
+  enabledQuestions: string[];
+  setEnabledQuestions: (q: string[]) => void;
+  customQuestions: TemplateQuestion[];
+  setCustomQuestions: (q: TemplateQuestion[]) => void;
+}) {
+  const [showCustomForm, setShowCustomForm] = useState(false);
+
+  const toggleQuestion = (key: string) => {
+    if (enabledQuestions.includes(key)) {
+      setEnabledQuestions(enabledQuestions.filter((k) => k !== key));
+    } else {
+      setEnabledQuestions([...enabledQuestions, key]);
+    }
+  };
+
+  const addCustomQuestion = (q: TemplateQuestion) => {
+    setCustomQuestions([...customQuestions, q]);
+    setShowCustomForm(false);
+  };
+
+  const removeCustomQuestion = (key: string) => {
+    setCustomQuestions(customQuestions.filter((q) => q.key !== key));
+  };
+
+  const enabledCount = enabledQuestions.length + customQuestions.length;
+
+  if (!data.condition) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 text-center">
+        <p className="text-xl font-semibold text-black">Select a condition first</p>
+        <p className="mt-2 text-md text-dark-grey">Go back to Step 2 and select Diabetes or Obesity to see tracking questions.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-8">
+      {/* Default Questions */}
+      {templateQuestions.length > 0 && (
+        <div>
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-2xl font-bold text-black tracking-tighter">Default Questions</h3>
+              <p className="mt-1 text-md text-dark-grey">
+                Standard tracking questions for {data.condition.charAt(0).toUpperCase() + data.condition.slice(1)}. Toggle on/off per patient.
+              </p>
+            </div>
+            <span className="rounded-md bg-primary-light px-2.5 py-1 text-base font-medium text-primary-dark">
+              {enabledCount} enabled
+            </span>
+          </div>
+
+          <div className="mt-4 rounded-lg overflow-hidden">
+            {templateQuestions.map((q, i) => (
+              <div
+                key={q.key}
+                className={`flex items-center gap-4 px-4 py-3.5 ${i > 0 ? "border-t border-border" : ""} ${
+                  enabledQuestions.includes(q.key) ? "bg-white" : "bg-surface"
+                }`}
+              >
+                <Toggle checked={enabledQuestions.includes(q.key)} onChange={() => toggleQuestion(q.key)} />
+                <span className={`flex-1 text-md ${enabledQuestions.includes(q.key) ? "text-black" : "text-dark-grey"}`}>
+                  {q.label}
+                </span>
+                <span className="hidden sm:inline rounded-sm bg-primary-light px-2 py-0.5 text-base text-primary-dark">
+                  {QUESTION_TYPE_LABELS[q.type] || q.type}
+                </span>
+                {q.unit && <span className="hidden sm:inline text-base text-dark-grey">{q.unit}</span>}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Custom Questions */}
+      <div>
+        <h3 className="text-2xl font-bold text-black tracking-tighter">Custom Questions</h3>
+        <p className="mt-1 text-md text-dark-grey">Add questions specific to this patient.</p>
+
+        {customQuestions.length > 0 && (
+          <div className="mt-4 rounded-lg overflow-hidden">
+            {customQuestions.map((q, i) => (
+              <div
+                key={q.key}
+                className={`flex items-center gap-4 bg-white px-4 py-3.5 ${i > 0 ? "border-t border-border" : ""}`}
+              >
+                <span className="flex size-6 items-center justify-center rounded-full bg-yellow text-white text-2xs font-bold">C</span>
+                <span className="flex-1 text-md text-black">{q.label}</span>
+                <span className="hidden sm:inline rounded-sm bg-primary-light px-2 py-0.5 text-base text-primary-dark">
+                  {QUESTION_TYPE_LABELS[q.type] || q.type}
+                </span>
+                <button type="button" onClick={() => removeCustomQuestion(q.key)} className="text-dark-grey hover:text-red transition-colors">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M12 4L4 12M4 4l8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {customQuestions.length === 0 && !showCustomForm && (
+          <p className="mt-3 text-md text-dark-grey">No custom questions added yet.</p>
+        )}
+
+        {showCustomForm ? (
+          <div className="mt-4">
+            <CustomQuestionForm
+              onAdd={addCustomQuestion}
+              onCancel={() => setShowCustomForm(false)}
+              nextOrder={templateQuestions.length + customQuestions.length + 1}
+            />
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setShowCustomForm(true)}
+            className="mt-4 flex items-center gap-2 rounded-md bg-primary-light px-4 py-2.5 text-md font-medium text-primary-dark hover:bg-primary-hover transition-colors"
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
+            Add Custom Question
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Step 4: Review & Confirm ────────────────────────────
+function Step4Content({ data, onChange, templateQuestions, enabledQuestions, customQuestions }: {
+  data: FormData;
+  onChange: (field: keyof FormData, value: string) => void;
+  templateQuestions: TemplateQuestion[];
+  enabledQuestions: string[];
+  customQuestions: TemplateQuestion[];
+}) {
   const sections = [
     {
       title: "Patient Information",
@@ -413,6 +696,36 @@ function Step3Content({ data, onChange }: { data: FormData; onChange: (field: ke
         </div>
       ))}
 
+      {/* Tracking Questions Summary */}
+      {(enabledQuestions.length > 0 || customQuestions.length > 0) && (
+        <div className="rounded-lg bg-surface p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h4 className="text-md font-bold text-black">Tracking Questions</h4>
+            <span className="text-base text-primary-dark font-medium">
+              {enabledQuestions.length + customQuestions.length} questions
+            </span>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            {templateQuestions
+              .filter((q) => enabledQuestions.includes(q.key))
+              .map((q) => (
+                <div key={q.key} className="flex items-center gap-2 text-md">
+                  <span className="size-1.5 rounded-full bg-primary shrink-0" />
+                  <span className="text-black">{q.label}</span>
+                  <span className="text-base text-dark-grey">({QUESTION_TYPE_LABELS[q.type]})</span>
+                </div>
+              ))}
+            {customQuestions.map((q) => (
+              <div key={q.key} className="flex items-center gap-2 text-md">
+                <span className="size-1.5 rounded-full bg-yellow shrink-0" />
+                <span className="text-black">{q.label}</span>
+                <span className="text-base text-dark-grey">({QUESTION_TYPE_LABELS[q.type]}) — Custom</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Status */}
       <div className="rounded-lg bg-surface p-4">
         <h4 className="text-md font-bold text-black mb-3">Settings</h4>
@@ -446,10 +759,28 @@ export function AddPatientForm() {
   const [errors, setErrors] = useState<FieldErrors>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  const [templateQuestions, setTemplateQuestions] = useState<TemplateQuestion[]>([]);
+  const [enabledQuestions, setEnabledQuestions] = useState<string[]>([]);
+  const [customQuestions, setCustomQuestions] = useState<TemplateQuestion[]>([]);
+
+  // Fetch template questions when condition changes
+  const fetchTemplate = useCallback(async (condition: string) => {
+    if (!condition) { setTemplateQuestions([]); setEnabledQuestions([]); return; }
+    try {
+      const res = await fetch(`/api/templates?condition=${condition}`);
+      const result = await res.json();
+      if (result.success && result.data?.[0]?.questions) {
+        const questions: TemplateQuestion[] = result.data[0].questions;
+        setTemplateQuestions(questions);
+        setEnabledQuestions(questions.map((q) => q.key)); // Enable all by default
+      }
+    } catch { /* silently fail — doctor can still proceed */ }
+  }, []);
 
   const onChange = (field: keyof FormData, value: string) => {
     setData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) setErrors((prev) => ({ ...prev, [field]: undefined }));
+    if (field === "condition") fetchTemplate(value);
   };
 
   const handleNext = () => {
@@ -463,7 +794,7 @@ export function AddPatientForm() {
     }
 
     setErrors({});
-    setCurrentStep((s) => Math.min(s + 1, 3));
+    setCurrentStep((s) => Math.min(s + 1, 4));
   };
 
   const handlePrevious = () => {
@@ -498,6 +829,8 @@ export function AddPatientForm() {
       if (data.currentMedications) body.currentMedications = data.currentMedications;
       if (data.preExistingConditions) body.preExistingConditions = data.preExistingConditions;
       if (data.notes) body.notes = data.notes;
+      if (enabledQuestions.length > 0) body.enabledQuestions = enabledQuestions;
+      if (customQuestions.length > 0) body.customQuestions = customQuestions;
 
       const res = await fetch("/api/patients", {
         method: "POST",
@@ -530,7 +863,7 @@ export function AddPatientForm() {
         </p>
       </div>
       <div className="mb-4 flex items-center gap-2 lg:hidden">
-        <span className="text-base text-dark-grey">Step {currentStep}/3</span>
+        <span className="text-base text-dark-grey">Step {currentStep}/4</span>
         <div className="flex flex-1 gap-1.5">
           {STEPS.map((step) => (
             <div
@@ -562,7 +895,7 @@ export function AddPatientForm() {
           <div className="min-w-0 flex-1 p-6">
             {/* Step header */}
             <div className="mb-6">
-              <p className="text-base text-primary font-medium">Step {currentStep}/3</p>
+              <p className="text-base text-primary font-medium">Step {currentStep}/4</p>
               <h3 className="text-2xl font-bold text-black tracking-tighter mt-1">
                 {STEPS[currentStep - 1].title}
               </h3>
@@ -572,7 +905,8 @@ export function AddPatientForm() {
             <div className="border-t border-border pt-6">
               {currentStep === 1 && <Step1Content data={data} errors={errors} onChange={onChange} />}
               {currentStep === 2 && <Step2Content data={data} errors={errors} onChange={onChange} />}
-              {currentStep === 3 && <Step3Content data={data} onChange={onChange} />}
+              {currentStep === 3 && <Step3Content_Tracking data={data} templateQuestions={templateQuestions} enabledQuestions={enabledQuestions} setEnabledQuestions={setEnabledQuestions} customQuestions={customQuestions} setCustomQuestions={setCustomQuestions} />}
+              {currentStep === 4 && <Step4Content data={data} onChange={onChange} templateQuestions={templateQuestions} enabledQuestions={enabledQuestions} customQuestions={customQuestions} />}
             </div>
 
             {/* Submit error */}
@@ -600,7 +934,7 @@ export function AddPatientForm() {
               </div>
 
               <div>
-                {currentStep < 3 ? (
+                {currentStep < 4 ? (
                   <button
                     onClick={handleNext}
                     className="h-10 rounded-md bg-primary px-6 text-md font-medium text-white transition-colors hover:bg-primary-dark"
