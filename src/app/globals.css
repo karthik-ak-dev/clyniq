@@ -9,39 +9,132 @@
   display: none; /* Chrome/Safari/Opera */
 }
 
-/* ─── Design System Theme (Figma: TeamHub) ──────────────────
-   Tailwind v4 CSS-first configuration.
-   Colors from design/Color.png export.
-*/
-@theme {
-  /* Primary */
-  --color-primary: #35BFA3;
-  --color-primary-dark: #0E4D41;
-  --color-primary-light: #E4F2D3;
-  --color-primary-subtle: #F8FCF3;
+/* ═══════════════════════════════════════════════════════════
+   DESIGN SYSTEM TOKENS
+   Source: Figma TeamHub Design System (design/system/)
+   Tailwind v4 CSS-first configuration via @theme.
+   ═══════════════════════════════════════════════════════════ */
 
-  /* Neutrals */
-  --color-black: #203430;
-  --color-dark-grey: #63716E;
-  --color-grey: #757575;
-  --color-light-grey: #A4ACAB;
-  --color-border: #E5E6E6;
-  --color-surface: #F7F7F7;
-  --color-sidebar-bg: #FEFEFE;
-  --color-white: #FFFFFF;
+@theme {
+
+  /* ─── Colors ──────────────────────────────────────────────
+     Exact values from design/system/Color.png.
+     Usage: text-primary, bg-primary-dark, border-border, etc.
+  */
+
+  /* Green scale */
+  --color-primary-dark: #0E4D41;    /* Dark Green  — active nav, CTA hover, promo text */
+  --color-primary: #35BFA3;         /* Green       — CTA bg, active badge, avatar bg    */
+  --color-primary-light: #E4F2D3;   /* Light Green — icon button bg, tag bg, promo bg   */
+  --color-primary-subtle: #F8FCF3;  /* Subtle Green — card hover, empty state icon bg   */
+
+  /* Neutral scale */
+  --color-black: #203430;           /* Black       — headings, names, primary text       */
+  --color-dark-grey: #63716E;       /* Dark Grey   — body text, labels, inactive icons   */
+  --color-grey: #757575;            /* Grey        — pagination text, secondary labels   */
+  --color-light-grey: #A4ACAB;      /* Light Grey  — placeholder (patient pages only)    */
+  --color-border: #E5E6E6;          /* Semi Subtle — borders, dividers, tag bg (grey)    */
+  --color-surface: #F7F7F7;         /* Subtle Grey — page bg, info box bg, arrow btn bg  */
+  --color-sidebar-bg: #FEFEFE;      /* Sidebar     — slightly off-white sidebar bg       */
+  --color-white: #FFFFFF;           /* White       — card bg, input bg, page btn bg      */
 
   /* Status */
-  --color-red: #E63D4B;
-  --color-red-subtle: #FAEFF0;
-  --color-yellow: #F8C947;
-  --color-yellow-subtle: #FDF5DF;
-  --color-green-status: #35BFA3;
-  --color-green-status-subtle: #E4F2D3;
+  --color-red: #E63D4B;             /* Red         — inactive badge, error states        */
+  --color-red-subtle: #FAEFF0;      /* Subtle Red  — red badge bg                        */
+  --color-yellow: #F8C947;          /* Yellow      — warning states                      */
+  --color-yellow-subtle: #FDF5DF;   /* Light Yellow — yellow badge bg                    */
 
-  /* Legacy purple for patient check-in pages */
+  /* UI-specific (derived from scale, named by role) */
+  --color-primary-hover: #d4e8bf;   /* Light green hover — icon buttons                  */
+  --color-card-text: #292929;       /* Near-black  — dropdown text, pagination numbers   */
+
+  /* Patient check-in palette (purple gradient theme) */
   --color-purple-start: #818cf8;
   --color-purple-mid: #a78bfa;
   --color-pink-end: #f9a8d4;
+
+  /* ─── Typography ──────────────────────────────────────────
+     Font: DM Sans (dashboard), Nunito (patient check-in).
+     From design/system/Typography.png — three categories:
+       Heading: Bold (700), line-height 1.2
+       Body:    Regular (400) & Medium (500), line-height 1.3
+       Btn:     SemiBold (600) & Medium (500), line-height 1.0
+  */
+
+  --font-sans: var(--font-dm-sans), "DM Sans", system-ui, sans-serif;
+
+  /* Font size scale — optimized for DM Sans readability.
+     Slightly bumped from raw Figma values so DM Sans feels
+     proportional on screen. Uses --text-* to override Tailwind.
+  */
+  --text-2xs: 9px;           /* text-2xs  — smallest labels                */
+  --text-xs: 10px;           /* text-xs   — fine print                     */
+  --text-sm: 11px;           /* text-sm   — compact labels                 */
+  --text-base: 12px;         /* text-base — breadcrumb, sort label, badges */
+  --text-md: 13px;           /* text-md   — card info, nav, btn text, IDs  */
+  --text-lg: 14px;           /* text-lg   — body text, pagination          */
+  --text-xl: 16px;           /* text-xl   — promo CTA, larger body         */
+  --text-2xl: 18px;          /* text-2xl  — card names, user name          */
+  --text-3xl: 20px;          /* text-3xl  — page title, promo title        */
+  --text-4xl: 24px;          /* text-4xl  — section headings               */
+  --text-5xl: 28px;          /* text-5xl  — large headings                 */
+  --text-6xl: 40px;          /* text-6xl  — hero headings                  */
+
+  /* Line height tokens */
+  --leading-tight: 1.2;     /* Headings */
+  --leading-normal: 1.4;    /* Body text — roomier than Figma's 1.3        */
+  --leading-none: 1;        /* Buttons, badges */
+
+  /* Letter spacing tokens */
+  --tracking-tight: -0.8px;    /* Page titles (20px headings)     */
+  --tracking-tighter: -0.72px; /* Card names (18px headings)      */
+  --tracking-logo: -1.66px;    /* Logo text — extra tight         */
+
+  /* ─── Spacing ─────────────────────────────────────────────
+     Consistent spacing scale used across layouts.
+  */
+  --spacing-card: 16px;       /* Card internal padding            */
+  --spacing-card-gap: 19px;   /* Gap between card sections        */
+  --spacing-section: 20px;    /* Gap between page sections        */
+  --spacing-page-x: 24px;     /* Content horizontal padding       */
+  --spacing-page-y: 20px;     /* Content vertical padding         */
+  --spacing-toolbar: 10px;    /* Gap between toolbar items        */
+  --spacing-sidebar: 245px;   /* Main content left offset         */
+
+  /* ─── Sizing ──────────────────────────────────────────────
+     Fixed dimensions for key UI elements.
+     --width-* → w-*, --height-* → h-*, --size-* → size-* (w+h)
+  */
+  --width-sidebar: 245px;     /* Sidebar width: w-sidebar          */
+  --width-search: 223px;      /* Search input: w-search             */
+  --width-label: 80px;        /* Card info labels: w-label          */
+  --size-avatar-lg: 80px;     /* Card avatar: size-avatar-lg        */
+  --size-avatar-sm: 40px;     /* Header avatar: size-avatar-sm      */
+  --size-icon-btn: 40px;      /* Header icon button: size-icon-btn  */
+  --size-page-btn: 28px;      /* Pagination button: size-page-btn   */
+  --size-icon: 20px;          /* Standard icon: size-icon            */
+  --size-icon-sm: 16px;       /* Small icon: size-icon-sm            */
+  --height-toolbar: 34px;     /* Toolbar inputs: h-toolbar           */
+
+  /* ─── Border Radius ───────────────────────────────────────
+     From Figma component specs.
+  */
+  --radius-sm: 6px;           /* Tags, small badges               */
+  --radius-md: 8px;           /* Inputs, dropdowns, page buttons  */
+  --radius-btn: 10px;         /* Icon buttons, header actions     */
+  --radius-lg: 12px;          /* Nav items, info box, CTA buttons */
+  --radius-xl: 16px;          /* Cards                            */
+  --radius-2xl: 20px;         /* Promo banner, status pill        */
+  --radius-full: 9999px;      /* Avatar, patient CTA pill         */
+}
+
+/* ─── Component Utility Classes ─────────────────────────────
+   Reusable patterns matching the Figma component library.
+*/
+
+/* Caret SVG for select dropdowns — DM Sans dark text */
+:root {
+  --caret-svg: url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20fill%3D%22none%22%3E%3Cpath%20d%3D%22m3%204.5%203%203%203-3%22%20stroke%3D%22%23292929%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E');
 }
 
 /* ═══════════════════════════════════════════════════════════

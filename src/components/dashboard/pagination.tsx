@@ -37,12 +37,12 @@ export function Pagination({ currentPage, totalPages, totalItems, pageSize, onPa
 
   return (
     <div className="flex items-center justify-between py-6">
-      <div className="flex items-center gap-2 text-[14px] font-normal text-grey">
+      <div className="flex items-center gap-2 text-lg font-normal text-grey">
         <span>Show</span>
-        <button className="flex items-center gap-1 rounded-lg bg-white px-1.5 py-1.5">
-          <span className="px-1 text-[12px] font-medium text-[#292929]">{pageSize}</span>
+        <button className="flex items-center gap-1 rounded-md bg-white px-1.5 py-1.5">
+          <span className="px-1 text-md font-medium text-card-text">{pageSize}</span>
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-            <path d="m3 4.5 3 3 3-3" stroke="#292929" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="m3 4.5 3 3 3-3" stroke="currentColor" className="text-card-text" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </button>
         <span>of {totalItems} results</span>
@@ -52,7 +52,7 @@ export function Pagination({ currentPage, totalPages, totalItems, pageSize, onPa
         <button
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          className="flex h-7 w-7 items-center justify-center rounded-lg bg-surface text-black transition-colors hover:bg-border disabled:opacity-40"
+          className="flex size-page-btn items-center justify-center rounded-md bg-surface text-black transition-colors hover:bg-border disabled:opacity-40"
           aria-label="Previous page"
         >
           <svg width="16" height="16" viewBox="0 0 14 14" fill="none">
@@ -64,7 +64,7 @@ export function Pagination({ currentPage, totalPages, totalItems, pageSize, onPa
           entry === "ellipsis" ? (
             <span
               key={`ellipsis-${i}`}
-              className="flex h-7 w-7 items-center justify-center text-[12px] font-medium text-[#292929]"
+              className="flex size-page-btn items-center justify-center text-md font-medium text-card-text"
             >
               ...
             </span>
@@ -72,10 +72,10 @@ export function Pagination({ currentPage, totalPages, totalItems, pageSize, onPa
             <button
               key={entry}
               onClick={() => onPageChange(entry)}
-              className={`flex h-7 w-7 items-center justify-center rounded-lg text-[12px] font-medium transition-colors ${
+              className={`flex size-page-btn items-center justify-center rounded-md text-md font-medium transition-colors ${
                 entry === currentPage
                   ? "bg-primary text-white"
-                  : "bg-white text-[#292929] hover:bg-surface"
+                  : "bg-white text-card-text hover:bg-surface"
               }`}
               aria-label={`Page ${entry}`}
               aria-current={entry === currentPage ? "page" : undefined}
@@ -88,7 +88,7 @@ export function Pagination({ currentPage, totalPages, totalItems, pageSize, onPa
         <button
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className="flex h-7 w-7 items-center justify-center rounded-lg bg-white text-black transition-colors hover:bg-surface disabled:opacity-40"
+          className="flex size-page-btn items-center justify-center rounded-md bg-white text-black transition-colors hover:bg-surface disabled:opacity-40"
           aria-label="Next page"
         >
           <svg width="16" height="16" viewBox="0 0 14 14" fill="none">

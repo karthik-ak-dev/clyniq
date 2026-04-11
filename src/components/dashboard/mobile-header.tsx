@@ -12,34 +12,50 @@ const NAV_ITEMS = [
   { label: "Settings", href: "/settings" },
 ];
 
-export function MobileHeader({ title }: { title: string }) {
+const PAGE_TITLES: Record<string, string> = {
+  "/dashboard": "Dashboard",
+  "/patients": "Patients",
+  "/inbox": "Inbox",
+  "/calendar": "Calendar",
+  "/settings": "Settings",
+};
+
+function getPageTitle(pathname: string): string {
+  for (const [path, title] of Object.entries(PAGE_TITLES)) {
+    if (pathname.startsWith(path)) return title;
+  }
+  return "DoctorRx";
+}
+
+export function MobileHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
   const pathname = usePathname();
+  const title = getPageTitle(pathname);
 
   return (
     <>
       <header className="flex items-center justify-between px-4 py-3 lg:hidden">
         {/* Logo icon */}
-        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
           <path d="M7 14L14 7L21 14L14 21L7 14Z" fill="#35BFA3"/>
           <path d="M3 14L14 3L25 14L14 25L3 14Z" stroke="#35BFA3" strokeWidth="2" fill="none"/>
         </svg>
 
         {/* Title */}
-        <h1 className="text-[18px] font-bold text-[#203430]">{title}</h1>
+        <h1 className="text-2xl font-bold text-black">{title}</h1>
 
         {/* Hamburger */}
         <button
           onClick={() => setMenuOpen(!menuOpen)}
-          className="flex h-10 w-10 items-center justify-center rounded-lg text-[#63716E]"
+          className="flex h-10 w-10 items-center justify-center rounded-lg text-dark-grey"
           aria-label="Toggle menu"
         >
           {menuOpen ? (
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
               <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
             </svg>
           ) : (
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
               <path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
             </svg>
           )}
@@ -48,7 +64,7 @@ export function MobileHeader({ title }: { title: string }) {
 
       {/* Mobile slide-down menu */}
       {menuOpen && (
-        <nav className="border-b border-[#E5E6E6] bg-white px-4 pb-3 lg:hidden">
+        <nav className="border-b border-border bg-white px-4 pb-3 lg:hidden">
           {NAV_ITEMS.map((item) => {
             const isActive = pathname.startsWith(item.href);
             return (
@@ -56,10 +72,10 @@ export function MobileHeader({ title }: { title: string }) {
                 key={item.href}
                 href={item.href}
                 onClick={() => setMenuOpen(false)}
-                className={`block rounded-lg px-3 py-2.5 text-[14px] font-medium ${
+                className={`block rounded-lg px-3 py-2.5 text-lg font-medium ${
                   isActive
-                    ? "bg-[#35BFA3] text-white"
-                    : "text-[#63716E]"
+                    ? "bg-primary text-white"
+                    : "text-dark-grey"
                 }`}
               >
                 {item.label}

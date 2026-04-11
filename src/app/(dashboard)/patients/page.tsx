@@ -2,7 +2,6 @@ import { Suspense } from "react";
 import { getAuthenticatedDoctor } from "@/lib/auth/middleware";
 import { patientQueries, complianceQueries } from "@/lib/db/queries";
 import { PatientGrid, PatientGridSkeleton } from "@/components/dashboard/patient-grid";
-import { MobileHeader } from "@/components/dashboard/mobile-header";
 import { redirect } from "next/navigation";
 
 export const metadata = {
@@ -38,13 +37,8 @@ async function PatientListContent() {
 
 export default function PatientsPage() {
   return (
-    <div className="min-h-dvh">
-      <MobileHeader title="Patients" />
-      <div className="px-4 py-6 md:px-6 lg:px-6 lg:py-5">
-        <Suspense fallback={<PatientGridSkeleton />}>
-          <PatientListContent />
-        </Suspense>
-      </div>
-    </div>
+    <Suspense fallback={<PatientGridSkeleton />}>
+      <PatientListContent />
+    </Suspense>
   );
 }
