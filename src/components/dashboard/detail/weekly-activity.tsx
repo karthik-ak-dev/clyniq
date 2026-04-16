@@ -11,7 +11,7 @@ export function WeeklyActivity({ data }: {
   return (
     <div className="rounded-xl bg-white p-5">
       <div className="flex items-center justify-between">
-        <h3 className="text-md font-bold text-black">Daily Compliance</h3>
+        <h3 className="text-2xl font-bold text-black tracking-tighter">Daily Compliance</h3>
         <span className="rounded-md bg-primary-light px-2 py-0.5 text-base font-medium text-primary-dark">This Week</span>
       </div>
 

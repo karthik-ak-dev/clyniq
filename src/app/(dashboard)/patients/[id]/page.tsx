@@ -1,6 +1,6 @@
 import { redirect, notFound } from "next/navigation";
 import { getAuthenticatedDoctor } from "@/lib/auth/middleware";
-import { patientQueries, checkinQueries, templateQueries } from "@/lib/db/queries";
+import { patientQueries, checkinQueries, templateQueries, visitQueries } from "@/lib/db/queries";
 import { complianceEngine } from "@/lib/compliance/engine";
 import { PatientDetail } from "@/components/dashboard/patient-detail";
 import type { CheckIn, TemplateQuestion } from "@/lib/db/types";
@@ -62,9 +62,10 @@ export default async function PatientDetailPage({
 
   const { patient, doctorPatient } = row;
 
-  const [template, allCheckIns] = await Promise.all([
+  const [template, allCheckIns, allVisits] = await Promise.all([
     templateQueries.getById(doctorPatient.templateId),
     checkinQueries.getAll(doctorPatient.id),
+    visitQueries.getByDoctorPatientId(doctorPatient.id),
   ]);
 
   if (!template) notFound();
@@ -172,16 +173,21 @@ export default async function PatientDetailPage({
   const numericQuestions = allQuestions.filter(
     (q) => q.type === "number" && enabledSet.has(q.key)
   );
-  const numericTrends = numericQuestions
-    .map((q) => ({
-      key: q.key,
-      label: q.label,
-      unit: q.unit || "",
-      data: getNumericHistory(allCheckIns, q.key, 14),
-    }))
-    .filter((t) => t.data.length > 0); // Only show if there's actual data
+  const numericTrends = numericQuestions.map((q) => ({
+    key: q.key,
+    label: q.label,
+    unit: q.unit || "",
+    data: getNumericHistory(allCheckIns, q.key, 14),
+  }));
 
-  // ── Calendar dates ──
+  // ── Calendar data (date → score + responses) ──
+  const calendarData: Record<string, { score: number; responses: Record<string, unknown> }> = {};
+  for (const ci of allCheckIns) {
+    calendarData[ci.date] = {
+      score: getDayScore(ci, doctorPatient.enabledQuestions, allQuestions),
+      responses: ci.responses as Record<string, unknown>,
+    };
+  }
   const checkinDates = allCheckIns.map((c) => c.date);
 
   // ── Last check-in ──
@@ -203,10 +209,10 @@ export default async function PatientDetailPage({
       monthlyData={monthlyData}
       weeklyData={weeklyData}
       dailyCompliance={dailyCompliance}
-      recentCheckins={recentCheckins}
       numericTrends={numericTrends}
-      checkinDates={checkinDates}
+      calendarData={calendarData}
       lastCheckIn={lastCheckIn}
+      visits={allVisits}
     />
   );
 }

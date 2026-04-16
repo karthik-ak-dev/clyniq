@@ -32,10 +32,10 @@ export function ComplianceChart({ monthlyData, weeklyData, dailyCompliance, over
   const trendColor = trend === "improving" ? "bg-primary-light text-primary-dark" : trend === "stable" ? "bg-yellow-subtle text-yellow" : "bg-red-subtle text-red";
 
   return (
-    <div className="rounded-xl bg-white p-5">
+    <div className="rounded-xl bg-white p-5 min-w-0">
       <div className="flex items-start justify-between">
         <div>
-          <h3 className="text-md font-bold text-black">Compliance Overview</h3>
+          <h3 className="text-2xl font-bold text-black tracking-tighter">Compliance Overview</h3>
           <div className="mt-2 flex items-baseline gap-2">
             <span className="text-4xl font-bold text-black">{overallScore}%</span>
             <span className={`rounded-md px-2 py-0.5 text-base font-medium ${trendColor}`}>
@@ -60,7 +60,7 @@ export function ComplianceChart({ monthlyData, weeklyData, dailyCompliance, over
         </div>
       </div>
 
-      <div className="mt-5" style={{ width: "100%", height: 192 }}>
+      <div className="mt-5" style={{ width: "100%", height: 220 }}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData} barSize={period === "6months" ? 32 : period === "month" ? 40 : 28}>
             <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "#63716E" }} />

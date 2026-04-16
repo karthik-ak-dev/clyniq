@@ -28,7 +28,7 @@ export function PersonalInfo({ patient }: { patient: Patient }) {
 
   return (
     <div className="rounded-xl bg-white p-5">
-      <h3 className="text-md font-bold text-black">Personal Info</h3>
+      <h3 className="text-2xl font-bold text-black tracking-tighter">Personal Info</h3>
 
       <div className="mt-3 flex flex-col gap-2.5">
         <InfoRow label="Gender" value={patient.gender ? patient.gender.charAt(0).toUpperCase() + patient.gender.slice(1) : null} />
@@ -42,7 +42,7 @@ export function PersonalInfo({ patient }: { patient: Patient }) {
       {(patient.emergencyContactName || patient.emergencyContactPhone) && (
         <>
           <div className="my-3 border-t border-border" />
-          <p className="text-base font-semibold text-dark-grey mb-2">Emergency Contact</p>
+          <p className="text-md font-bold text-dark-grey mb-2">Emergency Contact</p>
           <div className="flex flex-col gap-2">
             <InfoRow label="Name" value={patient.emergencyContactName} />
             <InfoRow label="Phone" value={patient.emergencyContactPhone} />

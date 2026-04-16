@@ -2,24 +2,15 @@ import type { Patient } from "@/lib/db/types";
 
 export function MedicalProfile({ patient }: { patient: Patient }) {
   return (
-    <div className="rounded-xl bg-white p-5">
-      <h3 className="text-md font-bold text-black">Medical Profile</h3>
+    <div className="flex min-h-52 flex-1 flex-col rounded-xl bg-white p-5">
+      <h3 className="text-2xl font-bold text-black tracking-tighter">Medical Profile</h3>
 
-      <div className="mt-3 flex flex-col gap-2.5">
+      <div className="mt-3 flex flex-col gap-2.5 overflow-y-auto min-h-0">
         <InfoRow label="Blood Type" value={patient.bloodType} />
         <InfoRow label="Allergies" value={patient.allergies} />
         <InfoRow label="Medications" value={patient.currentMedications} />
         <InfoRow label="Pre-existing Conditions" value={patient.preExistingConditions} />
       </div>
-
-      {/* Doctor Notes */}
-      {patient.notes && (
-        <>
-          <div className="my-3 border-t border-border" />
-          <p className="text-base font-semibold text-dark-grey mb-1.5">Doctor Notes</p>
-          <p className="text-md text-black leading-normal whitespace-pre-wrap">{patient.notes}</p>
-        </>
-      )}
     </div>
   );
 }

@@ -67,7 +67,7 @@ export function ProfileCard({
         </div>
         <div className="border-t border-border" />
         <div className="flex items-baseline gap-3 px-3 text-md">
-          <span className="w-24 shrink-0 text-dark-grey">Member Since</span>
+          <span className="w-28 shrink-0 text-dark-grey">Member Since</span>
           <span className="font-medium text-black">{createdDate}</span>
         </div>
       </div>

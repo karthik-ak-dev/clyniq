@@ -216,6 +216,44 @@ export const checkIns = pgTable(
   ]
 );
 
+// ─── Visit Types ──────────────────────────────────────────
+export const visitTypeEnum = pgEnum("visit_type", [
+  "initial",
+  "checkup",
+  "followup",
+  "emergency",
+]);
+
+// ─── Visits ───────────────────────────────────────────────
+// Doctor records of in-person patient visits. Each visit captures
+// notes, prescriptions, vitals, and diagnosis from the consultation.
+export const visits = pgTable(
+  "visits",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    doctorPatientId: uuid("doctor_patient_id")
+      .references(() => doctorPatients.id)
+      .notNull(),
+    visitDate: date("visit_date").notNull(),
+    visitType: visitTypeEnum("visit_type").notNull(),
+    notes: text("notes"),
+    prescription: text("prescription"),
+    diagnosis: text("diagnosis"),
+    vitals: jsonb("vitals").$type<{
+      bp?: string;
+      weight?: number;
+      bloodSugar?: number;
+      temperature?: number;
+    }>(),
+    nextVisitDate: date("next_visit_date"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("visits_doctor_patient_id_idx").on(table.doctorPatientId),
+  ]
+);
+
 // ─── Reminder Configs ──────────────────────────────────────
 // Per-patient WhatsApp reminder settings. Feature-flagged via
 // WHATSAPP_ENABLED env var. The cron job (/api/reminders/send)

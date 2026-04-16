@@ -8,3 +8,4 @@ export { templateQueries } from "./templates";
 export { checkinQueries } from "./checkins";
 export { complianceQueries } from "./compliance";
 export { reminderQueries } from "./reminders";
+export { visitQueries } from "./visits";

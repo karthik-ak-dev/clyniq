@@ -5,6 +5,7 @@ import {
   trackingTemplates,
   doctorPatients,
   checkIns,
+  visits,
   reminderConfigs,
 } from "./schema";
 
@@ -20,6 +21,7 @@ export type Patient = InferSelectModel<typeof patients>;
 export type TrackingTemplate = InferSelectModel<typeof trackingTemplates>;
 export type DoctorPatient = InferSelectModel<typeof doctorPatients>;
 export type CheckIn = InferSelectModel<typeof checkIns>;
+export type Visit = InferSelectModel<typeof visits>;
 export type ReminderConfig = InferSelectModel<typeof reminderConfigs>;
 
 // ─── Insert types (what you INSERT into DB) ────────────────
@@ -30,6 +32,7 @@ export type NewPatient = InferInsertModel<typeof patients>;
 export type NewTrackingTemplate = InferInsertModel<typeof trackingTemplates>;
 export type NewDoctorPatient = InferInsertModel<typeof doctorPatients>;
 export type NewCheckIn = InferInsertModel<typeof checkIns>;
+export type NewVisit = InferInsertModel<typeof visits>;
 export type NewReminderConfig = InferInsertModel<typeof reminderConfigs>;
 
 // ─── Enums as const ────────────────────────────────────────
@@ -92,6 +95,15 @@ export const BLOOD_TYPE = {
   "O+": "O+", "O-": "O-",
 } as const;
 export type BloodType = (typeof BLOOD_TYPE)[keyof typeof BLOOD_TYPE];
+
+// Visit types
+export const VISIT_TYPE = {
+  INITIAL: "initial",
+  CHECKUP: "checkup",
+  FOLLOWUP: "followup",
+  EMERGENCY: "emergency",
+} as const;
+export type VisitType = (typeof VISIT_TYPE)[keyof typeof VISIT_TYPE];
 
 // Doctor-patient relationship status
 export const PATIENT_STATUS = {
