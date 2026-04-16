@@ -132,6 +132,14 @@
    Reusable patterns matching the Figma component library.
 */
 
+/* Remove blue focus outline from Recharts chart containers */
+.recharts-wrapper,
+.recharts-wrapper *:focus,
+.recharts-wrapper *:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
 
 /* ═══════════════════════════════════════════════════════════
    PATIENT CHECK-IN FLOW STYLES
