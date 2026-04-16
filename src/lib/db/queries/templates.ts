@@ -1,4 +1,4 @@
-import { eq, and } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { trackingTemplates } from "@/lib/db/schema";
 import type { TrackingTemplate, Condition } from "@/lib/db/types";
@@ -9,25 +9,6 @@ import type { TrackingTemplate, Condition } from "@/lib/db/types";
 // Future: doctors can create custom templates.
 
 export const templateQueries = {
-  // Get the default template for a condition (diabetes or obesity).
-  // Each condition has exactly one default template (is_default = true).
-  // Used when creating a patient to auto-assign the right template.
-  async getDefaultByCondition(
-    condition: Condition
-  ): Promise<TrackingTemplate | null> {
-    const [template] = await db
-      .select()
-      .from(trackingTemplates)
-      .where(
-        and(
-          eq(trackingTemplates.condition, condition),
-          eq(trackingTemplates.isDefault, true)
-        )
-      )
-      .limit(1);
-    return template ?? null;
-  },
-
   // Get a template by its UUID.
   // Used to fetch the full question list for a patient's check-in form.
   async getById(id: string): Promise<TrackingTemplate | null> {

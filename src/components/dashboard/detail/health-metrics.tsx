@@ -1,22 +1,8 @@
 "use client";
 
 import { LineChart, Line, ResponsiveContainer, Tooltip, XAxis } from "recharts";
-
-type NumericTrend = {
-  key: string;
-  label: string;
-  unit: string;
-  data: { date: string; value: number }[];
-};
-
-function cleanLabel(label: string): string {
-  return label
-    .replace(/\?$/, "")
-    .replace(/^What was your /, "")
-    .replace(/^What's your /, "")
-    .replace(/^What is your /, "")
-    .replace(/^How many /, "");
-}
+import type { NumericTrend } from "@/lib/db/types";
+import { cleanMetricLabel } from "@/lib/utils/format-helpers";
 
 export function HealthMetrics({ trends }: { trends: NumericTrend[] }) {
   return (
@@ -29,21 +15,17 @@ export function HealthMetrics({ trends }: { trends: NumericTrend[] }) {
       ) : (
         <div className="mt-4 grid grid-cols-1 gap-5 md:grid-cols-2 overflow-y-auto min-h-0">
           {trends.map((t) => {
-            const latest = t.data.length > 0 ? t.data[t.data.length - 1] : null;
-            const prev = t.data.length > 1 ? t.data[t.data.length - 2] : null;
-            const rawDiff = prev && latest ? latest.value - prev.value : 0;
-            const diff = Math.round(rawDiff * 10) / 10;
-            const diffSign = diff > 0 ? "+" : "";
+            const diffSign = t.diff > 0 ? "+" : "";
 
             return (
               <div key={t.key} className="rounded-lg bg-surface p-4">
-                <p className="text-md font-medium text-dark-grey capitalize">{cleanLabel(t.label)}</p>
+                <p className="text-md font-medium text-dark-grey capitalize">{cleanMetricLabel(t.label)}</p>
                 <div className="mt-1 flex items-baseline gap-1.5">
-                  <span className="text-2xl font-bold text-black">{latest?.value ?? "\u2014"}</span>
+                  <span className="text-2xl font-bold text-black">{t.latestValue ?? "\u2014"}</span>
                   <span className="text-base text-dark-grey">{t.unit}</span>
-                  {prev && diff !== 0 && (
-                    <span className={`text-base font-medium ${diff > 0 ? "text-red" : "text-primary"}`}>
-                      {diffSign}{diff}
+                  {t.diff !== 0 && (
+                    <span className={`text-base font-medium ${t.diff > 0 ? "text-red" : "text-primary"}`}>
+                      {diffSign}{t.diff}
                     </span>
                   )}
                 </div>

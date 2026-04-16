@@ -1,4 +1,5 @@
 import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
+import type { ComplianceScore, QuestionMetric } from "@/lib/compliance/engine";
 import {
   doctors,
   patients,
@@ -8,6 +9,7 @@ import {
   visits,
   reminderConfigs,
 } from "./schema";
+import type { TemplateQuestion } from "./schema";
 
 // Re-export the TemplateQuestion type from schema (single source of truth).
 // Import this from "@/lib/db" everywhere — never redefine the shape.
@@ -112,3 +114,42 @@ export const PATIENT_STATUS = {
   INACTIVE: "inactive",
 } as const;
 export type PatientStatus = (typeof PATIENT_STATUS)[keyof typeof PATIENT_STATUS];
+
+// ─── Derived data types (used by patient detail page) ─────
+// These represent pre-computed data shapes returned by
+// the patient-detail query module. Defined here so both
+// the query layer and components share the same types.
+
+export type NumericTrend = {
+  key: string;
+  label: string;
+  unit: string;
+  latestValue: number | null;
+  diff: number;
+  data: { date: string; value: number }[];
+};
+export type CalendarEntry = { score: number; responses: Record<string, unknown> };
+export type Vitals = { bp?: string; weight?: number; bloodSugar?: number; temperature?: number };
+export type ChartPoint = { name: string; score: number };
+export type ComplianceGroup = { category: string; items: QuestionMetric[] };
+
+export type PatientDetailData = {
+  patient: Patient;
+  doctorPatient: DoctorPatient;
+  template: TrackingTemplate;
+  allQuestions: TemplateQuestion[];
+  compliance: ComplianceScore;
+  trend: Trend;
+  trendDiff: number;
+  insights: string[];
+  checkedInToday: boolean;
+  streak: number;
+  monthlyData: ChartPoint[];
+  weeklyData: ChartPoint[];
+  dailyCompliance: ChartPoint[];
+  complianceGroups: ComplianceGroup[];
+  numericTrends: NumericTrend[];
+  calendarData: Record<string, CalendarEntry>;
+  lastCheckIn: CheckIn | null;
+  visits: Visit[];
+};

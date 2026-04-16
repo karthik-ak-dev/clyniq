@@ -103,7 +103,75 @@ function getScorableQuestions(
 
 // ─── Engine ────────────────────────────────────────────────
 
+// ─── Helper: Calculate compliance score for a single check-in ──
+// Used for daily compliance views and calendar coloring.
+// Returns 0-100 percentage of compliant answers.
+function calculateDayScore(
+  checkIn: CheckIn,
+  enabledQuestions: string[],
+  templateQuestions: TemplateQuestion[]
+): number {
+  const scorable = getScorableQuestions(enabledQuestions, templateQuestions);
+  if (scorable.length === 0) return 0;
+
+  let compliant = 0;
+  for (const q of scorable) {
+    if (isCompliant(q, checkIn.responses[q.key])) compliant++;
+  }
+  return Math.round((compliant / scorable.length) * 100);
+}
+
+// ─── Helper: Calculate consecutive check-in streak ────────
+// Counts backwards from today (or yesterday if today not yet done).
+// Returns 0 if no recent check-in within last 2 days.
+function calculateStreak(checkIns: CheckIn[]): number {
+  if (checkIns.length === 0) return 0;
+
+  const todayStr = new Date().toISOString().split("T")[0];
+  const yesterdayStr = new Date(Date.now() - 86400000).toISOString().split("T")[0];
+
+  const sorted = [...checkIns].sort((a, b) => b.date.localeCompare(a.date));
+
+  // Must have checked in today or yesterday to have an active streak
+  if (sorted[0].date !== todayStr && sorted[0].date !== yesterdayStr) return 0;
+
+  let streak = 0;
+  let expectedDate = new Date(sorted[0].date + "T00:00:00");
+
+  for (const ci of sorted) {
+    if (ci.date === expectedDate.toISOString().split("T")[0]) {
+      streak++;
+      expectedDate = new Date(expectedDate.getTime() - 86400000);
+    } else {
+      break;
+    }
+  }
+
+  return streak;
+}
+
+// ─── Helper: Extract numeric history for a question key ───
+// Returns date-value pairs for the last N days, used for sparklines.
+function getNumericHistory(
+  checkIns: CheckIn[],
+  key: string,
+  days: number = 14
+): { date: string; value: number }[] {
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - days);
+  const cutoffStr = cutoff.toISOString().split("T")[0];
+
+  return checkIns
+    .filter((c) => c.date >= cutoffStr && typeof c.responses[key] === "number")
+    .map((c) => ({ date: c.date, value: c.responses[key] as number }));
+}
+
 export const complianceEngine = {
+  // Expose pure helpers for use by query layer
+  calculateDayScore,
+  calculateStreak,
+  getNumericHistory,
+
   // Calculate compliance score over a time window.
   //
   // Scores yes_no + choice questions:

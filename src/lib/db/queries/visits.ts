@@ -16,13 +16,4 @@ export const visitQueries = {
       .where(eq(visits.doctorPatientId, doctorPatientId))
       .orderBy(desc(visits.visitDate));
   },
-
-  async getById(id: string): Promise<Visit | null> {
-    const [visit] = await db
-      .select()
-      .from(visits)
-      .where(eq(visits.id, id))
-      .limit(1);
-    return visit ?? null;
-  },
 };

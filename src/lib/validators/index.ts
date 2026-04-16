@@ -7,3 +7,6 @@ export type { CreatePatientInput } from "./patient";
 
 export { checkinSchema } from "./checkin";
 export type { CheckinInput } from "./checkin";
+
+export { createVisitSchema } from "./visit";
+export type { CreateVisitInput } from "./visit";

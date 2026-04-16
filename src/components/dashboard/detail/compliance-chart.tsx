@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
-import type { Trend } from "@/lib/db/types";
+import type { Trend, ChartPoint } from "@/lib/db/types";
 
 type Period = "week" | "month" | "6months";
 
@@ -13,20 +13,18 @@ const PERIOD_LABELS: Record<Period, string> = {
 };
 
 export function ComplianceChart({ monthlyData, weeklyData, dailyCompliance, overallScore, trend, trendDiff }: {
-  monthlyData: { month: string; score: number }[];
-  weeklyData: { week: string; score: number }[];
-  dailyCompliance: { day: string; score: number }[];
+  monthlyData: ChartPoint[];
+  weeklyData: ChartPoint[];
+  dailyCompliance: ChartPoint[];
   overallScore: number;
   trend: Trend;
   trendDiff: number;
 }) {
   const [period, setPeriod] = useState<Period>("week");
 
-  const chartData = period === "week"
-    ? dailyCompliance.map((d) => ({ name: d.day, score: d.score }))
-    : period === "month"
-      ? weeklyData.map((d) => ({ name: d.week, score: d.score }))
-      : monthlyData.map((d) => ({ name: d.month, score: d.score }));
+  const chartData = period === "week" ? dailyCompliance
+    : period === "month" ? weeklyData
+    : monthlyData;
 
   const trendSign = trendDiff > 0 ? "+" : "";
   const trendColor = trend === "improving" ? "bg-primary-light text-primary-dark" : trend === "stable" ? "bg-yellow-subtle text-yellow" : "bg-red-subtle text-red";
@@ -44,7 +42,6 @@ export function ComplianceChart({ monthlyData, weeklyData, dailyCompliance, over
           </div>
         </div>
 
-        {/* Period toggle */}
         <div className="flex rounded-md bg-surface p-0.5">
           {(["week", "month", "6months"] as Period[]).map((p) => (
             <button

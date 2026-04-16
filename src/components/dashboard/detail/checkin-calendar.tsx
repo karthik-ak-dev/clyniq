@@ -1,19 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import type { TemplateQuestion } from "@/lib/db/types";
+import type { TemplateQuestion, CalendarEntry } from "@/lib/db/types";
+import { formatQuestionValue, shortQuestionLabel } from "@/lib/utils/format-helpers";
 
 const DAY_NAMES = ["S", "M", "T", "W", "T", "F", "S"];
-
-type CalendarEntry = { score: number; responses: Record<string, unknown> };
-
-function formatValue(q: TemplateQuestion, val: unknown): string {
-  if (val === undefined || val === null) return "—";
-  if (q.type === "yes_no") return val === true ? "Yes" : "No";
-  if (q.type === "multi_choice" && Array.isArray(val)) return val.join(", ");
-  if (q.type === "number" && q.unit) return `${val} ${q.unit}`;
-  return String(val);
-}
 
 export function CheckinCalendar({ calendarData, allQuestions, enabledQuestions }: {
   calendarData: Record<string, CalendarEntry>;
@@ -148,14 +139,14 @@ export function CheckinCalendar({ calendarData, allQuestions, enabledQuestions }
             <div className="flex flex-col gap-1">
               {activeQuestions.map((q) => {
                 const val = selectedEntry?.responses[q.key];
-                const display = selectedEntry ? formatValue(q, val) : null;
+                const display = selectedEntry ? formatQuestionValue(q, val) : null;
                 const noResponse = !selectedEntry || val === undefined || val === null;
 
                 return (
                   <div key={q.key} className="flex items-center justify-between rounded-lg px-3 py-2.5 odd:bg-surface">
                     <div className="flex items-center gap-2.5 min-w-0">
                       <span className="size-1.5 shrink-0 rounded-full bg-dark-grey" />
-                      <span className="text-md text-black truncate">{q.label.replace(/\?$/, "")}</span>
+                      <span className="text-md text-black truncate">{shortQuestionLabel(q.label)}</span>
                     </div>
                     <span className={`shrink-0 ml-3 text-md font-medium ${noResponse ? "text-light-grey" : "text-black"}`}>
                       {noResponse ? "Not answered" : display}

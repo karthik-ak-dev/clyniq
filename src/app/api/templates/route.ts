@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { getAuthenticatedDoctor } from "@/lib/auth/middleware";
 import { templateQueries } from "@/lib/db/queries";
+import { CONDITION } from "@/lib/db/types";
 import type { Condition } from "@/lib/db/types";
 
 // ─── GET /api/templates?condition=diabetes ──────────────────
@@ -23,7 +24,8 @@ export async function GET(request: NextRequest) {
   }
 
   const condition = request.nextUrl.searchParams.get("condition");
-  if (!condition || !["diabetes", "obesity"].includes(condition)) {
+  const validConditions = Object.values(CONDITION);
+  if (!condition || !validConditions.includes(condition as Condition)) {
     return Response.json(
       { success: false, error: "Valid condition is required (diabetes or obesity)" },
       { status: 400 }

@@ -1,24 +1,5 @@
 import type { Patient } from "@/lib/db/types";
-
-function calculateAge(dob: string): number | null {
-  const birthDate = new Date(dob + "T00:00:00");
-  const today = new Date();
-  if (birthDate > today) return null; // Future date — invalid
-  let age = today.getFullYear() - birthDate.getFullYear();
-  const monthDiff = today.getMonth() - birthDate.getMonth();
-  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-    age--;
-  }
-  return age >= 0 ? age : null;
-}
-
-function formatDOB(dob: string): string {
-  return new Date(dob + "T00:00:00").toLocaleDateString("en-IN", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
-}
+import { calculateAge, formatDOB } from "@/lib/utils/format-helpers";
 
 export function PersonalInfo({ patient }: { patient: Patient }) {
   const age = patient.dateOfBirth ? calculateAge(patient.dateOfBirth) : patient.age;
