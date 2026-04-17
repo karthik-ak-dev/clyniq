@@ -17,7 +17,6 @@
     "db:migrate:staging": "ENV=staging drizzle-kit migrate",
     "db:migrate:prod": "ENV=production drizzle-kit migrate",
     "db:seed:staging": "ENV=staging npx tsx src/lib/db/seed.ts",
-    "db:seed:prod": "ENV=production npx tsx src/lib/db/seed.ts",
     "deploy:staging": "npm run db:push:staging && git push origin stage-patient-compliance-tracker",
     "deploy:prod": "npm run db:push:prod && git push origin patient-compliance-tracker"
   },
