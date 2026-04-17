@@ -53,10 +53,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Step 3: Validate that response keys match enabled questions
+    // Step 3: Validate that response keys match enabled + custom questions
     const responseKeys = Object.keys(data.responses);
-    const enabledSet = new Set(doctorPatient.enabledQuestions);
-    const invalidKeys = responseKeys.filter((k) => !enabledSet.has(k));
+    const customKeys = (doctorPatient.customQuestions as { key: string }[] | null)?.map((q) => q.key) ?? [];
+    const validKeys = new Set([...doctorPatient.enabledQuestions, ...customKeys]);
+    const invalidKeys = responseKeys.filter((k) => !validKeys.has(k));
     if (invalidKeys.length > 0) {
       return Response.json(
         {

@@ -5,11 +5,13 @@ import { YesNoInput } from "./yes-no-input";
 import { ChoiceInput } from "./choice-input";
 import { MultiChoiceInput } from "./multi-choice-input";
 import { NumberInput } from "./number-input";
+import { TimeInput } from "./time-input";
+import { BpInput } from "./bp-input";
 
 // ─── Question Renderer ─────────────────────────────────────
 // Dispatches to the correct input component based on question type.
-// No card/container — question and options sit directly on the
-// gradient background, matching the design refs.
+// Handles all 8 question types: yes_no, choice, multi_choice,
+// number, text, scale, time, bp.
 
 interface QuestionRendererProps {
   question: TemplateQuestion;
@@ -24,7 +26,7 @@ export function QuestionRenderer({
 }: QuestionRendererProps) {
   return (
     <div className="w-full flex flex-col gap-6">
-      {/* Question label — soft dark purple matching ref */}
+      {/* Question label */}
       <h2 className="text-center" style={{ fontSize: "1.6rem", fontWeight: 700, color: "#4c3a7a", lineHeight: 1.3 }}>
         {question.label}
       </h2>
@@ -63,8 +65,8 @@ export function QuestionRenderer({
 
       {question.type === "text" && (
         <textarea
-          className="w-full p-4 rounded-2xl bg-white/85 text-base font-normal text-gray-800 placeholder-purple-300 outline-none border-[1.5px] border-purple-200/50 focus:border-purple-400"
-          style={{ minHeight: "6rem", boxShadow: "0 3px 0 rgba(180,160,210,0.2)" }}
+          className="w-full px-5 py-4 rounded-2xl bg-white/85 text-gray-800 placeholder-purple-300/70 outline-none border-[1.5px] border-purple-200/50 focus:border-purple-400 resize-none"
+          style={{ minHeight: "8rem", fontSize: "1.1rem", fontWeight: 500, lineHeight: 1.6, boxShadow: "0 3px 0 rgba(180,160,210,0.2)" }}
           placeholder="Type your answer..."
           value={(value as string) ?? ""}
           onChange={(e) => onChange(e.target.value)}
@@ -88,6 +90,20 @@ export function QuestionRenderer({
             </button>
           ))}
         </div>
+      )}
+
+      {question.type === "time" && (
+        <TimeInput
+          value={value as string | undefined}
+          onChange={onChange}
+        />
+      )}
+
+      {question.type === "bp" && (
+        <BpInput
+          value={value as string | undefined}
+          onChange={onChange}
+        />
       )}
     </div>
   );
