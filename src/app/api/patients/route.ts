@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import { z } from "zod";
 import { getAuthenticatedDoctor } from "@/lib/auth/middleware";
 import { patientQueries, complianceQueries } from "@/lib/db/queries";
 import { createPatientSchema } from "@/lib/validators";
@@ -57,10 +58,9 @@ export async function POST(request: NextRequest) {
 
     return Response.json({ success: true, data: result }, { status: 201 });
   } catch (error) {
-    if (error instanceof Error && "issues" in error) {
-      const zodErr = error as { issues: { message: string }[] };
+    if (error instanceof z.ZodError) {
       return Response.json(
-        { success: false, error: zodErr.issues[0]?.message ?? "Validation error" },
+        { success: false, error: error.issues[0]?.message ?? "Validation error" },
         { status: 400 }
       );
     }

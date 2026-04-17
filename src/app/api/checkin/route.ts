@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import { z } from "zod";
 import { patientQueries, checkinQueries } from "@/lib/db/queries";
 import { checkinSchema } from "@/lib/validators";
 import { getTodayUTC } from "@/lib/utils";
@@ -86,10 +87,9 @@ export async function POST(request: NextRequest) {
 
     return Response.json({ success: true, data: checkin }, { status: 201 });
   } catch (error) {
-    if (error instanceof Error && "issues" in error) {
-      const zodErr = error as { issues: { message: string }[] };
+    if (error instanceof z.ZodError) {
       return Response.json(
-        { success: false, error: zodErr.issues[0]?.message ?? "Validation error" },
+        { success: false, error: error.issues[0]?.message ?? "Validation error" },
         { status: 400 }
       );
     }
