@@ -5,25 +5,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const NAV_ITEMS = [
-  { label: "Dashboard", href: "/dashboard" },
-  { label: "Inbox", href: "/inbox" },
-  { label: "Calendar", href: "/calendar" },
   { label: "Patients", href: "/patients" },
-  { label: "Settings", href: "/settings" },
 ];
 
-const PAGE_TITLES: Record<string, string> = {
-  "/dashboard": "Dashboard",
-  "/patients": "Patients",
-  "/inbox": "Inbox",
-  "/calendar": "Calendar",
-  "/settings": "Settings",
-};
-
 function getPageTitle(pathname: string): string {
-  for (const [path, title] of Object.entries(PAGE_TITLES)) {
-    if (pathname.startsWith(path)) return title;
-  }
+  if (pathname.startsWith("/patients")) return "Patients";
   return "DoctorRx";
 }
 
